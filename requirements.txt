@@ -1,0 +1,11 @@
+numpy
+pandas
+plotly
+opencv-python
+matplotlib
+scipy	
+Pillow
+scikit-image
+imageio	
+tqdm
+kaleido==0.2.1
