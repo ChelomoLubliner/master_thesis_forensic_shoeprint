@@ -1,28 +1,17 @@
-# thesis_shoes
+# MSc. Thesis: Improving  spatial modeling of randomly acquired characteristics on outsoles 
 
+- Please consider the code detail document.
+- There are two datasets, the old and the new. You can choose which dataset dataset to work with in globals.py file with OLD_DATASET = True/False 
+- To run this code :
+    - Download the project
+    - Set the PROJECT_PATH at globals.py
+    - Create a neew virtual environment (optional)
+    - Open command prompt and write these commands:
+        - VIRTUAL_ENVIRONMENT_PATH\Scripts\activate
+        - pip install -r PROJECT_PATH\distance_RAC_contour_shoeprint\requirements.txt
+        - cd PROJECT_PATH\distance_RAC_contour_shoeprint
+        - python main.py
+- The files active_contour_snake and distance_extremities take the longest time to execute.
+- The total runtime is maximum a few hours.
+    
 
-you can switch if you want the old or the new dataset by changing in globals
-
-open command prompt 
-change to the path you saved distance_RAC_contour_shoeprint folder (until Desktop\ include)
-replace also in the globals.py file
-
-C:\Users\Chelomo\Desktop\distance_RAC_contour_shoeprint\Python_Code\VirtualEnv\Scripts\activate
-
-
-pip install -r C:\Users\Chelomo\Documents\Python\thesis_shoes\requirements.txt
-
-
-cd Desktop\distance_RAC_contour_shoeprint\Python_code\Project
-
-python create_files_shoes.py
-python contour.py
-python convex_hull.py
-python active_contour_snake.py
-python distance_extremities.py
-
-
-
-
-
-the files that are more 

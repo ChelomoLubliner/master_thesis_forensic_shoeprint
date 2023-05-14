@@ -1,7 +1,7 @@
-OLD_DATASET = True
-PATH = 'C:/Users/Chelomo/Documents/distance_RAC_contour_shoeprint/'
+OLD_DATASET = False
 
 
+PATH = '' # don't need path because Images and Data folder are in the project
 if OLD_DATASET:
     DATASET = 'contacts_data.txt'
     FOLDER = 'Images/Old_Shoes/'
