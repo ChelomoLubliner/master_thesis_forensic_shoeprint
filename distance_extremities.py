@@ -1,7 +1,7 @@
 import plotly.graph_objs as go
 import plotly.offline as pyo
 from tqdm import tqdm
-from globals import PATH, FOLDER, W, H, LOCATIONS, OLD_DATASET
+from globals import FOLDER, W, H, LOCATIONS, OLD_DATASET
 import numpy as np
 import pandas as pd
 import math
@@ -33,9 +33,9 @@ def aspix_y(y, rel_row_shoe=300, rel_Y_cord=0.5):
 
 def init_locations_new():
     if OLD_DATASET :
-        locations = pd.read_csv(f'{PATH}Data/{LOCATIONS}')
+        locations = pd.read_csv(f'Data/{LOCATIONS}')
     else :
-        locations = pd.read_csv(f'{PATH}Data/{LOCATIONS}', sep=' ', header=None)
+        locations = pd.read_csv(f'Data/{LOCATIONS}', sep=' ', header=None)
         locations = locations[[1,2,3,4,5]]
         locations.columns = ["shoe","rac_num","x","y","type"]
         locations['x'] = locations['x']/2
@@ -58,13 +58,13 @@ def init_locations_new():
     row0_old = math.floor(H / 2)
     locations[['COL', 'ROW']] = locations[['COL', 'ROW']].astype(int)
     """
-    locations.to_csv(f'{PATH}{FOLDER}Saved/locations_new.csv', index=False)
+    locations.to_csv(f'{FOLDER}Saved/locations_new.csv', index=False)
 
 def save_html(total_df, shoe_num,algo) :
     """Plot fig"""
     scatter = go.Scatter(x=total_df['ROW'].to_list(), y=total_df['COL'].to_list(), mode='markers')
     fig = go.Figure(data=scatter)
-    pyo.plot(fig, filename=f'{PATH}{FOLDER}{algo}_RAC_html/plot_cont_{shoe_num}.html',auto_open=False)
+    pyo.plot(fig, filename=f'{FOLDER}{algo}_RAC_html/plot_cont_{shoe_num}.html',auto_open=False)
 
     """Save Image"""
     """new_arr = np.zeros((H, W), dtype=bool)
@@ -81,7 +81,7 @@ def shortest_distance(shoe_df,shoe_num, locations_all, algo):
             distance_list.append(round(math.dist([rac['COL'], rac['ROW']], [shoe['COL'], shoe['ROW']]),0))
         locations_all.at[index, f'DIST_{algo}'] = min(distance_list)
 
-    locations_all.to_csv(f'{PATH}{FOLDER}Saved/locations_new.csv', index=False)
+    locations_all.to_csv(f'{FOLDER}Saved/locations_new.csv', index=False)
 
 def horiz_distance(shoe_df,shoe_num, locations_all, algo):
     """"Check if is inside"""
@@ -106,12 +106,12 @@ def horiz_distance(shoe_df,shoe_num, locations_all, algo):
             else:
                 locations_all.at[index, f'INSIDE_{algo}'] = False
             locations_all.at[index, f'HORIZ_DIST_{algo}'] = abs(d1)
-    locations_all.to_csv(f'{PATH}{FOLDER}Saved/locations_new.csv', index=False)
+    locations_all.to_csv(f'{FOLDER}Saved/locations_new.csv', index=False)
 
 
 
 def dist_per_shoe(shoe_arr, shoe_num, algo ):
-    locations_all = pd.read_csv(f'{PATH}{FOLDER}Saved/locations_new.csv')
+    locations_all = pd.read_csv(f'{FOLDER}Saved/locations_new.csv')
     locations = locations_all[locations_all['shoe']==shoe_num]
     locations_coord = list(zip(locations['ROW'].to_list(), locations['COL'].to_list()))
     shoe_coord = list(np.argwhere(shoe_arr[shoe_num] == True))
@@ -126,8 +126,8 @@ def dist_per_shoe(shoe_arr, shoe_num, algo ):
 def main():
     print(f"{FOLDER.split('/')[1]}\ndistance_extremities_main")
     init_locations_new()
-    list_snake = list(np.load(f'{PATH}{FOLDER}Saved/active-contour_all.npy'))
-    list_conv = list(np.load(f'{PATH}{FOLDER}Saved/convex_all.npy'))
+    list_snake = list(np.load(f'{FOLDER}Saved/active-contour_all.npy'))
+    list_conv = list(np.load(f'{FOLDER}Saved/convex_all.npy'))
     for i in tqdm(range(len(list_snake))):
         dist_per_shoe(list_snake, i, 'SNAKE')
     for i in tqdm(range(len(list_conv))):

@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from PIL import Image
 my_dict = {1: True, 0: False}
-from globals import PATH, FOLDER, DATASET, W, H
+from globals import  FOLDER, DATASET, W, H
 
 
 
 # Opened file, save list_lines, and images
 def contacts_data():
     list_lines = []
-    with open(f'{PATH}Data/{DATASET}', 'r') as f:
+    with open(f'Data/{DATASET}', 'r') as f:
         lines = f.readlines()
         print('Total lines:', len(lines))
         for i in tqdm(range(len(lines))):
@@ -19,20 +19,20 @@ def contacts_data():
             line = np.vectorize(my_dict.get)(line)
             list_lines.append(np.matrix(line)   )
             img = Image.fromarray(line)
-            img.save(f'{PATH}{FOLDER}Shoes/im{i}.png')
+            img.save(f'{FOLDER}Shoes/im{i}.png')
         # flip the image8 because it's left shoes
         if FOLDER == 'Images/Old_Shoes/':
             list_lines[8] = np.fliplr(list_lines[8])
             line = np.vectorize(my_dict.get)(list_lines[8])
             im8 = Image.fromarray(line)
-            im8.save(f'{PATH}{FOLDER}Shoes/im8.png')
+            im8.save(f'{FOLDER}Shoes/im8.png')
         # save list_lines
-        np.save(f'{PATH}{FOLDER}Saved/list_matrices.npy', list_lines)
+        np.save(f'{FOLDER}Saved/list_matrices.npy', list_lines)
 
 def superposition_all_shoes(list_lines):
     print('superposition_all_shoes')
     total = list_lines.sum(axis=0)
-    Image.fromarray(total.astype(bool)).save(PATH + FOLDER + 'Saved/all_shoes_superposed.png')
+    Image.fromarray(total.astype(bool)).save(FOLDER + 'Saved/all_shoes_superposed.png')
 
 
 def superposed_pixels(list_lines):
@@ -47,11 +47,11 @@ def superposed_pixels(list_lines):
         new_dict[max_pix] = True
         line = np.vectorize(new_dict.get)(total)
         if max_pix == 18:
-            np.save(f'{PATH}{FOLDER}Saved/freq_min_18.npy', line)
-            Image.fromarray(line).save(PATH + FOLDER + 'Saved/freq_min_18.png')
+            np.save(f'{FOLDER}Saved/freq_min_18.npy', line)
+            Image.fromarray(line).save(FOLDER + 'Saved/freq_min_18.png')
         if (max_pix % 10 == 0) | (max_pix < 25):
             img = Image.fromarray(line)
-            img.save(f'{PATH}{FOLDER}Superposed_Pixels/freq_min_{max_pix}.png')
+            img.save(f'{FOLDER}Superposed_Pixels/freq_min_{max_pix}.png')
 
 def superposed_pixels_reversed(list_lines):
     # Dict to convert 0->False and non 0->True
@@ -64,17 +64,17 @@ def superposed_pixels_reversed(list_lines):
         line = np.vectorize(new_dict.get)(total)
         if (max_pix % 10 == 0) | (max_pix < 25):
             img = Image.fromarray(line)
-            img.save(f'{PATH}{FOLDER}Superposed_Pixels_Reversed/freq_max_{max_pix}.png')
+            img.save(f'{FOLDER}Superposed_Pixels_Reversed/freq_max_{max_pix}.png')
 
 def heatmap_superposed(list_lines):
     print('Heatmap_superposed')
     plt.imshow(list_lines.sum(axis=0), cmap='jet', interpolation='sinc')
-    plt.savefig( PATH + FOLDER + 'Saved/heatmap_superposed.png')
+    plt.savefig(FOLDER + 'Saved/heatmap_superposed.png')
 
 def main():
     print(f"{FOLDER.split('/')[1]}\nmain_create_files_init")
     contacts_data()
-    list_lines = np.load(f'{PATH}{FOLDER}Saved/list_matrices.npy')
+    list_lines = np.load(f'{FOLDER}Saved/list_matrices.npy')
     len_lines = len(list_lines)
     print(f'Array of {len_lines} lines')
     superposition_all_shoes(list_lines)

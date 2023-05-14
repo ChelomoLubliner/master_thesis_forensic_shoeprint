@@ -8,13 +8,13 @@ from skimage.segmentation import active_contour
 import io
 from tqdm import tqdm
 from extreme_values_x_y import dict_points, get_contour
-from globals import PATH, FOLDER, W, H, OLD_DATASET
+from globals import FOLDER, W, H, OLD_DATASET
 
 
 def get_image(entire_shoe, im_num,list_contour):
     img = np.NaN
     if entire_shoe:
-        img = img_as_ubyte(Image.open(f'{PATH}{FOLDER}Cleaned_Shoes/im_{im_num}.png'))
+        img = img_as_ubyte(Image.open(f'{FOLDER}Cleaned_Shoes/im_{im_num}.png'))
     else:
         img = img_as_ubyte(Image.fromarray(list_contour[im_num]))
     return img
@@ -46,7 +46,7 @@ def save_img(img, snake, im_num):
     buf.seek(0)
     plt.close('all')
     img = Image.open(buf)
-    img.save(f'{PATH}{FOLDER}Active-contour/im_{im_num}.png')
+    img.save(f'{FOLDER}Active-contour/im_{im_num}.png')
 
 def init_snake():
     s = np.linspace(0, 2 * np.pi, 400)
@@ -133,18 +133,12 @@ def active_contour_shoe(list_contour, plot_img,save_img_bool, im_num):
 
 def main():
     print(f"{FOLDER.split('/')[1]}\nactive_contour_snake")
-    list_contour = np.load(f'{PATH}{FOLDER}Saved/list_contour.npy')
+    list_contour = np.load(f'{FOLDER}Saved/list_contour.npy')
     snake_all = []
-    start = 0
-    stop = len(list_contour)
-    for i in tqdm(range(start, stop)):
+    for i in tqdm(range(len(list_contour))):
         snake_arr = active_contour_shoe(list_contour, plot_img=False, save_img_bool=True, im_num=i)
         snake_all.append(snake_arr)
-    if start == 0 and stop == len(list_contour):
-        np.save(f'{PATH}{FOLDER}Saved/active-contour_all.npy', snake_all)
-    else:
-        np.save(f'{PATH}{FOLDER}Saved/active-contour{start}-{stop}.npy', snake_all)
-
+    np.save(f'{FOLDER}Saved/active-contour_all.npy', snake_all)
 
 if __name__ == '__main__':
     main()
