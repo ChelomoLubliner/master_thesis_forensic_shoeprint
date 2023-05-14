@@ -4,7 +4,7 @@
 - There are two datasets, the old and the new. You can choose which dataset dataset to work with in globals.py file with OLD_DATASET = True/False 
 - To run this code :
     - Download the project
-    - Create a neew virtual environment (optional)
+    - Create a new virtual environment (optional)
     - Open command prompt and write these commands:
         - VIRTUAL_ENVIRONMENT_PATH\Scripts\activate
         - pip install -r PROJECT_PATH\distance_RAC_contour_shoeprint\requirements.txt
