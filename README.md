@@ -11,6 +11,6 @@
         - cd PROJECT_PATH\distance_RAC_contour_shoeprint
         - python main.py
 - The files active_contour_snake and distance_extremities take the longest time to execute.
-- The total runtime is maximum a few hours.
+- The total runtime takes a few hours.
     
 
