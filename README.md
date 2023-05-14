@@ -4,7 +4,6 @@
 - There are two datasets, the old and the new. You can choose which dataset dataset to work with in globals.py file with OLD_DATASET = True/False 
 - To run this code :
     - Download the project
-    - Set the PROJECT_PATH at globals.py
     - Create a neew virtual environment (optional)
     - Open command prompt and write these commands:
         - VIRTUAL_ENVIRONMENT_PATH\Scripts\activate
