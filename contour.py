@@ -24,8 +24,6 @@ def save_new_contour_shoe(new_points, im_num):
     new_arr = np.zeros((H, W), dtype=bool)
     new_arr[tuple(zip(*new_points))] = True
     return new_arr
-    #new_image = Image.fromarray(new_arr)
-    #new_image.save(PATH + FOLDER +f'Contour_Shoes/cont_im_{im_num}.png')
 
 
 # this is a complete flow for an image
