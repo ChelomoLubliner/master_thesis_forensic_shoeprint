@@ -122,6 +122,13 @@ def dist_per_shoe(shoe_arr, shoe_num, algo ):
     horiz_distance(shoe_df, shoe_num, locations_all, algo)
     save_html(total_df, shoe_num,algo)
 
+def set_outside_to_0():
+    df = pd.read_csv(f'C:/Users/Chelomo/Desktop/These/Files_thesis/{FOLDER}Saved/locations_new.csv')
+    for alg in ['SNAKE', 'CONV']:
+        for index, row in df[df[f'INSIDE_{alg}']==False][[f'HORIZ_DIST_{alg}', f'DIST_{alg}']].iterrows():
+            if row[f'HORIZ_DIST_{alg}'] is not None : df.loc[index, f'HORIZ_DIST_{alg}'] = 0
+            if row[f'DIST_{alg}'] is not None : df.loc[index,f'DIST_{alg}'] = 0
+    df.to_csv(f'C:/Users/Chelomo/Desktop/These/Files_thesis/{FOLDER}Saved/locations_new.csv', index=False)
 
 def main():
     print(f"{FOLDER.split('/')[1]}\ndistance_extremities_main")
@@ -132,6 +139,7 @@ def main():
         dist_per_shoe(list_snake, i, 'SNAKE')
     for i in tqdm(range(len(list_conv))):
         dist_per_shoe(list_conv, i, 'CONV')
+    set_outside_to_0()
 
 if __name__ == '__main__':
     main()
