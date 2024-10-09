@@ -1,8 +1,8 @@
 import numpy as np
-from PIL import Image
 import cv2
 import matplotlib.pyplot as plt
 from skimage import img_as_ubyte
+from PIL import Image
 from skimage.filters import gaussian
 from skimage.segmentation import active_contour
 import io
@@ -125,6 +125,7 @@ def active_contour_shoe(list_contour, plot_img,save_img_bool, im_num):
     if plot_img: plot_active_contour(original_img,init,  second_snake)
     snake_img = get_snake_image(second_snake)
     snake_arr = np.array(snake_img, dtype=bool)
+    snake_img.save(f'../../R/ACTUAL_FOLDER/Active_Contour/Dataset/snake_{im_num}.png')
     comb_coordinates = get_contour(snake_arr)
     comb_arr = np.zeros((H, W), dtype=bool)
     comb_arr[tuple(zip(*comb_coordinates))] = True
@@ -141,5 +142,8 @@ def main():
     np.save(f'{FOLDER}Saved/active-contour_all.npy', snake_all)
 
 if __name__ == '__main__':
-    main()
-
+   # main()
+   snake_all = []
+   list_contour = np.load(f'{FOLDER}Saved/list_contour.npy')
+   snake_arr = active_contour_shoe(list_contour, plot_img=True, save_img_bool=True, im_num=555)
+   Image.fromarray(snake_arr).save(FOLDER + 'Saved/test_135.png')
