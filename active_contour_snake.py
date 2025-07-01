@@ -12,7 +12,7 @@ from globals import FOLDER, W, H, OLD_DATASET
 
 
 def get_image(entire_shoe, im_num,list_contour):
-    img = np.NaN
+    img = np.nan
     if entire_shoe:
         img = img_as_ubyte(Image.open(f'{FOLDER}Cleaned_Shoes/im_{im_num}.png'))
     else:
@@ -125,12 +125,28 @@ def active_contour_shoe(list_contour, plot_img,save_img_bool, im_num):
     if plot_img: plot_active_contour(original_img,init,  second_snake)
     snake_img = get_snake_image(second_snake)
     snake_arr = np.array(snake_img, dtype=bool)
-    snake_img.save(f'../../R/ACTUAL_FOLDER/Active_Contour/Dataset/snake_{im_num}.png')
+    snake_img.save(f'{FOLDER}Active-contour/im_{im_num}.png')
     comb_coordinates = get_contour(snake_arr)
     comb_arr = np.zeros((H, W), dtype=bool)
     comb_arr[tuple(zip(*comb_coordinates))] = True
     return comb_arr
 
+
+def active_contour_on_prototype():
+    original_img = img_as_ubyte(Image.open(f'{FOLDER}Saved/old_freq_min_18.png'))
+    init = init_snake()
+    first_snake = active_contour(gaussian(original_img, 3, preserve_range=False), init, alpha=0.015, beta=10,gamma=0.001)
+    comb_extremes_img = combined_snake_arr(first_snake, original_img)
+    """Do second snake on comb_extremes_img"""
+    second_snake = active_contour(gaussian(img_as_ubyte(comb_extremes_img), 3, preserve_range=False), init, alpha=0.015,
+                                  beta=0.10, gamma=0.001)
+    snake_img = get_snake_image(second_snake)
+    snake_arr = np.array(snake_img, dtype=bool)
+    final_arr = ~np.array(extreme_values(snake_arr), dtype=bool)
+    final_img = Image.fromarray(final_arr)
+    final_img.save(f'{FOLDER}Saved/freq_min_18.png')
+    np.save(f'{FOLDER}Saved/freq_min_18.npy', final_arr)
+    return
 
 def main():
     print(f"{FOLDER.split('/')[1]}\nactive_contour_snake")
@@ -142,8 +158,8 @@ def main():
     np.save(f'{FOLDER}Saved/active-contour_all.npy', snake_all)
 
 if __name__ == '__main__':
-   # main()
-   snake_all = []
-   list_contour = np.load(f'{FOLDER}Saved/list_contour.npy')
-   snake_arr = active_contour_shoe(list_contour, plot_img=True, save_img_bool=True, im_num=555)
-   Image.fromarray(snake_arr).save(FOLDER + 'Saved/test_135.png')
+    main()
+    snake_all = []
+    list_contour = np.load(f'{FOLDER}Saved/list_contour.npy')
+   #snake_arr = active_contour_shoe(list_contour, plot_img=True, save_img_bool=True, im_num=555)
+   #Image.fromarray(snake_arr).save(FOLDER + 'Saved/test_135.png')

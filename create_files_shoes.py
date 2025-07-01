@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from PIL import Image
 my_dict = {1: True, 0: False}
+import cv2
 from globals import  FOLDER, DATASET, W, H
-
+from active_contour_snake import active_contour_on_prototype
 
 
 # Opened file, save list_lines, and images
@@ -48,10 +49,10 @@ def superposed_pixels(list_lines):
         line = np.vectorize(new_dict.get)(total)
         if max_pix == 18:
             np.save(f'{FOLDER}Saved/freq_min_18.npy', line)
-            Image.fromarray(line).save(FOLDER + 'Saved/freq_min_18.png')
+            Image.fromarray(line).save(FOLDER + 'Saved/old_freq_min_18.png')
         if (max_pix % 10 == 0) | (max_pix < 25):
             img = Image.fromarray(line)
-            img.save(f'{FOLDER}Superposed_Pixels/freq_min_{max_pix}.png')
+            img.save(f'{FOLDER}Superposed_Pixels/old_freq_min_{max_pix}.png')
 
 def superposed_pixels_reversed(list_lines):
     # Dict to convert 0->False and non 0->True
@@ -71,6 +72,10 @@ def heatmap_superposed(list_lines):
     plt.imshow(list_lines.sum(axis=0), cmap='jet', interpolation='sinc')
     plt.savefig(FOLDER + 'Saved/heatmap_superposed.png')
 
+
+
+
+
 def main():
     print(f"{FOLDER.split('/')[1]}\nmain_create_files_init")
     contacts_data()
@@ -81,6 +86,8 @@ def main():
     superposed_pixels(list_lines)
     superposed_pixels_reversed(list_lines)
     heatmap_superposed(list_lines)
+    active_contour_on_prototype()
+
 
 #def main_create_files_init():
 if __name__ ==  '__main__':
