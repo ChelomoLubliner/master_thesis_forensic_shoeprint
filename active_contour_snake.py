@@ -125,7 +125,6 @@ def active_contour_shoe(list_contour, plot_img,save_img_bool, im_num):
     if plot_img: plot_active_contour(original_img,init,  second_snake)
     snake_img = get_snake_image(second_snake)
     snake_arr = np.array(snake_img, dtype=bool)
-    snake_img.save(f'{FOLDER}Active-contour/im_{im_num}.png')
     comb_coordinates = get_contour(snake_arr)
     comb_arr = np.zeros((H, W), dtype=bool)
     comb_arr[tuple(zip(*comb_coordinates))] = True
