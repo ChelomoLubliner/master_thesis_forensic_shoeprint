@@ -10,25 +10,24 @@ if (file.exists(".env")) {
 set.seed(313)
 
 # =============================================================================
-# PROJECT PATHS
+# PROJECT PATHS (Simplified - no algorithm-specific subdirectories needed)
 # =============================================================================
-ROOT_PATH <- Sys.getenv("R_ROOT_PATH", default = '../')  # Root of the project
-CONTOUR_ALGORITHM <- Sys.getenv("R_CONTOUR_ALGORITHM", default = 'Active_Contour')  # Algorithm choice
-MODEL_FEATURE <- Sys.getenv("R_MODEL_FEATURE", default = 'NEW_X_NS_XY')  # Model type selection
+ROOT_PATH <- Sys.getenv("R_ROOT_PATH")  # Root of the project
+MODEL_FEATURE <- Sys.getenv("R_MODEL_FEATURE")  # Model type selection
 
 # =============================================================================
 # SHOE PARAMETERS
 # =============================================================================
 # Shoe dimensions
-COL_SHOE <- as.numeric(Sys.getenv("R_COL_SHOE", default = "307"))  # Number of columns in each shoe
-ROW_SHOE <- as.numeric(Sys.getenv("R_ROW_SHOE", default = "395"))  # Number of rows in each shoe
-NUM_SHOE <- as.numeric(Sys.getenv("R_NUM_SHOE", default = "387"))  # Total number of shoes
+COL_SHOE <- as.numeric(Sys.getenv("R_COL_SHOE"))  # Number of columns in each shoe
+ROW_SHOE <- as.numeric(Sys.getenv("R_ROW_SHOE"))  # Number of rows in each shoe
+NUM_SHOE <- as.numeric(Sys.getenv("R_NUM_SHOE"))  # Total number of shoes
 
 # Relevant area parameters
-REL_COL_SHOE <- as.numeric(Sys.getenv("R_REL_COL_SHOE", default = "150"))  # Relevant columns
-REL_ROW_SHOE <- as.numeric(Sys.getenv("R_REL_ROW_SHOE", default = "300"))  # Relevant rows
-REL_X_CORD <- as.numeric(Sys.getenv("R_REL_X_CORD", default = "0.25"))   # X coordinate range
-REL_Y_CORD <- as.numeric(Sys.getenv("R_REL_Y_CORD", default = "0.5"))    # Y coordinate range
+REL_COL_SHOE <- as.numeric(Sys.getenv("R_REL_COL_SHOE"))  # Relevant columns
+REL_ROW_SHOE <- as.numeric(Sys.getenv("R_REL_ROW_SHOE"))  # Relevant rows
+REL_X_CORD <- as.numeric(Sys.getenv("R_REL_X_CORD"))   # X coordinate range
+REL_Y_CORD <- as.numeric(Sys.getenv("R_REL_Y_CORD"))    # Y coordinate range
 
 # =============================================================================
 # DATA PATHS
@@ -37,13 +36,12 @@ REL_Y_CORD <- as.numeric(Sys.getenv("R_REL_Y_CORD", default = "0.5"))    # Y coo
 CONTACTS_DATA_FILE <- paste0(ROOT_PATH, "Data/contacts_data.txt")
 LOCATIONS_DATA_FILE <- paste0(ROOT_PATH, "Data/locations_data.csv")
 
-# Contour data files
-CONTOUR_DATA_FILE <- paste0(ROOT_PATH, "Data/contour_", CONTOUR_ALGORITHM, ".txt")
+# Contour data files (from Python pipeline)
+CONTOUR_DATA_FILE <- paste0(ROOT_PATH, "shared_data/processing_data/list_contour.npy")
 
-# Output directories
-ALGORITHM_DIR <- paste0(ROOT_PATH, "Images/", CONTOUR_ALGORITHM, "/")
-DATASET_DIR <- paste0(ALGORITHM_DIR, "Dataset/")
-SAVED_MODELS_DIR <- paste0(ALGORITHM_DIR, "Saved_Models/")
+# Output directories (use shared_data for integration)
+DATASET_DIR <- paste0(ROOT_PATH, "shared_data/")  # Shared between Python and R
+SAVED_MODELS_DIR <- paste0(ROOT_PATH, "shared_data/saved_models/")
 
 # Ensure output directories exist
 dir.create(DATASET_DIR, recursive = TRUE, showWarnings = FALSE)
@@ -53,17 +51,23 @@ dir.create(SAVED_MODELS_DIR, recursive = TRUE, showWarnings = FALSE)
 # REQUIRED LIBRARIES
 # =============================================================================
 required_packages <- c(
-  "ggplot2", "dplyr", "Matrix", "spam",
-  "lme4", "splines", "survival", "smoothie",
-  "plotly", "rgl", "fields", "imager"
+  "ggplot2", "dplyr", "Matrix",
+  "splines", "survival"
 )
 
 # Function to install and load required packages
 load_required_packages <- function(packages) {
+  # Set user library path
+  user_lib <- "~/R/library"
+  if (!dir.exists(user_lib)) {
+    dir.create(user_lib, recursive = TRUE)
+  }
+  .libPaths(c(user_lib, .libPaths()))
+
   for (pkg in packages) {
     if (!require(pkg, character.only = TRUE, quietly = TRUE)) {
-      message(paste("Installing package:", pkg))
-      install.packages(pkg, dependencies = TRUE)
+      message(paste("Installing package:", pkg, "to user library"))
+      install.packages(pkg, dependencies = TRUE, lib = user_lib, repos = "https://cran.rstudio.com/")
       library(pkg, character.only = TRUE)
     }
   }
@@ -123,7 +127,6 @@ validate_data_files <- function() {
 print_config <- function() {
   cat("=== Statistical Model Configuration ===\n")
   cat("Root Path:", ROOT_PATH, "\n")
-  cat("Contour Algorithm:", CONTOUR_ALGORITHM, "\n")
   cat("Model Feature:", MODEL_FEATURE, "\n")
   cat("Shoe Dimensions:", COL_SHOE, "x", ROW_SHOE, "\n")
   cat("Number of Shoes:", NUM_SHOE, "\n")

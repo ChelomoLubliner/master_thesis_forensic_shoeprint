@@ -2,53 +2,24 @@
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r load-config}
+# Load centralized configuration
+source("config.R")
+```
+
 ```{r }
 set.seed(313)
-# library(imager)
-# library(spam)
-# library(Matrix)
-# library(lme4)
-# library(splines)
-# library(magrittr)
-# library(imager)
-# library(ggplot2) 
-# library(fields)
 library(data.table)
 library(imager)
 library(parallel)
 library(doParallel)
-#library(ggplot2) 
-#library(plotly)
 library(splines)
 library(spam)
 library(Matrix)
 library(lme4)
 library(rgl)
 library(fields)
-#library(survival)
-library(smoothie) 
-
-
-# no_cores <- detectCores() - 1
-# # create the cluster for caret to use
-# cl <- makePSOCKcluster(no_cores)
-# registerDoParallel(cl)
-
-col_shoe<-307 #307 is the number of columns in each shoe
-row_shoe<-395 #395 is the number of rows in each shoe
-num_shoe<-387  #387 is the number of shoes but 386 is the number of shoes with RACs - shoe 127 has no RACS
-
-rel_col_shoe<-150  #out of the 307 columns only 150 are relevant (contain non zero pixels in some shoes)
-rel_row_shoe<-300  #out of the 395 rows only 300 are relevant (contain non zero pixels in some shoes)
-rel_x_cord<-0.25 #using coordinates as in the locations_data.CSV file the relevant x coordinates are between -.25 and 0.25
-rel_Y_cord<-0.5 #the relevant Y coordinates are between -0.5 and 0.5
-```
-
-```{r }
-ROOT_PATH = '../'  # Root of the project
-CONTOUR_ALGORITHM = 'Active_Contour'
-IMAGE_NUMBER = '171'
-MODEL_FEATURE = 'NEW_X_NS_XY'
+library(smoothie)
 
 # Create Model_Images directory if it doesn't exist
 model_images_dir <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Model_Images/", sep = "")
@@ -64,14 +35,14 @@ if (!dir.exists(model_images_dir)) {
 
   
 ```{r }
-file_name <- paste(ROOT_PATH,CONTOUR_ALGORITHM,"/Dataset/dataCC_distance.csv", sep = "")
+file_name <- paste(DATASET_DIR, "dataCC_distance.csv", sep = "")
 dataCC<- read.csv(file_name,header=TRUE)
-file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/", MODEL_FEATURE,".rds", sep = "")
+file_name <- paste(SAVED_MODELS_DIR, MODEL_FEATURE,"_RELATIVE.rds", sep = "")
 rand <- readRDS(file = file_name)
 #print(summary(rand))
-xcoor <- t(matrix(rep((-col_shoe/2+1:col_shoe)*rel_Y_cord/rel_col_shoe,row_shoe),col_shoe,row_shoe))
-ycoor <- -matrix(rep((-row_shoe/2+1:row_shoe)*rel_Y_cord/rel_col_shoe,col_shoe),row_shoe,col_shoe)
-xy <- expand.grid(xcoor[1,],ycoor[,1])#307 * 395   
+xcoor <- t(matrix(rep((-COL_SHOE/2+1:COL_SHOE)*REL_Y_CORD/REL_COL_SHOE,ROW_SHOE),COL_SHOE,ROW_SHOE))
+ycoor <- -matrix(rep((-ROW_SHOE/2+1:ROW_SHOE)*REL_Y_CORD/REL_COL_SHOE,COL_SHOE),ROW_SHOE,COL_SHOE)
+xy <- expand.grid(xcoor[1,],ycoor[,1])#307 * 395
 colnames(xy)[colnames(xy) == "Var1"] <- "x"
 colnames(xy)[colnames(xy) == "Var2"] <- "y"
 img_file <- paste(ROOT_PATH, "Images/Old_Shoes/Cleaned_Shoes/im_135.png", sep = "")
@@ -79,7 +50,7 @@ if (file.exists(img_file)) {
   img <- load.image(img_file)  # Prototype image
 } else {
   # Create a dummy image if file doesn't exist
-  img <- array(1, dim = c(col_shoe, row_shoe, 1, 1))
+  img <- array(1, dim = c(COL_SHOE, ROW_SHOE, 1, 1))
   cat("Warning: Prototype image not found, using dummy image\n")
 }
 img <- t(as.matrix(img))
@@ -130,7 +101,7 @@ rm(newdesignmat, rand, bas_new_x, basy, dataCC)
 ```{r }
 pred.case_control_img<-pred.case_control
 #pred.case_control_img[t(img)==0] <- NA
-prob.pred <- exp(matrix(pred.case_control_img ,row_shoe,col_shoe,byrow=1))/(1+exp(matrix(pred.case_control_img ,row_shoe,col_shoe,byrow=1)))
+prob.pred <- exp(matrix(pred.case_control_img ,ROW_SHOE,COL_SHOE,byrow=1))/(1+exp(matrix(pred.case_control_img ,ROW_SHOE,COL_SHOE,byrow=1)))
 intens <- -log(1-prob.pred) #turning it to intensity
 old_matrix <- intens
 
@@ -141,7 +112,7 @@ intens <- -log(1-prob.pred)
 intens[img==0] <- NA
 rotated_intens <- t(intens)[, nrow(intens):1]
 image.plot(rotated_intens, axes = TRUE)
-file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Model_Images/",MODEL_FEATURE, "_SHOE.pdf", sep = "")
+file_name <- paste(MODEL_IMAGES_DIR, MODEL_FEATURE, "_SHOE.pdf", sep = "")
 pdf(file = file_name, height = 6, width = 6)
 image.plot(rotated_intens, axes = TRUE)
 abline(v = 0.5, col = "black", lty = 1, lwd = 1)
@@ -155,7 +126,7 @@ dev.off()
 intens <- -log(1-prob.pred)
 rotated_intens <- t(intens)[, nrow(intens):1]
 image.plot(rotated_intens, axes = TRUE)
-file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Model_Images/",MODEL_FEATURE, "_CONTOUR.pdf", sep = "")
+file_name <- paste(MODEL_IMAGES_DIR, MODEL_FEATURE, "_CONTOUR.pdf", sep = "")
 pdf(file = file_name, height = 6, width = 6)
 image.plot(rotated_intens, axes = TRUE)
 abline(v = 0.5, col = "black", lty = 1, lwd = 1)
@@ -169,11 +140,11 @@ dev.off()
 
 ```{r }
 #chargement du contour de la nouvelle image filled
-new_contour <- t(as.matrix(load.image(paste(ROOT_PATH,CONTOUR_ALGORITHM, "/Dataset/new_contour_171.png", sep = ""))))
+new_contour <- t(as.matrix(load.image(paste(DATASET_DIR, "new_contour_171.png", sep = ""))))
 #je vais choisir une ligne specifique
 entire_contour<-data.frame(x = xcoor[new_contour==1],y =ycoor[new_contour==1])# the data
 distinct_y <- unique(entire_contour$y)
-new_image <- t(as.matrix(load.image(paste(ROOT_PATH,CONTOUR_ALGORITHM, "/Dataset/new_filled_",IMAGE_NUMBER,".png", sep = ""))))
+new_image <- t(as.matrix(load.image(paste(DATASET_DIR, "new_filled_",IMAGE_NUMBER,".png", sep = ""))))
 ```
 
 
@@ -209,11 +180,11 @@ adapt_line <- function(is_negative, old_line, contour_line){
 
 ```{r }
 #maintenant pour chaque y du contour, on va trouver la ligne, et cest une ligne quon va s'occuper
-for (i in 1:395) {
+for (i in 1:ROW_SHOE) {
 old_line = old_matrix[i,] # peut etre 154 ?
 contour_line = new_image[i,]
 if((sum(contour_line) >0) & (sum(!is.null(old_line) & !is.na(old_line)) >0)){
-  new_line = c(adapt_line(TRUE,old_line[1:153],contour_line[1:153]),adapt_line(FALSE,old_line[154:307],contour_line[154:307]))
+  new_line = c(adapt_line(TRUE,old_line[1:(COL_SHOE/2)],contour_line[1:(COL_SHOE/2)]),adapt_line(FALSE,old_line[(COL_SHOE/2+1):COL_SHOE],contour_line[(COL_SHOE/2+1):COL_SHOE]))
  old_matrix[i,] = new_line
 } else if ((sum(contour_line) ==0) & (sum(!is.null(old_line) & !is.na(old_line)) >0)){
   old_matrix[i,] = c(rep(NA, length(old_line)))
@@ -246,7 +217,7 @@ new_rotated[new_img==0] <- NA
 coco_rotated <- t(new_rotated)[, nrow(new_rotated):1]
 
 image.plot(coco_rotated, axes = TRUE)
-file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Model_Images/NEW_X_NS_XY_",IMAGE_NUMBER, "_NEW_SHOE.pdf", sep = "")
+file_name <- paste(MODEL_IMAGES_DIR, "NEW_X_NS_XY_",IMAGE_NUMBER, "_NEW_SHOE.pdf", sep = "")
 pdf(file = file_name, height = 6, width = 6)
 image.plot(coco_rotated, axes = TRUE)
 abline(v = 0.5, col = "black", lty = 1, lwd = 1)
@@ -257,7 +228,7 @@ dev.off()
 ```{r}
 new_rotated <- old_matrix
 coco_rotated <- t(new_rotated)[, nrow(new_rotated):1]
-file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Model_Images/NEW_X_NS_XY_",IMAGE_NUMBER, "_NEW_CONTOUR.pdf", sep = "")
+file_name <- paste(MODEL_IMAGES_DIR, "NEW_X_NS_XY_",IMAGE_NUMBER, "_NEW_CONTOUR.pdf", sep = "")
 pdf(file = file_name, height = 6, width = 6)
 image.plot(coco_rotated, axes = TRUE)
 abline(v = 0.5, col = "black", lty = 1, lwd = 1)

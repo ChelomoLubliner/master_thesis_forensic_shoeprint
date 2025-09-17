@@ -36,7 +36,7 @@ data[[9]] <- data[[9]][,ncol(data[[9]]):1]
 #We try to find the lower bound of the cumulative contact surfce to separate the stamps from the actual contact surface
 #we found that if we look only at the contact surface that appeared in more than 8 shoes it provided a relatively good separation
 allcont <- data[[1]]
-for(i in 2:num_shoe)
+for(i in 2:NUM_SHOE)
 {
   allcont <- allcont+data[[i]] #this is the contact of all shoes
 }
@@ -45,7 +45,7 @@ allcont <- (allcont>=8)*1 #here we see pixels that appear in more than 8 shoes
 
 #Removing the stamps
 #finding the lower bound of the contact surface
-h_width<-floor(row_shoe/2) #this is half the width of the shoe
+h_width<-floor(ROW_SHOE/2) #this is half the width of the shoe
 lb<- rep(NA,h_width)
 j<-1
 while(allcont[h_width,j]==0) j<-j+1
@@ -53,7 +53,7 @@ lb[1] <- j-1
 for(i in 2:h_width) {
   j<- lb[i-1]
   if(allcont[h_width-i+1,j]==0) {
-    while((allcont[h_width-i+1,j]==0)&&j<rel_row_shoe) j <- j+1
+    while((allcont[h_width-i+1,j]==0)&&j<REL_ROW_SHOE) j <- j+1
     lb[i] <- j-1
   }else{
     while((allcont[h_width-i+1,j]==1)&&j>0) j <- j-1
@@ -65,7 +65,7 @@ for(i in 1:h_width) allcont[h_width-i+1,1:lb[i]] <- 0 #removing the lower stamp
 #the upper bound of the contact surface
 ub<- rep(NA,h_width)
 
-j<-col_shoe
+j<-COL_SHOE
 while(allcont[h_width,j]==0) j<-j-1
 ub[1] <- j+1
 for(i in 2:h_width) {
@@ -74,7 +74,7 @@ for(i in 2:h_width) {
     while((allcont[h_width-i+1,j]==0)&&j>0) j <- j-1
     ub[i] <- j+1
   }else{
-    while((allcont[h_width-i+1,j]==1)&&j<rel_row_shoe) j <- j+1
+    while((allcont[h_width-i+1,j]==1)&&j<REL_ROW_SHOE) j <- j+1
     ub[i] <- j
   }
 }
@@ -106,7 +106,6 @@ for (i in (c(unique(acciden$shoe)) ))#shoe 127 doesn't have RACs
   }
 }
 
-#### ICI JE REMPLACE PAR CE QUE JAI DEJA FAIT!
 
 
 ```
@@ -134,8 +133,8 @@ data_pix<-list()
 # we include only data where there is contact surface (after adjusting for the case that if there is a RAC there will be contact surface)
 for(i in (c(unique(acciden$shoe))))
 {
-  xcoor <- t(matrix(rep((-col_shoe/2+1:col_shoe)*rel_Y_cord/rel_col_shoe,row_shoe),col_shoe,row_shoe))
-  ycoor <- -matrix(rep((-row_shoe/2+1:row_shoe)*rel_Y_cord/rel_col_shoe,col_shoe),row_shoe,col_shoe)
+  xcoor <- t(matrix(rep((-COL_SHOE/2+1:COL_SHOE)*REL_Y_CORD/REL_COL_SHOE,ROW_SHOE),COL_SHOE,ROW_SHOE))
+  ycoor <- -matrix(rep((-ROW_SHOE/2+1:ROW_SHOE)*REL_Y_CORD/REL_COL_SHOE,COL_SHOE),ROW_SHOE,COL_SHOE)
   shoe<-rep(i,length(data_temp[[i]][data_temp[[i]]==1]))
   data_pix[[i]]<-cbind(shoe,xcoor[data_temp[[i]]==1],ycoor[data_temp[[i]]==1],acci[[i]][data_temp[[i]]==1])# the data is only  where there is contact surface
 }
@@ -194,9 +193,9 @@ for(i in 1:length(unique(shoe)))
 
 
 ```{r 5}
-file_name <- paste(ROOT_PATH,"Data/dataCC.csv", sep = "")
+file_name <- paste(DATASET_DIR, "dataCC.csv", sep = "")
 write.csv(dataCC, file_name, row.names = FALSE)
-file_name <- paste(ROOT_PATH, "Data/all_cont.csv", sep = "")
+file_name <- paste(DATASET_DIR, "all_cont.csv", sep = "")
 write.csv(allcont, file_name, row.names = FALSE)
 
 ```

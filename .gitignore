@@ -74,3 +74,12 @@ Images/**/*.gif
 Images/**/*.bmp
 Images/**/*.tiff
 Images/**/*.svg
+Images/**/*.html
+
+# R analysis output files
+statistical_model/analysis_output.log
+
+# HTML plot files
+*.html
+plot_*.html
+**/plot_*.html

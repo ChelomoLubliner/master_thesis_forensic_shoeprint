@@ -4,14 +4,15 @@ from tqdm import tqdm
 from PIL import Image
 my_dict = {1: True, 0: False}
 import cv2
-from globals import  FOLDER, DATASET, W, H, PROCESSING_DATA_PATH
+from globals import  FOLDER, DATASET, W, H, PROCESSING_DATA_PATH, DATA_PATH
 from active_contour_snake import active_contour_on_prototype
 
 
 # Opened file, save list_lines, and images
 def contacts_data():
     list_lines = []
-    with open(f'../Data/{DATASET}', 'r') as f:
+    import os
+    with open(os.path.join(DATA_PATH, DATASET), 'r') as f:
         lines = f.readlines()
         print('Total lines:', len(lines))
         for i in tqdm(range(len(lines))):

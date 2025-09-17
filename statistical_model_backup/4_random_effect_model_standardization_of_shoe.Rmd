@@ -1,0 +1,136 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-config}
+# Load centralized configuration
+source("config.R")
+```
+
+
+
+```{r }
+# Load data using config variables
+file_name <- paste(DATASET_DIR, "dataCC_distance.csv", sep = "")
+dataCC<- read.csv(file_name,header=TRUE)
+dataCC <- subset(dataCC, select = c("n_Acc","x","y","shoe","row_number","horiz_dist"))
+file_name <- paste(ROOT_PATH,"Data/all_cont.csv", sep = "")
+allcont<- read.csv(file_name,header=TRUE)
+```
+
+
+
+
+
+```{r }
+
+image <- t(as.matrix(load.image(paste(ROOT_PATH,CONTOUR_ALGORITHM, "/Dataset/new_contour_135.png", sep = ""))))
+xcoor <- t(matrix(rep((-col_shoe/2+1:col_shoe)*rel_Y_cord/rel_col_shoe,row_shoe),col_shoe,row_shoe))
+ycoor <- -matrix(rep((-row_shoe/2+1:row_shoe)*rel_Y_cord/rel_col_shoe,col_shoe),row_shoe,col_shoe)
+entire_contour<-data.frame(x = xcoor[image==1],y =ycoor[image==1])# the data 
+distance_per_y = entire_contour %>%group_by(y) %>%summarise(min_x = abs(min(x)),max_x = max(x))
+
+dist_shape = c()
+for (i in 1:nrow(dataCC)) {
+  y_val = dataCC$y[i]
+  if (dataCC$x[i] <= 0){
+    new_val <- distance_per_y[(distance_per_y$y >= y_val-0.01) & (distance_per_y$y <= y_val+0.01), c('y','min_x')]
+    closest_row_index <- which.min(abs(new_val$y - y_val))
+    closest_value <- new_val[closest_row_index, ]$min_x
+  }else{
+      new_val <- distance_per_y[(distance_per_y$y >= y_val-0.01) & (distance_per_y$y <= y_val+0.01), c('y','max_x')]
+    closest_row_index <- which.min(abs(new_val$y - y_val))
+    closest_value <- new_val[closest_row_index, ]$max_x
+    #print('coco ',new_val,'\n')
+  }
+  #cat(i, '\t', y_val, '\t', closest_value, '\n')
+  dist_shape <- append(dist_shape, closest_value)
+}
+dataCC$distance_shape <- dist_shape
+
+dataCC$new_x <- (dataCC$x*dataCC$distance_shape)/(abs(dataCC$x)+dataCC$horiz_dist)
+file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Dataset/dataCC_distance.csv", sep = "")
+write.csv(dataCC, file_name, row.names = FALSE)
+```
+
+```{r }
+Random<-function(nknotsx=3,nknotsy=5,dat=dataCC,model_feat = MODEL_FEATURE, initial_values )
+{
+  
+  common_formula <- as.formula("n_Acc ~ (1 | shoe)")
+  
+  
+  knotsx <- as.numeric(quantile(dat$x,1:nknotsx/(1+nknotsx)))
+  knots_new_x <- as.numeric(quantile(dat$new_x,1:nknotsx/(1+nknotsx)))
+  knotsy <-as.numeric(quantile(dat$y,1:nknotsy/(1+nknotsy)))
+  knots_distance <-as.numeric(quantile(dat$min_dist,1:2/(3)))
+  shoe<-dat$shoe
+  
+  
+  if(model_feat == 'NS_XY'){
+            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + (1 | shoe) "}
+  else if(model_feat == 'NEW_X_NS_XY'){
+            formula_text <- "n_Acc ~ ns(dat$new_x,knots=knots_new_x):ns(dat$y,knots=knotsy) + (1 | shoe) "}
+  else if(model_feat == 'NS_MIN'){
+            formula_text <- "n_Acc ~ ns(dat$min_dist,knots=knots_distance) + (1 | shoe) "}
+  else if(model_feat == 'EMPTY_MODEL'){
+            formula_text <- "n_Acc ~ (1 | shoe) "}
+  else if(model_feat == 'NS_HORIZ'){
+            formula_text <- "n_Acc ~ ns(dat$horiz_dist,knots=knots_distance) + (1 | shoe) "}
+  else if(model_feat == 'HORIZ_DIST'){
+            formula_text <- "n_Acc ~ dat$horiz_dist + (1 | shoe)"}
+  else if(model_feat == 'MIN_DIST'){
+            formula_text <- "n_Acc ~ dat$min_dist + (1 | shoe)"}
+  else if(model_feat == 'HORIZ_BIN_CAT'){
+            formula_text <- "n_Acc ~ dat$horiz_dist_cat + (1 | shoe)"}
+  else if(model_feat == 'MIN_BIN_CAT'){
+            formula_text <- "n_Acc ~ dat$min_dist_cat + (1 | shoe)"}
+  else if(model_feat == 'NS_XY_HORIZ_DIST'){
+            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + dat$horiz_dist + (1 | shoe) "}
+  else if(model_feat == 'NS_XY_MIN_DIST'){
+            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + dat$min_dist + (1 | shoe) "}
+  else if(model_feat == 'NS_XY_HORIZ_BIN_CAT'){
+            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + dat$horiz_dist_cat + (1 | shoe) "}
+    else if(model_feat == 'NS_XY_HORIZ_DUMMY'){
+      dat$dummy_0to1 <- as.numeric(dat$horiz_dist <= 0.05)#0.05-0.1
+      dat$dummy_1to2 <- as.numeric(dat$horiz_dist > 0.05 & dat$horiz_dist <= 0.1)
+            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + dat$dummy_0to1 + dat$dummy_1to2 +  (1 | shoe) "
+    }
+  else if(model_feat == 'NS_XY_MIN_DUMMY'){
+      dat$dummy_0to1 <- as.numeric(dat$min_dist <= 0.05)
+      dat$dummy_1to2 <- as.numeric(dat$min_dist > 0.05 & dat$min_dist <= 0.1)
+            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + dat$dummy_0to1 + dat$dummy_1to2 +  (1 | shoe) "
+            }
+  else if(model_feat == 'NS_XY_MIN_BIN_CAT'){
+            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + dat$min_dist_cat + (1 | shoe) "}
+    else if(model_feat == 'NS_XY_NS_HORIZ'){
+            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + ns(dat$horiz_dist,knots=knots_distance) + (1 | shoe) "}
+  else { stop("Invalid model_feat value")}
+  cat(formula_text)
+  est_formula <- as.formula(formula_text)  
+  initial_values <- c(parameter1 = 0)  # Adjust these values
+  est<- glmer(est_formula, data = dat, family = binomial(link = "logit"), control =glmerControl(optimizer="nlminbwrap"))#,  start = initial_values)
+  #est<- glmer(est_formula, data = dat, family = binomial(link = "logit"), control =glmerControl(optimizer="bobyqa"))nlminbwrap
+  cat("file_saving")
+  file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/",MODEL_FEATURE,"_RELATIVE.rds", sep = "")
+  saveRDS(est, file = file_name)
+  return(est)
+}
+get_initial_values <- function(){
+  file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/NS_XY.rds", sep = "")
+  naomi_model <- readRDS(file = file_name)
+  fixed_effects <- fixef(naomi_model) # View the fixed effects coefficients print(fixed_effects) 
+  vals <- as.list(fixed_effects)
+  if (grepl("DUMMY", MODEL_FEATURE)){ 
+  vals <- c(vals, list(dummy_0to1 = 0, dummy_1to2 = 0))}
+  else if (grepl("BIN_CAT", MODEL_FEATURE)){
+    vals <- c(vals, list(bin_cat = 0))
+  }
+  return(vals) 
+}
+
+rand<-Random(dat=dataCC,initial_values=get_initial_values())
+```
+
+
+  

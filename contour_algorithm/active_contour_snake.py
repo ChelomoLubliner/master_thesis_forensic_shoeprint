@@ -47,7 +47,7 @@ def save_img(img, snake, im_num):
     buf.seek(0)
     plt.close('all')
     img = Image.open(buf)
-    img.save(f'{FOLDER}Active-contour/im_{im_num}.png')
+    img.save(f'{FOLDER}Active_Contour/im_{im_num}.png')
 
 def init_snake():
     s = np.linspace(0, 2 * np.pi, 400)
@@ -172,14 +172,14 @@ def main():
 
     # Create Active-contour directory for cleaned images
     import os
-    os.makedirs(f'{FOLDER}Active-contour', exist_ok=True)
+    os.makedirs(f'{FOLDER}Active_Contour', exist_ok=True)
 
     list_contour = np.load(f'{PROCESSING_DATA_PATH}list_contour.npy')
     snake_all = []
-    for i in tqdm(range(len(list_contour))):
+    for i in tqdm(range(20)):#len(list_contour))
         snake_arr = active_contour_shoe(list_contour, plot_img=False, save_img_bool=True, im_num=i)
         snake_all.append(snake_arr)
-    np.save(f'{PROCESSING_DATA_PATH}active-contour_all.npy', snake_all)
+    np.save(f'{PROCESSING_DATA_PATH}active_contour_all.npy', snake_all)
     print("Active contour processing complete - cleaned images saved to Active-contour folder")
 
 if __name__ == '__main__':

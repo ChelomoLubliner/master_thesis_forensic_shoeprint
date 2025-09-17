@@ -88,13 +88,6 @@ rmarkdown::render("2_dataCC_distance.Rmd")
 
 ### Advanced Configuration
 
-**For different datasets:**
-```r
-# Edit config.R before running
-CONTOUR_ALGORITHM <- 'Convex'        # Change algorithm
-MODEL_FEATURE <- 'NS_XY'            # Change model type
-NUM_SHOE <- 200                     # Different dataset size
-```
 
 **For specific shoe analysis:**
 ```r
@@ -179,10 +172,7 @@ memory.limit(size = 8000)  # Windows
 - `Convex` - Faster geometric approach
 
 **Available models:**
-- `NEW_X_NS_XY` - Advanced spline model (recommended)
-- `NS_XY` - Standard spline model
-- `NS_HORIZ` - Horizontal distance model
-- `NS_MIN` - Minimum distance model
+- `NEW_X_NS_XY` - Advanced spline model ()
 
 ## Quality Assurance
 
@@ -197,6 +187,13 @@ The pipeline includes:
 ## Integration
 
 This statistical pipeline integrates with:
-- **Python contour algorithm** - Processes shoe images and generates contour data
-- **Shared data directory** - Uses outputs from the contour algorithm
-- **Common coordinate system** - Consistent with image processing pipeline
+- **Python contour algorithm** - Located in `../contour_algorithm/` - processes shoe images and generates contour data
+- **Shared data directory** - Uses `../shared_data/locations_new.csv` as primary input from Python pipeline
+- **Common coordinate system** - Consistent with image processing pipeline coordinate transformations
+
+### Prerequisites for Statistical Analysis
+1. **Run Python pipeline first**: Execute `../contour_algorithm/main.py` to generate required data files
+2. **Verify data files exist**: Check that `../shared_data/locations_new.csv` was created successfully
+3. **Ensure sufficient memory**: 4-8GB RAM required for processing 387 shoe dataset
+
+For complete project setup and Python pipeline instructions, see `../README.md`
