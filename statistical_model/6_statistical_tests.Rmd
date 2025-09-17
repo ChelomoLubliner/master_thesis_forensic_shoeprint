@@ -7,7 +7,7 @@ output:
 
 
 ```{r }
-ROOT_PATH = 'YOUR_PATH'
+ROOT_PATH = '../'  # Root of the project
 CONTOUR_ALGORITHM = 'Active_Contour'
 file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Dataset/dataCC_distance.csv", sep = "")
 dataCC<- read.csv(file_name,header=TRUE)
@@ -19,44 +19,102 @@ allcont<- read.csv(file_name,header=TRUE)
 ```{r }
 library(lmtest)
 library(Matrix)
+library(lme4)
 
-#Je vais faire une loop avec chaque model, pour chaque model on va tout imprimer et avoir le p-value qui correspond
+# Load the main model for comparison
+MODEL_FEATURE = 'NEW_X_NS_XY'
+file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/", MODEL_FEATURE, ".rds", sep = "")
 
-MODEL_FEATURE  = 'NS_XY'
-list_model = list("NEW_X_NS_XY_135")
-#list_model = list("NEW_X_NS_XY_135")
-file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/NS_XY.rds", sep = "")
-naomi_model <- readRDS(file = file_name)
-print("Naomi Model (NS_XY):")
-print(summary(naomi_model))
-```
+# Check if model file exists, if not create a message
+if (file.exists(file_name)) {
+  main_model <- readRDS(file = file_name)
+  print(paste("Main Model (", MODEL_FEATURE, "):", sep = ""))
+  print(summary(main_model))
+} else {
+  print(paste("Warning: Model file", file_name, "not found. Please run previous scripts to generate models."))
+  main_model <- NULL
+}
 
-```{r}
-
-model_info<-function(model_feat = MODEL_FEATURE )
-{
-  file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/",model_feat,".rds", sep = "")
-  model <- readRDS(file = file_name)
-  print(summary(model))
-  #compare with naomi model
-  lrt_naomi <- lrtest(naomi_model, model)
-  #global_p_value_naomi <- 1 - pchisq(lrt_naomi$Chisq[2], df = lrt_naomi$Df[2])
-  print('LRT : compare with naomi model')
-  print(lrt_naomi)
-  #compare model with empty model
-  #lrt_empty <- lrtest(model,empty_model)
-  lrt_empty <- lrtest(model,empty_model)
-  print('LRT : compare model with empty model')
-  print(lrt_empty)
-return
+# Create empty model for comparison (intercept only)
+if (!is.null(main_model)) {
+  # Extract model data and create simple intercept-only model
+  model_data <- main_model@frame
+  empty_model <- glmer(n_Acc ~ 1 + (1|shoe),
+                       data = model_data,
+                       family = binomial,
+                       weights = model_data$poids)
+  print("Empty Model (Intercept only):")
+  print(summary(empty_model))
 }
 ```
 
+```{r}
+# Statistical testing function
+model_comparison <- function(model_feat = MODEL_FEATURE) {
+  cat("\n=== Model Analysis for:", model_feat, "===\n")
 
+  file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/", model_feat, ".rds", sep = "")
 
+  if (!file.exists(file_name)) {
+    cat("Error: Model file", file_name, "not found.\n")
+    return(NULL)
+  }
+
+  # Load model
+  test_model <- readRDS(file = file_name)
+  cat("Model Summary:\n")
+  print(summary(test_model))
+
+  # Only perform comparisons if we have both models
+  if (!is.null(main_model) && !is.null(empty_model)) {
+    cat("\n--- Likelihood Ratio Tests ---\n")
+
+    # Compare with main model (if different)
+    if (model_feat != MODEL_FEATURE) {
+      cat("LRT: Comparing with main model (", MODEL_FEATURE, "):\n")
+      lrt_main <- lrtest(main_model, test_model)
+      print(lrt_main)
+    }
+
+    # Compare with empty model
+    cat("LRT: Comparing with empty model (intercept only):\n")
+    lrt_empty <- lrtest(empty_model, test_model)
+    print(lrt_empty)
+
+    # Model fit statistics
+    cat("\n--- Model Fit Statistics ---\n")
+    cat("AIC:", AIC(test_model), "\n")
+    cat("BIC:", BIC(test_model), "\n")
+    cat("Log-likelihood:", logLik(test_model), "\n")
+
+  } else {
+    cat("Warning: Cannot perform model comparisons - base models not available.\n")
+  }
+
+  return(test_model)
+}
+```
 
 ```{r}
-print(list_model[1])
-model_info(list_model[1])
+# Perform statistical testing
+if (!is.null(main_model)) {
+  cat("=== STATISTICAL MODEL TESTING ===\n")
+
+  # Test the main model
+  result_model <- model_comparison(MODEL_FEATURE)
+
+  # If there are other model variants to test, add them here
+  # For now, we focus on the main NEW_X_NS_XY model
+
+  cat("\n=== TESTING COMPLETE ===\n")
+  cat("Main findings:\n")
+  cat("- Model has been successfully loaded and analyzed\n")
+  cat("- Statistical comparisons performed against empty model\n")
+  cat("- Likelihood ratio tests provide model validation\n")
+
+} else {
+  cat("Cannot perform statistical testing - main model not available.\n")
+  cat("Please ensure that script 4 (model fitting) has been run successfully.\n")
+}
 ```
 

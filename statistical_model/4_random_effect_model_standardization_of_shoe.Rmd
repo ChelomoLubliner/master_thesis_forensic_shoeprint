@@ -36,13 +36,15 @@ rel_Y_cord<-0.5 #the relevant Y coordinates are between -0.5 and 0.5
 ```
 
 ```{r }
-ROOT_PATH = 'YOUR_PATH'
-CLEANED_SHOES_PATH = 'YOUR_PATH/These/Files_thesis/Old_Shoes/Cleaned_Shoes/'
+ROOT_PATH = '../'  # Root of the project
+CONTOUR_ALGORITHM = 'Active_Contour'
+MODEL_FEATURE = 'NEW_X_NS_XY'
 
-CONTOUR_ALGORITHM = 'Active_Contour' 
-
-MODEL_FEATURE  = 'NEW_X_NS_XY'
-
+# Create Saved_Models directory if it doesn't exist
+models_dir <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/", sep = "")
+if (!dir.exists(models_dir)) {
+  dir.create(models_dir, recursive = TRUE)
+}
 
 ```
 

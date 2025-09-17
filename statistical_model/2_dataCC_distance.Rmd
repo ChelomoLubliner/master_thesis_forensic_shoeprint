@@ -12,7 +12,7 @@ library(dplyr)
 ```
 
 ```{r }
-ROOT_PATH = 'YOUR_PATH'
+ROOT_PATH = '../'  # Root of the project
 CONTOUR_ALGORITHM = 'Active_Contour'
 
 ```
@@ -37,14 +37,9 @@ dataCC<- read.csv(file_name,header=TRUE)
 
 ```{r contour_distance_}
 
-#get convex hull contours as a list of doubles(395*307) of pixel and convert them to x-y  coordinates
-  file_name <- paste(ROOT_PATH,"Data/contour_", CONTOUR_ALGORITHM, ".txt", sep = "")
-  d <- readChar(file_name,nchars=(col_shoe*row_shoe+2)*num_shoe)
-  contour_txt <- list()
-  for(i in 1:386)
-  {
-    contour_txt[[i]] <- matrix(as.numeric(unlist(strsplit(substr(d, 1+(col_shoe*row_shoe+2)*(i-1), (col_shoe*row_shoe+2)*i-2), split="")) ),row_shoe,col_shoe,byrow=1)
-  }
+# Read pre-calculated distances from Python pipeline
+  file_name <- paste(ROOT_PATH,"shared_data/locations_new.csv", sep = "")
+  locations_with_distances <- read.csv(file_name, header=TRUE)
 #now get the x,y coordinates
 contour_pix<-list()
 # each data_pix[[i]] is a matrix with column 1 indicating the shoe, 2 the x, 3 the y, 4 the amount of RACs in that pixel

@@ -4,12 +4,47 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c1e19254-4b9a-43e7-92ea-de5c1d127d6b" name="Changes" comment="commit">
-      <change afterPath="$PROJECT_DIR$/contact_with_locations.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/distance_RAC_contour_shoeprint.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/distance_RAC_contour_shoeprint.iml" afterDir="false" />
+    <list default="true" id="c1e19254-4b9a-43e7-92ea-de5c1d127d6b" name="Changes" comment="adapt  active-contours">
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Data/contacts_data.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Data/contacts_data_naomi_fast.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Data/locations_data.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Data/results_data_naomi_fast.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/New_shoes/Active-contour/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/New_shoes/CONV_RAC_html/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/New_shoes/Cleaned_Shoes/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/New_shoes/Convex_Hull/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/New_shoes/Convex_Hull_html/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/New_shoes/Extreme_Values/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/New_shoes/SNAKE_RAC_html/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/New_shoes/Saved/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/New_shoes/Shoe_On_Prototype/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/New_shoes/Shoes/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/New_shoes/Superposed_Pixels/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/New_shoes/Superposed_Pixels_Reversed/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/Active-contour/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/Alpha_Shape/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/CONV_RAC_html/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/Cleaned_Shoes/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/Convex_Hull/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/Convex_Hull_html/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/Extreme_Values/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/SNAKE_RAC_html/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/Saved/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/Shoe_On_Prototype/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/Shoes/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/Shoes_RAC/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/Superposed_Pixels/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/Images/Old_Shoes/Superposed_Pixels_Reversed/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/active_contour_snake.py" beforeDir="false" afterPath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/active_contour_snake.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Images/Old_Shoes/Shoes/master_thesis_forensic_shoeprint/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/active_contour_snake.py" beforeDir="false" afterPath="$PROJECT_DIR$/active_contour_snake.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contour.py" beforeDir="false" afterPath="$PROJECT_DIR$/contour.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/create_files_shoes.py" beforeDir="false" afterPath="$PROJECT_DIR$/create_files_shoes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -27,6 +62,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;ChelomoLubliner&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/ChelomoLubliner/master_thesis_forensic_shoeprint.git&quot;,
+    &quot;accountId&quot;: &quot;8466a08b-5358-4708-9439-d20573953017&quot;
+  }
+}</component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -41,22 +88,26 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Python.active_contour_snake.executor": "Debug",
+    "Python.alpha_mixed_snakes.executor": "Run",
+    "Python.alphas_shape.executor": "Debug",
     "Python.contact_with_locations.executor": "Run",
     "Python.distance_extremities.executor": "Run",
-    "Python.main.executor": "Run",
+    "Python.main.executor": "Debug",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/mehes/Documents/repo/Json-Insertion-To-Db",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "dev",
+    "last_opened_file_path": "C:/Users/mehes/Documents/repo/master_thesis_forensic_shoeprint",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Python.contact_with_locations">
+  <component name="RunManager" selected="Python.main">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="Project" />
       <option name="ENV_FILES" value="" />
@@ -103,6 +154,29 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="alphas_shape" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="distance_RAC_contour_shoeprint" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/alphas_shape.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="contact_with_locations" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="distance_RAC_contour_shoeprint" />
       <option name="ENV_FILES" value="" />
@@ -141,29 +215,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/distance_extremities.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="globals" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="distance_RAC_contour_shoeprint" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/globals.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -282,18 +333,18 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.contact_with_locations" />
         <item itemvalue="Python.main" />
-        <item itemvalue="Python.distance_extremities" />
         <item itemvalue="Python.active_contour_snake" />
-        <item itemvalue="Python.globals" />
+        <item itemvalue="Python.alphas_shape" />
+        <item itemvalue="Python.contact_with_locations" />
+        <item itemvalue="Python.distance_extremities" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-50da183f06c8-2887949eec09-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-233.13135.95" />
+        <option value="bundled-python-sdk-348a24fa61fa-5312c7369657-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-251.23774.444" />
       </set>
     </attachedChunks>
   </component>
@@ -317,6 +368,8 @@
       <workItem from="1721642473234" duration="4192000" />
       <workItem from="1722253600283" duration="1643000" />
       <workItem from="1728306593949" duration="10948000" />
+      <workItem from="1743316138587" duration="5956000" />
+      <workItem from="1744121597406" duration="34000" />
     </task>
     <task id="LOCAL-00001" summary="commit">
       <created>1684046301060</created>
@@ -346,39 +399,65 @@
       <option name="project" value="LOCAL" />
       <updated>1684048598751</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="add alpha shape">
+      <option name="closed" value="true" />
+      <created>1751381722006</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1751381722006</updated>
+    </task>
+    <task id="LOCAL-00006" summary="add alpha shape">
+      <option name="closed" value="true" />
+      <created>1751381752427</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1751381752427</updated>
+    </task>
+    <task id="LOCAL-00007" summary="adapt alpha shape">
+      <option name="closed" value="true" />
+      <created>1751828125704</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1751828125704</updated>
+    </task>
+    <task id="LOCAL-00008" summary="adapt  active-contours">
+      <option name="closed" value="true" />
+      <created>1751829417274</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1751829417274</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="commit" />
+    <MESSAGE value="add alpha shape" />
+    <MESSAGE value="adapt alpha shape" />
+    <MESSAGE value="adapt  active-contours" />
+    <option name="LAST_COMMIT_MESSAGE" value="adapt  active-contours" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/active_contour_snake.py</url>
-          <line>128</line>
-          <option name="timeStamp" value="11" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/active_contour_snake.py</url>
-          <line>148</line>
-          <option name="timeStamp" value="12" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/active_contour_snake.py</url>
-          <line>113</line>
-          <option name="timeStamp" value="14" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/active_contour_snake.py</url>
-          <line>147</line>
-          <option name="timeStamp" value="16" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/contact_with_locations.py</url>
           <line>15</line>
@@ -394,13 +473,78 @@
           <line>43</line>
           <option name="timeStamp" value="25" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/create_files_shoes.py</url>
+          <line>46</line>
+          <option name="timeStamp" value="27" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/alphas_shape.py</url>
+          <line>65</line>
+          <option name="timeStamp" value="39" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/create_files_shoes.py</url>
+          <line>89</line>
+          <option name="timeStamp" value="53" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/active_contour_snake.py</url>
+          <line>156</line>
+          <option name="timeStamp" value="55" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/active_contour_snake.py</url>
+          <line>153</line>
+          <option name="timeStamp" value="57" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/distance_extremities.py</url>
+          <line>125</line>
+          <option name="timeStamp" value="59" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/active_contour_snake.py</url>
+          <line>150</line>
+          <option name="timeStamp" value="66" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/active_contour_snake.py</url>
+          <line>145</line>
+          <option name="timeStamp" value="67" />
+        </line-breakpoint>
+        <line-breakpoint suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/active_contour_snake.py</url>
+          <line>115</line>
+          <option name="timeStamp" value="71" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/active_contour_snake.py</url>
+          <line>124</line>
+          <option name="timeStamp" value="72" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/active_contour_snake.py</url>
+          <line>106</line>
+          <option name="timeStamp" value="73" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/active_contour_snake.py</url>
+          <line>101</line>
+          <option name="timeStamp" value="74" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/active_contour_snake.py</url>
+          <line>111</line>
+          <option name="timeStamp" value="75" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/globals_py$active_contour_snake.coverage" NAME="active_contour_snake Coverage Results" MODIFIED="1722253614510" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/globals_py$main.coverage" NAME="main Coverage Results" MODIFIED="1743320383816" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/globals_py$distance_extremities.coverage" NAME="distance_extremities Coverage Results" MODIFIED="1728337513110" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/globals_py$contact_with_locations.coverage" NAME="contact_with_locations Coverage Results" MODIFIED="1728374927124" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/globals_py$main.coverage" NAME="main Coverage Results" MODIFIED="1728358275490" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/globals_py$active_contour_snake.coverage" NAME="active_contour_snake Coverage Results" MODIFIED="1722253614510" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/globals_py$contact_with_locations.coverage" NAME="contact_with_locations Coverage Results" MODIFIED="1743318742753" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

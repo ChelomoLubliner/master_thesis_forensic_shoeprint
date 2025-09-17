@@ -2,11 +2,11 @@ numpy
 pandas
 plotly
 matplotlib
-scipy	
+scipy
 Pillow
 scikit-image
 #imageio
-opencv-python	
+opencv-python
 tqdm
-alphashape
+#alphashape
 #kaleido==0.2.1

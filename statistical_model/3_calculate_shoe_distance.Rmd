@@ -8,7 +8,7 @@ output: html_document
 
 ```{r }
 library(dplyr)
-ROOT_PATH = 'YOUR_PATH'
+ROOT_PATH = '../'  # Root of the project
 CONTOUR_ALGORITHM = 'Active_Contour'
 IMAGE_NUMBER  = 171
 # 116 / 135
