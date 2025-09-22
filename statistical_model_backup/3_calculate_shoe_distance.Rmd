@@ -8,8 +8,9 @@ output: html_document
 
 ```{r }
 library(dplyr)
-ROOT_PATH = '../'  # Root of the project
+ROOT_PATH = 'YOUR_PATH'
 CONTOUR_ALGORITHM = 'Active_Contour'
+# 'Convex'  or 'Active_Contour'
 IMAGE_NUMBER  = 171
 # 116 / 135
 #  116/ 107 / 208/ 236 / 376 / 130 / 135

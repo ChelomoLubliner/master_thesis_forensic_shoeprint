@@ -45,16 +45,16 @@ rel_Y_cord<-0.5 #the relevant Y coordinates are between -0.5 and 0.5
 ```
 
 ```{r }
-ROOT_PATH = '../'  # Root of the project
-CONTOUR_ALGORITHM = 'Active_Contour'
-IMAGE_NUMBER = '171'
-MODEL_FEATURE = 'NEW_X_NS_XY'
+ROOT_PATH = 'YOUR_PATH'
+CLEANED_SHOES_PATH = 'YOUR_PATH/These/Files_thesis/Old_Shoes/Cleaned_Shoes/'
 
-# Create Model_Images directory if it doesn't exist
-model_images_dir <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Model_Images/", sep = "")
-if (!dir.exists(model_images_dir)) {
-  dir.create(model_images_dir, recursive = TRUE)
-}
+CONTOUR_ALGORITHM = 'Active_Contour'
+# 'Convex' or 'Active_Contour' 
+IMAGE_NUMBER  = '171'
+# 171/ 135
+MODEL_FEATURE  = 'NEW_X_NS_XY_135'
+#'NEW_X_NS_XY' 
+#'NS_XY'
 
 ```
 
@@ -74,14 +74,7 @@ ycoor <- -matrix(rep((-row_shoe/2+1:row_shoe)*rel_Y_cord/rel_col_shoe,col_shoe),
 xy <- expand.grid(xcoor[1,],ycoor[,1])#307 * 395   
 colnames(xy)[colnames(xy) == "Var1"] <- "x"
 colnames(xy)[colnames(xy) == "Var2"] <- "y"
-img_file <- paste(ROOT_PATH, "Images/Old_Shoes/Cleaned_Shoes/im_135.png", sep = "")
-if (file.exists(img_file)) {
-  img <- load.image(img_file)  # Prototype image
-} else {
-  # Create a dummy image if file doesn't exist
-  img <- array(1, dim = c(col_shoe, row_shoe, 1, 1))
-  cat("Warning: Prototype image not found, using dummy image\n")
-}
+img <- load.image(paste( CLEANED_SHOES_PATH, "im_135.png", sep = ""))#prototype
 img <- t(as.matrix(img))
 
 ```
@@ -234,14 +227,7 @@ if((sum(contour_line) >0) & (sum(!is.null(old_line) & !is.na(old_line)) >0)){
 
 ```{r}
 new_rotated <- old_matrix
-new_img_file <- paste(ROOT_PATH, "Images/Old_Shoes/Cleaned_Shoes/im_", IMAGE_NUMBER, ".png", sep = "")
-if (file.exists(new_img_file)) {
-  new_img <- t(as.matrix(load.image(new_img_file)))
-} else {
-  # Use the prototype image as fallback
-  new_img <- img
-  cat("Warning: Target image not found, using prototype image\n")
-}
+new_img <- t(as.matrix(load.image(paste( CLEANED_SHOES_PATH, "im_171.png", sep = ""))))
 new_rotated[new_img==0] <- NA
 coco_rotated <- t(new_rotated)[, nrow(new_rotated):1]
 

@@ -2,16 +2,73 @@
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r load-config}
-# Load centralized configuration
-source("config.R")
+```{r }
+set.seed(313)
+# library(imager)
+# library(spam)
+# library(Matrix)
+# library(lme4)
+# library(splines)
+# library(magrittr)
+# library(imager)
+# library(ggplot2) 
+# library(fields)
+library(imager)
+library(ggplot2) 
+library(plotly)
+library(splines)
+library(spam)
+library(Matrix)
+library(lme4)
+library(rgl)
+library(fields)
+library(survival)
+library(smoothie) 
+
+col_shoe<-307 #307 is the number of columns in each shoe
+row_shoe<-395 #395 is the number of rows in each shoe
+num_shoe<-387  #387 is the number of shoes but 386 is the number of shoes with RACs - shoe 127 has no RACS
+
+rel_col_shoe<-150  #out of the 307 columns only 150 are relevant (contain non zero pixels in some shoes)
+rel_row_shoe<-300  #out of the 395 rows only 300 are relevant (contain non zero pixels in some shoes)
+rel_x_cord<-0.25 #using coordinates as in the locations_data.CSV file the relevant x coordinates are between -.25 and 0.25
+rel_Y_cord<-0.5 #the relevant Y coordinates are between -0.5 and 0.5
+```
+
+```{r }
+ROOT_PATH = 'YOUR_PATH'
+CLEANED_SHOES_PATH = 'YOUR_PATH/These/Files_thesis/Old_Shoes/Cleaned_Shoes/'
+
+CONTOUR_ALGORITHM = 'Active_Contour'
+# 'Convex' or 'Active_Contour' 
+
+MODEL_FEATURE  = 'NEW_X_NS_XY'
+# MODEL_FEATURE  = 'NEW_X_NS_XY'
+# MODEL_FEATURE  = 'NULL_MODEL'
+# MODEL_FEATURE  = 'NS_XY'
+# MODEL_FEATURE  = 'NS_HORIZ'   -> 1.only Natural Cubic Splines with HORIZ
+# MODEL_FEATURE  = 'NS_MIN'   -> 1. only Natural Cubic Splines with MIN DIST
+# MODEL_FEATURE  = 'HORIZ_DIST' _> 2.only horiz distance 
+# MODEL_FEATURE  = 'MIN_DIST' _> 2. only horiz distance 
+# MODEL_FEATURE  = 'HORIZ_BIN_CAT'   -> 3.
+# MODEL_FEATURE  = 'MIN_BIN_CAT' -> 3.
+# MODEL_FEATURE  = 'NS_XY_HORIZ_DIST'
+# MODEL_FEATURE  = 'NS_XY_MIN_DIST'
+# MODEL_FEATURE  = 'NS_XY_HORIZ_BIN_CAT'
+# MODEL_FEATURE  = 'NS_XY_MIN_BIN_CAT'
+# MODEL_FEATURE  = 'NS_XY_NS_HORIZ'
+# MODEL_FEATURE  = 'NS_XY_HORIZ_DUMMY'
+# MODEL_FEATURE  = 'NS_XY_MIN_DUMMY'
+
+
 ```
 
 
 
 ```{r }
-# Load data using config variables
-file_name <- paste(DATASET_DIR, "dataCC_distance.csv", sep = "")
+
+
+file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Dataset/dataCC_distance.csv", sep = "")
 dataCC<- read.csv(file_name,header=TRUE)
 dataCC <- subset(dataCC, select = c("n_Acc","x","y","shoe","row_number","horiz_dist"))
 file_name <- paste(ROOT_PATH,"Data/all_cont.csv", sep = "")

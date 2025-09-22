@@ -28,9 +28,85 @@ allcont<- read.csv(file_name,header=TRUE)
 
 
 ```{r }
-# Data is already prepared with x, y, horiz_dist, min_dist
-# No need for arbitrary shoe 135 contour processing
-message("Data ready for statistical modeling with variables: x, y, horiz_dist, min_dist")
+# Load imager package for contour processing
+if (!require("imager", quietly = TRUE)) {
+  user_lib <- "~/R/library"
+  install.packages("imager", lib = user_lib, repos = "https://cran.rstudio.com/")
+  library("imager")
+}
+
+# Check if contour image exists in shared_data, if not create synthetic standardization
+image_path <- paste(ROOT_PATH, "shared_data/new_contour_135.png", sep = "")
+if (file.exists(image_path)) {
+  message("Loading contour image for standardization from: ", image_path)
+  # Load contour image for shoe 135 standardization
+  image <- t(as.matrix(load.image(image_path)))
+  xcoor <- t(matrix(rep((-COL_SHOE/2+1:COL_SHOE)*REL_Y_CORD/REL_COL_SHOE,ROW_SHOE),COL_SHOE,ROW_SHOE))
+  ycoor <- -matrix(rep((-ROW_SHOE/2+1:ROW_SHOE)*REL_Y_CORD/REL_COL_SHOE,COL_SHOE),ROW_SHOE,COL_SHOE)
+  entire_contour<-data.frame(x = xcoor[image==1],y =ycoor[image==1])# the data
+  distance_per_y = entire_contour %>%group_by(y) %>%summarise(min_x = abs(min(x)),max_x = max(x))
+  
+  dist_shape = c()
+  for (i in 1:nrow(dataCC)) {
+    y_val = dataCC$y[i]
+    if (dataCC$x[i] <= 0){
+      new_val <- distance_per_y[(distance_per_y$y >= y_val-0.01) & (distance_per_y$y <= y_val+0.01), c('y','min_x')]
+      closest_row_index <- which.min(abs(new_val$y - y_val))
+      closest_value <- new_val[closest_row_index, ]$min_x
+    }else{
+        new_val <- distance_per_y[(distance_per_y$y >= y_val-0.01) & (distance_per_y$y <= y_val+0.01), c('y','max_x')]
+      closest_row_index <- which.min(abs(new_val$y - y_val))
+      closest_value <- new_val[closest_row_index, ]$max_x
+    }
+    dist_shape <- append(dist_shape, closest_value)
+  }
+  dataCC$distance_shape <- dist_shape
+  
+} else {
+  message("Warning: Contour image not found at: ", image_path)
+  message("Creating synthetic standardization using available data...")
+  
+  # Create synthetic standardization based on data distribution
+  # Use quantiles to estimate shoe shape boundaries
+  y_unique <- sort(unique(dataCC$y))
+  
+  # Create synthetic distance_per_y based on data distribution
+  distance_per_y <- data.frame(
+    y = y_unique,
+    min_x = abs(sapply(y_unique, function(y_val) {
+      x_vals <- dataCC$x[abs(dataCC$y - y_val) <= 0.05 & dataCC$x <= 0]
+      if(length(x_vals) > 0) abs(min(x_vals)) else 0.15
+    })),
+    max_x = sapply(y_unique, function(y_val) {
+      x_vals <- dataCC$x[abs(dataCC$y - y_val) <= 0.05 & dataCC$x > 0]
+      if(length(x_vals) > 0) max(x_vals) else 0.15
+    })
+  )
+  
+  dist_shape = c()
+  for (i in 1:nrow(dataCC)) {
+    y_val = dataCC$y[i]
+    if (dataCC$x[i] <= 0){
+      # Find closest y value in distance_per_y
+      closest_y_idx <- which.min(abs(distance_per_y$y - y_val))
+      closest_value <- distance_per_y$min_x[closest_y_idx]
+    } else {
+      closest_y_idx <- which.min(abs(distance_per_y$y - y_val))
+      closest_value <- distance_per_y$max_x[closest_y_idx]
+    }
+    dist_shape <- append(dist_shape, closest_value)
+  }
+  dataCC$distance_shape <- dist_shape
+}
+
+# Calculate new_x with protection against division by zero
+dataCC$new_x <- ifelse(
+  (abs(dataCC$x) + dataCC$horiz_dist) == 0,
+  dataCC$x,  # fallback to original x if denominator is zero
+  (dataCC$x * dataCC$distance_shape) / (abs(dataCC$x) + dataCC$horiz_dist)
+)
+file_name <- paste(DATASET_DIR, "dataCC_distance.csv", sep = "")
+write.csv(dataCC, file_name, row.names = FALSE)
 ```
 
 ```{r }
@@ -47,44 +123,9 @@ Random<-function(nknotsx=3,nknotsy=5,dat=dataCC,model_feat = MODEL_FEATURE, init
   shoe<-dat$shoe
   
   
-  if(model_feat == 'NS_XY'){
-            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + (1 | shoe) "}
-  else if(model_feat == 'NEW_X_NS_XY'){
+  
+  if(model_feat == 'NEW_X_NS_XY'){
             formula_text <- "n_Acc ~ ns(dat$new_x,knots=knots_new_x):ns(dat$y,knots=knotsy) + (1 | shoe) "}
-  else if(model_feat == 'NS_MIN'){
-            formula_text <- "n_Acc ~ ns(dat$min_dist,knots=knots_distance) + (1 | shoe) "}
-  else if(model_feat == 'EMPTY_MODEL'){
-            formula_text <- "n_Acc ~ (1 | shoe) "}
-  else if(model_feat == 'NS_HORIZ'){
-            formula_text <- "n_Acc ~ ns(dat$horiz_dist,knots=knots_distance) + (1 | shoe) "}
-  else if(model_feat == 'HORIZ_DIST'){
-            formula_text <- "n_Acc ~ dat$horiz_dist + (1 | shoe)"}
-  else if(model_feat == 'MIN_DIST'){
-            formula_text <- "n_Acc ~ dat$min_dist + (1 | shoe)"}
-  else if(model_feat == 'HORIZ_BIN_CAT'){
-            formula_text <- "n_Acc ~ dat$horiz_dist_cat + (1 | shoe)"}
-  else if(model_feat == 'MIN_BIN_CAT'){
-            formula_text <- "n_Acc ~ dat$min_dist_cat + (1 | shoe)"}
-  else if(model_feat == 'NS_XY_HORIZ_DIST'){
-            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + dat$horiz_dist + (1 | shoe) "}
-  else if(model_feat == 'NS_XY_MIN_DIST'){
-            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + dat$min_dist + (1 | shoe) "}
-  else if(model_feat == 'NS_XY_HORIZ_BIN_CAT'){
-            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + dat$horiz_dist_cat + (1 | shoe) "}
-    else if(model_feat == 'NS_XY_HORIZ_DUMMY'){
-      dat$dummy_0to1 <- as.numeric(dat$horiz_dist <= 0.05)#0.05-0.1
-      dat$dummy_1to2 <- as.numeric(dat$horiz_dist > 0.05 & dat$horiz_dist <= 0.1)
-            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + dat$dummy_0to1 + dat$dummy_1to2 +  (1 | shoe) "
-    }
-  else if(model_feat == 'NS_XY_MIN_DUMMY'){
-      dat$dummy_0to1 <- as.numeric(dat$min_dist <= 0.05)
-      dat$dummy_1to2 <- as.numeric(dat$min_dist > 0.05 & dat$min_dist <= 0.1)
-            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + dat$dummy_0to1 + dat$dummy_1to2 +  (1 | shoe) "
-            }
-  else if(model_feat == 'NS_XY_MIN_BIN_CAT'){
-            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + dat$min_dist_cat + (1 | shoe) "}
-    else if(model_feat == 'NS_XY_NS_HORIZ'){
-            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + ns(dat$horiz_dist,knots=knots_distance) + (1 | shoe) "}
   else { stop("Invalid model_feat value")}
   cat(formula_text)
   est_formula <- as.formula(formula_text)  
@@ -110,6 +151,11 @@ get_initial_values <- function(){
 }
 
 rand<-Random(dat=dataCC,initial_values=get_initial_values())
+```
+
+
+```{r }
+
 ```
 
 

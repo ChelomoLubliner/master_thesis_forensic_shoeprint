@@ -145,7 +145,7 @@ def main():
     print(f"distance_extremities_main")
     #init_locations_new()
     list_snake = list(np.load(f'{PROCESSING_DATA_PATH}active_contour_all.npy'))
-    for i in tqdm(range(20)):#len(list_snake))
+    for i in tqdm(range(len(list_snake))):#len(list_snake))
         dist_per_shoe(list_snake, i, 'SNAKE') 
     #set_outside_to_0()
 

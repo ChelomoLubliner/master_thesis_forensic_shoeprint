@@ -22,9 +22,9 @@ library(fields)
 library(smoothie)
 
 # Create Model_Images directory if it doesn't exist
-model_images_dir <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Model_Images/", sep = "")
-if (!dir.exists(model_images_dir)) {
-  dir.create(model_images_dir, recursive = TRUE)
+MODEL_IMAGES_DIR <- paste(DATASET_DIR, "Model_Images/", sep = "")
+if (!dir.exists(MODEL_IMAGES_DIR)) {
+  dir.create(MODEL_IMAGES_DIR, recursive = TRUE)
 }
 
 ```
@@ -71,9 +71,18 @@ if (grepl("NEW_X_NS_XY", MODEL_FEATURE)){ # Splines
   knotsy <-as.numeric(quantile(dataCC$y,1:nknotsy/(1+nknotsy)))
   bas_new_x <- ns(dataCC$new_x,knots=knots_new_x)
   basy <- ns(dataCC$y,knots=knotsy)
+  
+  # Create new_x for prediction grid using same standardization as dataCC
+  # We need to create xy$new_x from xy$x using the same logic as in script 4
+  if (!"new_x" %in% colnames(xy)) {
+    # Simple fallback: use x as new_x if standardization data not available
+    xy$new_x <- xy$x
+    message("Warning: Using x as new_x for prediction. Consider running full standardization.")
+  }
+  
   for(i in 1:length(predict(basy,1))) {
     for(j in 1:length(predict(bas_new_x,1))) {
-      newdesignmat <-  cbind(newdesignmat,predict(bas_new_x, xy$x)[,j]*predict(basy, xy$y)[,i])  } }
+      newdesignmat <-  cbind(newdesignmat,predict(bas_new_x, xy$new_x)[,j]*predict(basy, xy$y)[,i])  } }
 }else if (grepl("NS_XY", MODEL_FEATURE)){ # Splines 
   nknotsx <- 3
   nknotsy <- 5
@@ -89,11 +98,24 @@ if (grepl("NEW_X_NS_XY", MODEL_FEATURE)){ # Splines
 #shape of matrix multiplication: (121265xN.Params)*(N.Params x 1) -> (121265x1)
 pred.case_control <- newdesignmat%*%fixef(rand)+log(0.005) #log(0.005) is the offset
 
-img_filled <- t(as.matrix(load.image(paste(ROOT_PATH,CONTOUR_ALGORITHM, "/Dataset/new_filled_135.png", sep = ""))))
+# Try to load filled image, create fallback if not found
+img_filled_path <- paste(DATASET_DIR, "new_filled_135.png", sep = "")
+if (file.exists(img_filled_path)) {
+  img_filled <- t(as.matrix(load.image(img_filled_path)))
+} else {
+  message("Warning: Filled image not found at ", img_filled_path)
+  message("Using prototype image as fallback for masking")
+  img_filled <- img
+}
 
 pred.case_control[t(img_filled)==0] <- NA #areas out of the contour (less than 8 shoes has contact surface in these pixels) are given NA
 
-rm(newdesignmat, rand, bas_new_x, basy, dataCC)
+# Clean up variables conditionally
+if(exists("newdesignmat")) rm(newdesignmat)
+if(exists("rand")) rm(rand)
+if(exists("bas_new_x")) rm(bas_new_x)
+if(exists("basy")) rm(basy)
+if(exists("dataCC")) rm(dataCC)
 
 ```
 
@@ -108,43 +130,118 @@ old_matrix <- intens
 ```
 
 ```{r }
+# Calculate intensity with proper bounds checking
 intens <- -log(1-prob.pred)
+
+# Clean infinite and invalid values
+intens[is.infinite(intens) | is.nan(intens)] <- NA
 intens[img==0] <- NA
+
+# Additional cleaning: cap extreme values
+finite_values <- intens[is.finite(intens)]
+if (length(finite_values) > 0) {
+  # Cap values at reasonable bounds (99th percentile)
+  upper_bound <- quantile(finite_values, 0.99, na.rm = TRUE)
+  lower_bound <- quantile(finite_values, 0.01, na.rm = TRUE)
+  intens[intens > upper_bound] <- upper_bound
+  intens[intens < lower_bound] <- lower_bound
+}
+
+# Rotate matrix for visualization
 rotated_intens <- t(intens)[, nrow(intens):1]
-image.plot(rotated_intens, axes = TRUE)
-file_name <- paste(MODEL_IMAGES_DIR, MODEL_FEATURE, "_SHOE.pdf", sep = "")
-pdf(file = file_name, height = 6, width = 6)
-image.plot(rotated_intens, axes = TRUE)
-abline(v = 0.5, col = "black", lty = 1, lwd = 1)
-abline(h = 0.5, col = "black", lty = 1, lwd = 1)
-grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
-dev.off() 
+
+# Check if we have valid data for plotting
+if (all(is.na(rotated_intens))) {
+  message("Warning: All intensity values are NA. Cannot create plot.")
+} else {
+  # Plot with error handling
+  tryCatch({
+    image.plot(rotated_intens, axes = TRUE, main = "Intensity Map - Prototype Shoe")
+    
+    # Save to PDF
+    file_name <- paste(MODEL_IMAGES_DIR, MODEL_FEATURE, "_PROTOTYPE_INTENSITY.pdf", sep = "")
+    pdf(file = file_name, height = 6, width = 6)
+    image.plot(rotated_intens, axes = TRUE, main = "Intensity Map - Prototype Shoe")
+    abline(v = 0.5, col = "black", lty = 1, lwd = 1)
+    abline(h = 0.5, col = "black", lty = 1, lwd = 1)
+    grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
+    dev.off()
+  }, error = function(e) {
+    message("Error creating intensity plot: ", e$message)
+    message("Skipping intensity visualization")
+  })
+}
 
 ```
 
 ```{r }
-intens <- -log(1-prob.pred)
-rotated_intens <- t(intens)[, nrow(intens):1]
-image.plot(rotated_intens, axes = TRUE)
-file_name <- paste(MODEL_IMAGES_DIR, MODEL_FEATURE, "_CONTOUR.pdf", sep = "")
-pdf(file = file_name, height = 6, width = 6)
-image.plot(rotated_intens, axes = TRUE)
-abline(v = 0.5, col = "black", lty = 1, lwd = 1)
-abline(h = 0.5, col = "black", lty = 1, lwd = 1)
-grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
-dev.off() 
+# Calculate intensity for contour visualization (duplicate section - can be removed)
+# This section is redundant with the previous one - keeping for compatibility
+intens_contour <- -log(1-prob.pred)
+
+# Clean infinite and invalid values
+intens_contour[is.infinite(intens_contour) | is.nan(intens_contour)] <- NA
+
+# Additional cleaning: cap extreme values
+finite_values_contour <- intens_contour[is.finite(intens_contour)]
+if (length(finite_values_contour) > 0) {
+  upper_bound <- quantile(finite_values_contour, 0.99, na.rm = TRUE)
+  lower_bound <- quantile(finite_values_contour, 0.01, na.rm = TRUE)
+  intens_contour[intens_contour > upper_bound] <- upper_bound
+  intens_contour[intens_contour < lower_bound] <- lower_bound
+}
+
+rotated_intens_contour <- t(intens_contour)[, nrow(intens_contour):1]
+
+# Check if we have valid data for plotting
+if (all(is.na(rotated_intens_contour))) {
+  message("Warning: All contour intensity values are NA. Cannot create contour plot.")
+} else {
+  # Plot with error handling
+  tryCatch({
+    image.plot(rotated_intens_contour, axes = TRUE, main = "Contour Intensity Map")
+    
+    file_name <- paste(MODEL_IMAGES_DIR, MODEL_FEATURE, "_CONTOUR_MAP.pdf", sep = "")
+    pdf(file = file_name, height = 6, width = 6)
+    image.plot(rotated_intens_contour, axes = TRUE, main = "Contour Intensity Map")
+    abline(v = 0.5, col = "black", lty = 1, lwd = 1)
+    abline(h = 0.5, col = "black", lty = 1, lwd = 1)
+    grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
+    dev.off()
+  }, error = function(e) {
+    message("Error creating contour plot: ", e$message)
+    message("Skipping contour visualization")
+  })
+}
 
 ```
 
 
 
 ```{r }
-#chargement du contour de la nouvelle image filled
-new_contour <- t(as.matrix(load.image(paste(DATASET_DIR, "new_contour_171.png", sep = ""))))
-#je vais choisir une ligne specifique
-entire_contour<-data.frame(x = xcoor[new_contour==1],y =ycoor[new_contour==1])# the data
+# Load contour and filled images with error handling
+new_contour_path <- paste(DATASET_DIR, "new_contour_", IMAGE_NUMBER, ".png", sep = "")
+if (file.exists(new_contour_path)) {
+  new_contour <- t(as.matrix(load.image(new_contour_path)))
+} else {
+  message("Warning: Contour image not found at ", new_contour_path)
+  message("Using fallback contour based on prototype")
+  new_contour <- img  # Use prototype as fallback
+}
+
+# Create contour data
+entire_contour <- data.frame(x = xcoor[new_contour==1], y = ycoor[new_contour==1])
 distinct_y <- unique(entire_contour$y)
-new_image <- t(as.matrix(load.image(paste(DATASET_DIR, "new_filled_",IMAGE_NUMBER,".png", sep = ""))))
+
+# Load filled image
+new_filled_path <- paste(DATASET_DIR, "new_filled_", IMAGE_NUMBER, ".png", sep = "")
+if (file.exists(new_filled_path)) {
+  new_image <- t(as.matrix(load.image(new_filled_path)))
+} else {
+  message("Warning: Filled image not found at ", new_filled_path)
+  message("Using fallback filled image")
+  new_image <- img  # Use prototype as fallback
+}
 ```
 
 
@@ -204,37 +301,61 @@ if((sum(contour_line) >0) & (sum(!is.null(old_line) & !is.na(old_line)) >0)){
 
 
 ```{r}
-new_rotated <- old_matrix
-new_img_file <- paste(ROOT_PATH, "Images/Old_Shoes/Cleaned_Shoes/im_", IMAGE_NUMBER, ".png", sep = "")
-if (file.exists(new_img_file)) {
-  new_img <- t(as.matrix(load.image(new_img_file)))
-} else {
-  # Use the prototype image as fallback
-  new_img <- img
-  cat("Warning: Target image not found, using prototype image\n")
-}
-new_rotated[new_img==0] <- NA
-coco_rotated <- t(new_rotated)[, nrow(new_rotated):1]
+# Apply model predictions to specific shoe image
+intensity_matrix_for_shoe <- old_matrix
 
-image.plot(coco_rotated, axes = TRUE)
-file_name <- paste(MODEL_IMAGES_DIR, "NEW_X_NS_XY_",IMAGE_NUMBER, "_NEW_SHOE.pdf", sep = "")
+# Load target shoe image for masking
+new_img_file <- paste(DATASET_DIR, "cleaned_shoe_", IMAGE_NUMBER, ".png", sep = "")
+if (file.exists(new_img_file)) {
+  target_shoe_img <- t(as.matrix(load.image(new_img_file)))
+} else {
+  # Try alternative path
+  alt_img_file <- paste(ROOT_PATH, "Images/Cleaned_Shoes/im_", IMAGE_NUMBER, ".png", sep = "")
+  if (file.exists(alt_img_file)) {
+    target_shoe_img <- t(as.matrix(load.image(alt_img_file)))
+  } else {
+    # Use the prototype image as fallback
+    target_shoe_img <- img
+    message("Warning: Target shoe image not found, using prototype image")
+  }
+}
+
+# Mask areas outside the shoe
+intensity_matrix_for_shoe[target_shoe_img==0] <- NA
+
+# Rotate matrix for proper visualization (flip vertically for correct orientation)
+intensity_plot_matrix <- t(intensity_matrix_for_shoe)[, nrow(intensity_matrix_for_shoe):1]
+
+# Plot intensity map for the specific shoe
+image.plot(intensity_plot_matrix, axes = TRUE, main = paste("Intensity Map - Shoe", IMAGE_NUMBER))
+file_name <- paste(MODEL_IMAGES_DIR, MODEL_FEATURE, "_", IMAGE_NUMBER, "_SHOE_INTENSITY.pdf", sep = "")
 pdf(file = file_name, height = 6, width = 6)
-image.plot(coco_rotated, axes = TRUE)
+image.plot(intensity_plot_matrix, axes = TRUE, main = paste("Intensity Map - Shoe", IMAGE_NUMBER))
 abline(v = 0.5, col = "black", lty = 1, lwd = 1)
 abline(h = 0.5, col = "black", lty = 1, lwd = 1)
 grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
 dev.off() 
 ```
+
+
 ```{r}
-new_rotated <- old_matrix
-coco_rotated <- t(new_rotated)[, nrow(new_rotated):1]
-file_name <- paste(MODEL_IMAGES_DIR, "NEW_X_NS_XY_",IMAGE_NUMBER, "_NEW_CONTOUR.pdf", sep = "")
+# Create contour-only visualization (no shoe masking)
+contour_intensity_matrix <- old_matrix
+
+# Rotate matrix for proper visualization (flip vertically for correct orientation)
+contour_plot_matrix <- t(contour_intensity_matrix)[, nrow(contour_intensity_matrix):1]
+
+# Plot contour intensity map
+file_name <- paste(MODEL_IMAGES_DIR, MODEL_FEATURE, "_", IMAGE_NUMBER, "_CONTOUR_INTENSITY.pdf", sep = "")
 pdf(file = file_name, height = 6, width = 6)
-image.plot(coco_rotated, axes = TRUE)
+image.plot(contour_plot_matrix, axes = TRUE, main = paste("Contour Intensity - Shoe", IMAGE_NUMBER))
 abline(v = 0.5, col = "black", lty = 1, lwd = 1)
 abline(h = 0.5, col = "black", lty = 1, lwd = 1)
 grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
 dev.off() 
+
+# Display the plot in console as well
+image.plot(contour_plot_matrix, axes = TRUE, main = paste("Contour Intensity - Shoe", IMAGE_NUMBER))
 ```
 
 

@@ -176,7 +176,7 @@ def main():
 
     list_contour = np.load(f'{PROCESSING_DATA_PATH}list_contour.npy')
     snake_all = []
-    for i in tqdm(range(20)):#len(list_contour))
+    for i in tqdm(range(len(list_contour))):#len(list_contour))
         snake_arr = active_contour_shoe(list_contour, plot_img=False, save_img_bool=True, im_num=i)
         snake_all.append(snake_arr)
     np.save(f'{PROCESSING_DATA_PATH}active_contour_all.npy', snake_all)

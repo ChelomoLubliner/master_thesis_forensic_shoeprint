@@ -70,10 +70,6 @@ Thumbs.db
 Images/**/*.png
 Images/**/*.jpg
 Images/**/*.jpeg
-Images/**/*.gif
-Images/**/*.bmp
-Images/**/*.tiff
-Images/**/*.svg
 Images/**/*.html
 
 # R analysis output files

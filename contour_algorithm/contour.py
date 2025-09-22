@@ -33,7 +33,7 @@ def main():
     print(f"main_remove_noise_get_extreme_values")
     list_lines = np.load(f'{PROCESSING_DATA_PATH}list_matrices.npy')
     list_contour = []
-    for i in tqdm(range(20)):#len(list_lines))
+    for i in tqdm(range(len(list_lines))):#len(list_lines))
         contour_item = remove_noise_get_contour(list_lines, i)
         list_contour.append(np.matrix(contour_item))
         np.save(f'{PROCESSING_DATA_PATH}list_contour.npy', list_contour)

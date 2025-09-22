@@ -12,8 +12,9 @@ library(dplyr)
 ```
 
 ```{r }
-ROOT_PATH = '../'  # Root of the project
+ROOT_PATH = 'YOUR_PATH'
 CONTOUR_ALGORITHM = 'Active_Contour'
+#'Convex' or 'Active_Contour'
 
 ```
 
@@ -37,14 +38,19 @@ dataCC<- read.csv(file_name,header=TRUE)
 
 ```{r contour_distance_}
 
-# Read pre-calculated distances from Python pipeline
-  file_name <- paste(ROOT_PATH,"shared_data/locations_new.csv", sep = "")
-  locations_with_distances <- read.csv(file_name, header=TRUE)
+#get convex hull contours as a list of doubles(395*307) of pixel and convert them to x-y  coordinates
+  file_name <- paste(ROOT_PATH,"Data/contour_", CONTOUR_ALGORITHM, ".txt", sep = "")
+  d <- readChar(file_name,nchars=(col_shoe*row_shoe+2)*num_shoe) 
+  contour_txt <- list() 
+  for(i in 1:386)
+  {
+    contour_txt[[i]] <- matrix(as.numeric(unlist(strsplit(substr(d, 1+(col_shoe*row_shoe+2)*(i-1), (col_shoe*row_shoe+2)*i-2), split="")) ),row_shoe,col_shoe,byrow=1)
+  }
 #now get the x,y coordinates
-contour_pix<-list()
+contour_pix<-list() 
 # each data_pix[[i]] is a matrix with column 1 indicating the shoe, 2 the x, 3 the y, 4 the amount of RACs in that pixel
 # we include only data where there is contact surface (after adjusting for the case that if there is a RAC there will be contact surface)
-for(i in 1:386)
+for(i in 1:386) 
 {
   xcoor <- t(matrix(rep((-col_shoe/2+1:col_shoe)*rel_Y_cord/rel_col_shoe,row_shoe),col_shoe,row_shoe))
   ycoor <- -matrix(rep((-row_shoe/2+1:row_shoe)*rel_Y_cord/rel_col_shoe,col_shoe),row_shoe,col_shoe)
@@ -54,7 +60,7 @@ for(i in 1:386)
 contour_pix_use<-numeric()
 for (i in 1:386)
 {
-  contour_pix_use<-rbind(contour_pix_use,contour_pix[[i]])
+  contour_pix_use<-rbind(contour_pix_use,contour_pix[[i]]) 
 }
 # at this stade, in convex_pix_use we have for each shoe, each point of the contour
 ```
@@ -67,8 +73,8 @@ colnames(contour_df)[colnames(contour_df) == "V2"] <- "x"
 colnames(contour_df)[colnames(contour_df) == "V3"] <- "y"
 
 #check that min_distance is always < that horiz_distanc
-# for (i in 1:nrow(dataCC))
-#   dataCC$diff[i] <- dataCC$min_dist[i]  <= dataCC$horiz_dist[i]
+# for (i in 1:nrow(dataCC)) 
+#   dataCC$diff[i] <- dataCC$min_dist[i]  <= dataCC$horiz_dist[i] 
 # }
 
 
@@ -76,7 +82,7 @@ dataCC$row_number <- seq_len(nrow(dataCC))
 contour_df$row_number <- seq_len(nrow(contour_df))
 
 
-
+  
 ```
 
 
@@ -114,7 +120,7 @@ write.csv(new_data, file_name, row.names = FALSE)
 ## MIN HORIZONTALLY DISTANCE
 
 calculate_min_horiz_distance <- function(new_data, contour_alg_df){
-
+  
   for (i in 1:nrow(new_data)) {
     percentage <- round(100 * i / nrow(new_data),3)
     message("row N.",i, ": ", percentage, "%\n")
@@ -179,3 +185,4 @@ gc()
 
 
 ```
+

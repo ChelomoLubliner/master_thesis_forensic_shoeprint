@@ -6,12 +6,14 @@ output:
 ---
 
 
-```{r }
-ROOT_PATH = '../'  # Root of the project
-CONTOUR_ALGORITHM = 'Active_Contour'
-file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Dataset/dataCC_distance.csv", sep = "")
+```{r load-config}
+# Load centralized configuration
+source("config.R")
+
+# Load data from shared_data directory
+file_name <- paste(DATASET_DIR, "dataCC_distance.csv", sep = "")
 dataCC<- read.csv(file_name,header=TRUE)
-file_name <- paste(ROOT_PATH,"Data/all_cont.csv", sep = "")
+file_name <- paste(DATASET_DIR, "all_cont.csv", sep = "")
 allcont<- read.csv(file_name,header=TRUE)
 ```
 
@@ -21,9 +23,8 @@ library(lmtest)
 library(Matrix)
 library(lme4)
 
-# Load the main model for comparison
-MODEL_FEATURE = 'NEW_X_NS_XY'
-file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/", MODEL_FEATURE, ".rds", sep = "")
+# Load the main model for comparison (using config variables)
+file_name <- paste(SAVED_MODELS_DIR, MODEL_FEATURE, "_RELATIVE.rds", sep = "")
 
 # Check if model file exists, if not create a message
 if (file.exists(file_name)) {
@@ -39,10 +40,19 @@ if (file.exists(file_name)) {
 if (!is.null(main_model)) {
   # Extract model data and create simple intercept-only model
   model_data <- main_model@frame
-  empty_model <- glmer(n_Acc ~ 1 + (1|shoe),
-                       data = model_data,
-                       family = binomial,
-                       weights = model_data$poids)
+  
+  # Check if weights column exists
+  if ("poids" %in% colnames(model_data)) {
+    empty_model <- glmer(n_Acc ~ 1 + (1|shoe),
+                         data = model_data,
+                         family = binomial,
+                         weights = model_data$poids)
+  } else {
+    # Create empty model without weights if poids column doesn't exist
+    empty_model <- glmer(n_Acc ~ 1 + (1|shoe),
+                         data = model_data,
+                         family = binomial)
+  }
   print("Empty Model (Intercept only):")
   print(summary(empty_model))
 }
@@ -53,7 +63,7 @@ if (!is.null(main_model)) {
 model_comparison <- function(model_feat = MODEL_FEATURE) {
   cat("\n=== Model Analysis for:", model_feat, "===\n")
 
-  file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/", model_feat, ".rds", sep = "")
+  file_name <- paste(SAVED_MODELS_DIR, model_feat, "_RELATIVE.rds", sep = "")
 
   if (!file.exists(file_name)) {
     cat("Error: Model file", file_name, "not found.\n")

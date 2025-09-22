@@ -47,7 +47,7 @@ Located in `statistical_model/` - Performs advanced statistical modeling:
 2. **Create and activate Python virtual environment**
    ```bash
    python3 -m venv .venv
-   source .venv/bin/activate
+   ource .venv/bin/activates
    ```
 
 3. **Install Python dependencies**

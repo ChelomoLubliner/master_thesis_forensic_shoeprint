@@ -50,7 +50,7 @@ min_horiz_distance_xy <- function(coordinates , contour_df, shoe_num){
   # Check if contour data exists for this shoe
   if (nrow(contour_df1) == 0) {
     message("No contour data for shoe ", shoe_num, ". Using min_dist for horizontal distances.")
-    coordinates$horiz_dist <- coordinates$min_dist
+    coordinates$horiz_dist <- coordinates$horiz_dist
   } else {
     for (i in 1:nrow(coordinates)){
       percentage <- round(100 * i / nrow(coordinates),3)
