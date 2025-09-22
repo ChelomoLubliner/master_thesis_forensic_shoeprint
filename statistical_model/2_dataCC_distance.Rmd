@@ -23,6 +23,39 @@ dataCC<- read.csv(file_name,header=TRUE)
 ```
 
 
+
+```{r contour_distance_}
+
+#get convex hull contours as a list of doubles(395*307) of pixel and convert them to x-y  coordinates
+  file_name <- paste(DATASET_DIR,"active_contour_all.txt", sep = "")
+  d <- readChar(file_name,nchars=(col_shoe*row_shoe+2)*num_shoe) 
+  contour_txt <- list() 
+  for(i in 1:386)
+  {
+    contour_txt[[i]] <- matrix(as.numeric(unlist(strsplit(substr(d, 1+(col_shoe*row_shoe+2)*(i-1), (col_shoe*row_shoe+2)*i-2), split="")) ),row_shoe,col_shoe,byrow=1)
+  }
+#now get the x,y coordinates
+contour_pix<-list() 
+# each data_pix[[i]] is a matrix with column 1 indicating the shoe, 2 the x, 3 the y, 4 the amount of RACs in that pixel
+# we include only data where there is contact surface (after adjusting for the case that if there is a RAC there will be contact surface)
+for(i in 1:386) 
+{
+  xcoor <- t(matrix(rep((-col_shoe/2+1:col_shoe)*rel_Y_cord/rel_col_shoe,row_shoe),col_shoe,row_shoe))
+  ycoor <- -matrix(rep((-row_shoe/2+1:row_shoe)*rel_Y_cord/rel_col_shoe,col_shoe),row_shoe,col_shoe)
+  shoe<-rep(i,length(contour_txt[[i]][contour_txt[[i]]==1]))
+  contour_pix[[i]]<-cbind(shoe,xcoor[contour_txt[[i]]==1],ycoor[contour_txt[[i]]==1])# the data is only  where there is contact surface
+}
+contour_pix_use<-numeric()
+for (i in 1:386)
+{
+  contour_pix_use<-rbind(contour_pix_use,contour_pix[[i]]) 
+}
+# at this stade, in convex_pix_use we have for each shoe, each point of the contour
+```
+
+
+
+
 ```{r contour_distance_}
 
 # Read pre-calculated distances from Python pipeline
@@ -84,44 +117,6 @@ calculate_distance <- function(x1, y1, x2, y2) {
 }
 
 
-calculate_min_distance <- function(new_data , contour_alg_df){
-  new_data$row_number <- seq_len(nrow(new_data))
-
-  # Check if contour data is available
-  if (nrow(contour_alg_df) == 0) {
-    message("No contour data available. Setting all distances to 0.")
-    new_data$min_dist <- 0
-    file_name <- paste(DATASET_DIR, "data_distance_contour.csv", sep = "")
-    write.csv(new_data, file_name, row.names = FALSE)
-    return(new_data)
-  }
-
-  for (i in 1:nrow(new_data)){
-    percentage <- round(100 * i / nrow(new_data),3)
-    message("row N.",i, ": ", percentage, "%\n")
-    min_distance <- Inf
-    distance <- Inf
-    contour_df2 <- contour_alg_df[contour_alg_df$shoe==new_data$shoe[i],]
-
-    # Check if contour data exists for this shoe
-    if (nrow(contour_df2) == 0) {
-      min_distance <- 0  # Default to 0 if no contour data for this shoe
-    } else {
-      for (j in 1:nrow(contour_df2)) {
-          distance <- calculate_distance(new_data$x[i], new_data$y[i],contour_df2$x[j] , contour_df2$y[j])
-          if (!is.na(distance) && distance < min_distance) {
-            min_distance <- distance
-          }
-      }
-    }
-    new_data$min_dist[i] <- min_distance
-  }
-  file_name <- paste(DATASET_DIR, "data_distance_contour.csv", sep = "")
-  write.csv(new_data, file_name, row.names = FALSE)
-  return(new_data)
-}
-
-
 ## MIN HORIZONTALLY DISTANCE
 
 calculate_min_horiz_distance <- function(new_data, contour_alg_df){
@@ -166,10 +161,11 @@ calculate_min_horiz_distance <- function(new_data, contour_alg_df){
 
 
 ```{r contour_distance_8_big_iteration}
-new_data <- calculate_min_distance(dataCC, contour_df)
-file_name <- paste(DATASET_DIR, "data_distance_contour.csv", sep = "")
-new_data <-read.csv(file_name,header=TRUE)
-new_data <- calculate_min_horiz_distance(new_data, contour_df)
+new_data <- calculate_min_horiz_distance(dataCC, contour_df)
+file_name <- paste(DATASET_DIR, "contour_algorithm.csv", sep = "")
+write.csv(contour_df, file_name, row.names = FALSE)
+file_name <- paste(DATASET_DIR, "dataCC_distance.csv", sep = "")
+write.csv(new_data, file_name, row.names = FALSE)
 
 
 ```
@@ -184,10 +180,6 @@ message("Distance calculations completed. Data ready for next steps.")
 
 
 ```{r }
-file_name <- paste(DATASET_DIR, "contour_algorithm.csv", sep = "")
-write.csv(contour_df, file_name, row.names = FALSE)
-file_name <- paste(DATASET_DIR, "dataCC_distance.csv", sep = "")
-write.csv(new_data, file_name, row.names = FALSE)
 
 # Clean up workspace - only remove variables that exist
 if(exists("contour_df")) rm(contour_df)

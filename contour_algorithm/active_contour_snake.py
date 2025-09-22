@@ -180,6 +180,12 @@ def main():
         snake_arr = active_contour_shoe(list_contour, plot_img=False, save_img_bool=True, im_num=i)
         snake_all.append(snake_arr)
     np.save(f'{PROCESSING_DATA_PATH}active_contour_all.npy', snake_all)
+
+    # Save snake_all as txt file (one line per shoe, flattened to 2D)
+    with open(f'{SHARED_DATA_PATH}active_contour_all.txt', 'w') as f:
+        for snake_arr in snake_all:
+            binary_string = ''.join(snake_arr.flatten().astype(int).astype(str))
+            f.write(binary_string + '\n')
     print("Active contour processing complete - cleaned images saved to Active-contour folder")
 
 if __name__ == '__main__':
