@@ -32,6 +32,11 @@ REL_ROW_SHOE <- as.numeric(Sys.getenv("R_REL_ROW_SHOE"))  # Relevant rows
 REL_X_CORD <- as.numeric(Sys.getenv("R_REL_X_CORD"))   # X coordinate range
 REL_Y_CORD <- as.numeric(Sys.getenv("R_REL_Y_CORD"))    # Y coordinate range
 
+rel_col_shoe <- REL_COL_SHOE
+rel_row_shoe <- REL_ROW_SHOE
+rel_x_cord <- REL_X_CORD
+rel_Y_cord <- REL_Y_CORD
+
 # =============================================================================
 # DATA PATHS
 # =============================================================================
