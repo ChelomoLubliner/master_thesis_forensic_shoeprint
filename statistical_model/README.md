@@ -88,6 +88,13 @@ rmarkdown::render("2_dataCC_distance.Rmd")
 
 ### Advanced Configuration
 
+**For different datasets:**
+```r
+# Edit config.R before running
+CONTOUR_ALGORITHM <- 'Convex'        # Change algorithm
+MODEL_FEATURE <- 'NS_XY'            # Change model type
+NUM_SHOE <- 200                     # Different dataset size
+```
 
 **For specific shoe analysis:**
 ```r
@@ -172,7 +179,10 @@ memory.limit(size = 8000)  # Windows
 - `Convex` - Faster geometric approach
 
 **Available models:**
-- `NEW_X_NS_XY` - Advanced spline model ()
+- `NEW_X_NS_XY` - Advanced spline model (recommended)
+- `NS_XY` - Standard spline model
+- `NS_HORIZ` - Horizontal distance model
+- `NS_MIN` - Minimum distance model
 
 ## Quality Assurance
 
