@@ -83,54 +83,6 @@ load_required_packages <- function(packages) {
 
 # Load all required packages
 load_required_packages(required_packages)
-
-# =============================================================================
-# UTILITY FUNCTIONS
-# =============================================================================
-
-#' Convert x coordinate to x pixel
-#' @param x The x coordinate
-#' @param col_shoe Number of columns in each shoe
-#' @param rel_col_shoe Number of relevant columns
-#' @param rel_x_cord Relevant x coordinate range
-#' @return Pixel x coordinate
-aspix_x <- function(x, col_shoe = COL_SHOE, rel_col_shoe = REL_COL_SHOE, rel_x_cord = REL_X_CORD) {
-  not_rel_col <- ceiling((col_shoe - rel_col_shoe) / 2)
-  delx <- (2 * rel_x_cord) / rel_col_shoe
-  pix_x <- col_shoe - (floor((x + rel_x_cord) / delx) + not_rel_col)
-  return(pix_x)
-}
-
-#' Convert Y coordinate to Y pixel
-#' @param y The Y coordinate
-#' @param row_shoe Number of rows in each shoe
-#' @param rel_row_shoe Number of relevant rows
-#' @param rel_Y_cord Relevant Y coordinate range
-#' @return Pixel Y coordinate
-aspix_y <- function(y, row_shoe = ROW_SHOE, rel_row_shoe = REL_ROW_SHOE, rel_Y_cord = REL_Y_CORD) {
-  not_rel_row <- ceiling((row_shoe - rel_row_shoe) / 2)
-  dely <- (2 * rel_Y_cord) / rel_row_shoe
-  pix_y <- floor((y + rel_Y_cord) / dely) + not_rel_row
-  return(pix_y)
-}
-
-# =============================================================================
-# VALIDATION FUNCTIONS
-# =============================================================================
-
-#' Validate that required data files exist
-validate_data_files <- function() {
-  files_to_check <- c(CONTACTS_DATA_FILE, LOCATIONS_DATA_FILE)
-
-  for (file in files_to_check) {
-    if (!file.exists(file)) {
-      stop(paste("Required data file not found:", file))
-    }
-  }
-
-  message("All required data files found.")
-}
-
 #' Print current configuration
 print_config <- function() {
   cat("=== Statistical Model Configuration ===\n")
@@ -145,8 +97,5 @@ print_config <- function() {
 
 # Print configuration when loaded
 print_config()
-
-# Validate data files
-validate_data_files()
 
 message("Configuration loaded successfully!")

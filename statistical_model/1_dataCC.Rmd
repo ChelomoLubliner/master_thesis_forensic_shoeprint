@@ -13,7 +13,48 @@ source("config.R")
 ```
 
 ```{r 2.init_functions}
+#The following two functions convert the x and Y coordinates of the location of a RAC to the X and Y pixels
+
+##################################################################################################################
+# aspix_x converts the x coordinate to the x pixel
+# INPUT:
+# ======
+# x - the x coordinate
+# col_shoe - the number of columns in each shoe
+# rel_col_shoe -the number of relevant columns 
+#out of the 307 columns only 150 are relevant (contain non zero pixels in some shoes)
+# rel_x_cord - the relevant coordintes 
+#(using coordinates as in the locations_data.CSV file. The relevant x coordinates are between -.25 and 0.25)
+##################################################################################################################
+aspix_x <-function(x,col_shoe=307,rel_col_shoe=150,rel_x_cord=0.25)
+{
+  not_rel_col<-ceiling((col_shoe - rel_col_shoe)/2)
+  delx <- (2*rel_x_cord)/rel_col_shoe 
+  pix_x <- col_shoe-(floor((x+rel_x_cord)/delx)+not_rel_col) #The plus rel_x_cord is because it is --rel_x_cord (the x starts from -rel_x_cord) 
+  return(pix_x)    
+}
+
+##################################################################################################################
+# aspix_y converts the Y coordinate to the Y pixel
+# INPUT:
+# ======
+# y - the y coordinate
+# row_shoe - the number of rows in each shoe
+# rel_row_shoe -the number of relevant rows 
+#out of the 395 rows only 300 are relevant (contain non zero pixels in some shoes)
+# rel_Y_cord - the relevant coordintes 
+#(using coordinates as in the locations_data.CSV file. the relevant Y coordinates are between -0.5 and 0.5)
+##################################################################################################################
+
+aspix_y<-function(y,row_shoe=395,rel_row_shoe=300,rel_Y_cord=0.5)
+{
+  not_rel_row<-ceiling((row_shoe-rel_row_shoe)/2)
+  dely <- (2*rel_Y_cord)/rel_row_shoe 
+  pix_y <- row_shoe-(floor((y+rel_Y_cord)/dely)+not_rel_row) # The plus rel_Y_cord is because it is --rel_Y_cord (the y starts from -0.5)
+  return(pix_y) 
+}  
 ```
+
 
 ```{r 3_contacts_data}
 #############################
