@@ -21,16 +21,16 @@ source("config.R")
 # ======
 # x - the x coordinate
 # col_shoe - the number of columns in each shoe
-# REL_COL_SHOE -the number of relevant columns 
+# rel_col_shoe -the number of relevant columns 
 #out of the 307 columns only 150 are relevant (contain non zero pixels in some shoes)
-# REL_X_CORD - the relevant coordintes 
+# rel_x_cord - the relevant coordintes 
 #(using coordinates as in the locations_data.CSV file. The relevant x coordinates are between -.25 and 0.25)
 ##################################################################################################################
-aspix_x <-function(x)
+aspix_x <-function(x,col_shoe=307,rel_col_shoe=150,rel_x_cord=0.25)
 {
-  not_rel_col<-ceiling((COL_SHOE - REL_COL_SHOE)/2)
-  delx <- (2*REL_X_CORD)/REL_COL_SHOE 
-  pix_x <- COL_SHOE-(floor((x+REL_X_CORD)/delx)+not_rel_col) #The plus REL_X_CORD is because it is --REL_X_CORD (the x starts from -REL_X_CORD) 
+  not_rel_col<-ceiling((col_shoe - rel_col_shoe)/2)
+  delx <- (2*rel_x_cord)/rel_col_shoe 
+  pix_x <- col_shoe-(floor((x+rel_x_cord)/delx)+not_rel_col) #The plus rel_x_cord is because it is --rel_x_cord (the x starts from -rel_x_cord) 
   return(pix_x)    
 }
 
@@ -39,18 +39,18 @@ aspix_x <-function(x)
 # INPUT:
 # ======
 # y - the y coordinate
-# ROW_SHOE - the number of rows in each shoe
-# REL_ROW_SHOE -the number of relevant rows 
+# row_shoe - the number of rows in each shoe
+# rel_row_shoe -the number of relevant rows 
 #out of the 395 rows only 300 are relevant (contain non zero pixels in some shoes)
-# REL_Y_CORD - the relevant coordintes 
+# rel_Y_cord - the relevant coordintes 
 #(using coordinates as in the locations_data.CSV file. the relevant Y coordinates are between -0.5 and 0.5)
 ##################################################################################################################
 
-aspix_y<-function(y)
+aspix_y<-function(y,row_shoe=395,rel_row_shoe=300,rel_Y_cord=0.5)
 {
-  not_rel_row<-ceiling((ROW_SHOE-REL_ROW_SHOE)/2)
-  dely <- (2*REL_Y_CORD)/REL_ROW_SHOE 
-  pix_y <- ROW_SHOE-(floor((y+REL_Y_CORD)/dely)+not_rel_row) # The plus REL_Y_CORD is because it is --REL_Y_CORD (the y starts from -0.5)
+  not_rel_row<-ceiling((row_shoe-rel_row_shoe)/2)
+  dely <- (2*rel_Y_cord)/rel_row_shoe 
+  pix_y <- row_shoe-(floor((y+rel_Y_cord)/dely)+not_rel_row) # The plus rel_Y_cord is because it is --rel_Y_cord (the y starts from -0.5)
   return(pix_y) 
 }  
 ```

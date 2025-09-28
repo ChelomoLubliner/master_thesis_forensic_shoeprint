@@ -28,7 +28,8 @@ dataCC<- read.csv(file_name,header=TRUE)
 ```{r contour_distance_}
 
 #get convex hull contours as a list of doubles(395*307) of pixel and convert them to x-y  coordinates
-  file_name <- paste(DATASET_DIR,"active_contour_all.txt", sep = "")
+  file_name <- paste(DATASET_DIR,"
+                     active_contour_all.txt", sep = "")
   d <- readChar(file_name,nchars=(col_shoe*row_shoe+2)*NUM_SHOE) 
   contour_txt <- list() 
   for(i in 1:386)

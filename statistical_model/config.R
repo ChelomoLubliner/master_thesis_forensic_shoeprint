@@ -12,26 +12,26 @@ set.seed(313)
 # =============================================================================
 # PROJECT PATHS (Simplified - no algorithm-specific subdirectories needed)
 # =============================================================================
-ROOT_PATH <- Sys.getenv("R_ROOT_PATH")  # Root of the project
-MODEL_FEATURE <- Sys.getenv("R_MODEL_FEATURE")  # Model type selection
+ROOT_PATH <- '../'
+MODEL_FEATURE <- 'NEW_X_NS_XY'
 
 # =============================================================================
 # SHOE PARAMETERS
 # =============================================================================
 # Shoe dimensions
-COL_SHOE <- as.numeric(Sys.getenv("R_COL_SHOE"))  # Number of columns in each shoe
-ROW_SHOE <- as.numeric(Sys.getenv("R_ROW_SHOE"))  # Number of rows in each shoe
-NUM_SHOE <- as.numeric(Sys.getenv("R_NUM_SHOE"))  # Total number of shoes
+COL_SHOE <- 307  # Number of columns in each shoe
+ROW_SHOE <- 395  # Number of rows in each shoe
+NUM_SHOE <- 387  # Total number of shoes
 
 col_shoe <- COL_SHOE
 row_shoe <- ROW_SHOE
 num_shoe <- NUM_SHOE
 
 # Relevant area parameters
-REL_COL_SHOE <- as.numeric(Sys.getenv("R_REL_COL_SHOE"))  # Relevant columns
-REL_ROW_SHOE <- as.numeric(Sys.getenv("R_REL_ROW_SHOE"))  # Relevant rows
-REL_X_CORD <- as.numeric(Sys.getenv("R_REL_X_CORD"))   # X coordinate range
-REL_Y_CORD <- as.numeric(Sys.getenv("R_REL_Y_CORD"))    # Y coordinate range
+REL_COL_SHOE <- 150  # Relevant columns
+REL_ROW_SHOE <- 300  # Relevant rows
+REL_X_CORD <- 0.25   # X coordinate range
+REL_Y_CORD <- 0.5    # Y coordinate range
 
 rel_col_shoe <- REL_COL_SHOE
 rel_row_shoe <- REL_ROW_SHOE

@@ -9,7 +9,7 @@ This repository contains both the computer vision pipeline and the statistical a
 The project consists of two main components that work sequentially:
 
 ### 1. Computer Vision Pipeline (Python)
-Located in `contour_algorithm/` - Processes raw shoeprint data:
+Located in `contour_algorithm/` (current version) and `contour_algorithm_backup/` (backup version) - Processes raw shoeprint data:
 1. **Data preparation** - Load and preprocess shoeprint matrices from contact data
 2. **Contour extraction** - Extract shoe contours with noise removal
 3. **Active contour refinement** - Apply snake algorithms for precise boundaries
@@ -434,7 +434,7 @@ For comprehensive R statistical analysis documentation, see `statistical_model/R
 │   │   └── freq_min_18.*          # Prototype shoe data
 │   ├── saved_models/             # Statistical models (R pipeline output)
 │   └── final_results/             # Final analysis outputs
-├── contour_algorithm/             # Python computer vision pipeline
+├── contour_algorithm/             # Python computer vision pipeline (current version)
 │   ├── main.py                    # Main pipeline runner
 │   ├── globals.py                 # Configuration management
 │   ├── __init__.py                # Package initialization with path handling
@@ -445,6 +445,16 @@ For comprehensive R statistical analysis documentation, see `statistical_model/R
 │   ├── contact_with_locations.py  # RAC location analysis
 │   ├── extreme_values_x_y.py      # Utility functions
 │   └── test_paths.py              # Path validation testing
+├── contour_algorithm_backup/      # Python computer vision pipeline (backup version)
+│   ├── main.py                    # Main pipeline runner (backup)
+│   ├── globals.py                 # Configuration with hardcoded paths
+│   ├── create_files_shoes.py      # Data preparation module (backup)
+│   ├── contour.py                 # Contour extraction module (backup)
+│   ├── active_contour_snake.py    # Active contour refinement (backup)
+│   ├── distance_extremities.py    # Distance calculation module (backup)
+│   ├── contact_with_locations.py  # RAC location analysis (backup)
+│   ├── extreme_values_x_y.py      # Utility functions (backup)
+│   └── remove_noise.py            # Image preprocessing (backup)
 ├── statistical_model/             # R statistical analysis pipeline
 │   ├── README.md                  # R-specific documentation
 │   ├── config.R                   # R configuration management
