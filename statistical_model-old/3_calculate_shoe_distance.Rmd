@@ -1,0 +1,119 @@
+---
+title: "calculate_shoe_distance"
+author: "Chelomo Lubliner"
+date: "2023-09-21"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-config}
+# Load centralized configuration
+source("config.R")
+```
+
+```{r }
+IMAGE_NUMBER  = 171
+# 116 / 135
+#  116/ 107 / 208/ 236 / 376 / 130 / 135
+
+# Check if contour algorithm results exist
+contour_file <- paste(DATASET_DIR, "contour_algorithm.csv", sep = "")
+if (file.exists(contour_file)) {
+  contour_df <- read.csv(contour_file, header=TRUE)
+  message("Loaded contour data from Python pipeline: ", nrow(contour_df), " points")
+} else {
+  message("Warning: Contour data not found. Creating minimal structure...")
+  message("Expected file: ", contour_file)
+  stop("Cannot proceed without contour data. Please run Python pipeline first.")
+}
+
+```
+
+
+
+
+```{r }
+calculate_distance <- function(x1, y1, x2, y2) {
+  sqrt((x1 - x2)^2 + (y1 - y2)^2)
+}
+
+
+min_horiz_distance_xy <- function(coordinates , contour_df, shoe_num){
+  colnames(coordinates)[colnames(coordinates) == "Var1"] <- "x"
+  colnames(coordinates)[colnames(coordinates) == "Var2"] <- "y"
+  contour_df1 <- contour_df[contour_df$shoe ==shoe_num,]
+
+  # Check if contour data exists for this shoe
+  if (nrow(contour_df1) == 0) {
+    message("No contour data for shoe ", shoe_num, ". Using min_dist for horizontal distances.")
+    coordinates$horiz_dist <- coordinates$horiz_dist
+  } else {
+    for (i in 1:nrow(coordinates)){
+      percentage <- round(100 * i / nrow(coordinates),3)
+      message("row N.",i, ": ", percentage, "%\n")
+      min_distance <- Inf
+      distance <- Inf
+      condition <- abs(coordinates$y[i] - contour_df1$y) < 0.01
+      contour_df2 <- contour_df1[condition, ]
+      if(nrow(contour_df2)> 1){
+        for (j in 1:nrow(contour_df2)) {
+          if (abs(coordinates$y[i] - contour_df2$y[j]) <0.01){
+            distance <- calculate_distance(coordinates$x[i], coordinates$y[i],contour_df2$x[j] , contour_df2$y[j])
+            if (!is.na(distance) && distance < min_distance) {
+              min_distance <- distance
+            }
+          }
+        }
+      }
+      coordinates$horiz_dist[i] <- min_distance
+    }
+    coordinates$horiz_dist[is.infinite(coordinates$horiz_dist)] <- coordinates$min_dist[is.infinite(coordinates$horiz_dist)]
+  }
+
+  # Create output directory if it doesn't exist
+  shoes_distance_dir <- paste(DATASET_DIR, "Shoes_Distance/", sep = "")
+  dir.create(shoes_distance_dir, recursive = TRUE, showWarnings = FALSE)
+  file_name <- paste(shoes_distance_dir, "dist_shoe_",shoe_num,".csv", sep = "")
+  write.csv(coordinates,file_name, row.names = FALSE)
+  cat('file_saved : min_horiz_distance_xy')
+  return(coordinates)
+}
+```
+
+```{r }
+```
+
+```{r }
+# Script 3 now focuses only on horizontal distance calculations
+# Min distance calculations are handled by script 2
+message("Script 3: Calculating horizontal distances for shoe ", IMAGE_NUMBER)
+
+# Create coordinate grid for the specific shoe
+xcoor <- t(matrix(rep((-COL_SHOE/2+1:COL_SHOE)*REL_Y_CORD/REL_COL_SHOE,ROW_SHOE),COL_SHOE,ROW_SHOE))
+ycoor <- -matrix(rep((-ROW_SHOE/2+1:ROW_SHOE)*REL_Y_CORD/REL_COL_SHOE,COL_SHOE),ROW_SHOE,COL_SHOE)
+xy <- expand.grid(xcoor[1,],ycoor[,1])#307 * 395
+
+# Add dummy min_dist column (will be calculated properly in other scripts)
+xy$min_dist <- 0
+
+# Calculate horizontal distances only
+xy <- min_horiz_distance_xy(xy,contour_df,IMAGE_NUMBER)
+
+message("Script 3 completed: Horizontal distance calculations for shoe ", IMAGE_NUMBER)
+
+#rm(xy)
+#rm(contour_df)
+rm(xcoor)
+rm(ycoor)
+gc()
+```
+
+
+
+
+
+

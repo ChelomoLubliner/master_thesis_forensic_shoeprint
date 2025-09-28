@@ -1,0 +1,342 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-config}
+# Load centralized configuration
+source("config.R")
+```
+
+```{r }
+set.seed(313)
+library(data.table)
+library(imager)
+library(parallel)
+library(doParallel)
+library(splines)
+library(spam)
+library(Matrix)
+library(lme4)
+library(rgl)
+library(fields)
+library(smoothie)
+
+# Create Model_Images directory if it doesn't exist
+MODEL_IMAGES_DIR <- paste(DATASET_DIR, "Model_Images/", sep = "")
+if (!dir.exists(MODEL_IMAGES_DIR)) {
+  dir.create(MODEL_IMAGES_DIR, recursive = TRUE)
+}
+
+```
+
+
+
+
+
+  
+```{r }
+
+IMAGE_NUMBER = 171
+file_name <- paste(DATASET_DIR, "dataCC_distance.csv", sep = "")
+dataCC<- read.csv(file_name,header=TRUE)
+#file_name <- paste(SAVED_MODELS_DIR, MODEL_FEATURE,"_RELATIVE.rds", sep = "")
+file_name <- paste(SAVED_MODELS_DIR, "NEW_X_NS_XY_RELATIVE.rds", sep = "")
+rand <- readRDS(file = file_name)
+#print(summary(rand))
+xcoor <- t(matrix(rep((-COL_SHOE/2+1:COL_SHOE)*REL_Y_CORD/REL_COL_SHOE,ROW_SHOE),COL_SHOE,ROW_SHOE))
+ycoor <- -matrix(rep((-ROW_SHOE/2+1:ROW_SHOE)*REL_Y_CORD/REL_COL_SHOE,COL_SHOE),ROW_SHOE,COL_SHOE)
+xy <- expand.grid(xcoor[1,],ycoor[,1])#307 * 395
+colnames(xy)[colnames(xy) == "Var1"] <- "x"
+colnames(xy)[colnames(xy) == "Var2"] <- "y"
+img <- load.image(paste(ROOT_PATH, "Images/Cleaned_Shoes/im_",IMAGE_NUMBER,".png", sep = ""))
+img <- t(as.matrix(img))
+
+```
+
+
+```{r }
+
+newdesignmat <- rep(1,length(xy$x))
+#we multiplicate the splines(x) with splines(y) so newdesigmat have 4*6 columns! (plus the first)
+#newdesgmat have 12165 lines, exactly like ROWS*COLS. it will represent each point of the matrix ?
+
+if (grepl("NEW_X_NS_XY", MODEL_FEATURE)){ # Splines 
+  nknotsx <- 3
+  nknotsy <- 5
+  knots_new_x <- as.numeric(quantile(dataCC$new_x,1:nknotsx/(1+nknotsx)))
+  knotsy <-as.numeric(quantile(dataCC$y,1:nknotsy/(1+nknotsy)))
+  bas_new_x <- ns(dataCC$new_x,knots=knots_new_x)
+  basy <- ns(dataCC$y,knots=knotsy)
+  for(i in 1:length(predict(basy,1))) {
+    for(j in 1:length(predict(bas_new_x,1))) {
+      newdesignmat <-  cbind(newdesignmat,predict(bas_new_x, xy$x)[,j]*predict(basy, xy$y)[,i])  } }
+}else if (grepl("NS_XY", MODEL_FEATURE)){ # Splines 
+  nknotsx <- 3
+  nknotsy <- 5
+  knotsx <- as.numeric(quantile(dataCC$x,1:nknotsx/(1+nknotsx)))
+  knotsy <-as.numeric(quantile(dataCC$y,1:nknotsy/(1+nknotsy)))
+  basx <- ns(dataCC$x,knots=knotsx)
+  basy <- ns(dataCC$y,knots=knotsy)
+  for(i in 1:length(predict(basy,1))) {
+    for(j in 1:length(predict(basx,1))) {
+      newdesignmat <-  cbind(newdesignmat,predict(basx, xy$x)[,j]*predict(basy, xy$y)[,i])  } }
+} 
+#(for each row, we multiply and sum the params between the two matrices )
+#shape of matrix multiplication: (121265xN.Params)*(N.Params x 1) -> (121265x1)
+pred.case_control <- newdesignmat%*%fixef(rand)+log(0.005) #log(0.005) is the offset
+
+img_filled <- t(as.matrix(load.image(paste(DATASET_DIR, "new_filled_",IMAGE_NUMBER,".png", sep = ""))))
+pred.case_control[t(img_filled)==0] <- NA #areas out of the contour (less than 8 shoes has contact surface in these pixels) are given NA
+
+# Clean up variables conditionally
+if(exists("newdesignmat")) rm(newdesignmat)
+if(exists("rand")) rm(rand)
+if(exists("bas_new_x")) rm(bas_new_x)
+if(exists("basy")) rm(basy)
+if(exists("dataCC")) rm(dataCC)
+
+```
+
+
+```{r }
+pred.case_control_img<-pred.case_control
+#pred.case_control_img[t(img)==0] <- NA
+prob.pred <- exp(matrix(pred.case_control_img ,ROW_SHOE,COL_SHOE,byrow=1))/(1+exp(matrix(pred.case_control_img ,ROW_SHOE,COL_SHOE,byrow=1)))
+intens <- -log(1-prob.pred) #turning it to intensity
+old_matrix <- intens
+
+```
+
+```{r }
+# Calculate intensity with proper bounds checking
+intens <- -log(1-prob.pred)
+intens[img==0] <- NA
+rotated_intens <- t(intens)[, nrow(intens):1]
+image.plot(rotated_intens, axes = TRUE, main = "Intensity Map - Prototype Shoe")
+file_name <- paste(MODEL_IMAGES_DIR, MODEL_FEATURE, "_PROTOTYPE_INTENSITY.pdf", sep = "")
+pdf(file = file_name, height = 6, width = 6)
+image.plot(rotated_intens, axes = TRUE, main = "Intensity Map - Prototype Shoe")
+    
+abline(v = 0.5, col = "black", lty = 1, lwd = 1)
+abline(h = 0.5, col = "black", lty = 1, lwd = 1)
+grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
+dev.off()
+
+```
+
+```{r }
+# Calculate intensity for contour visualization (duplicate section - can be removed)
+# This section is redundant with the previous one - keeping for compatibility
+intens_contour <- -log(1-prob.pred)
+
+# Clean infinite and invalid values
+intens_contour[is.infinite(intens_contour) | is.nan(intens_contour)] <- NA
+
+# Additional cleaning: cap extreme values
+finite_values_contour <- intens_contour[is.finite(intens_contour)]
+if (length(finite_values_contour) > 0) {
+  upper_bound <- quantile(finite_values_contour, 0.99, na.rm = TRUE)
+  lower_bound <- quantile(finite_values_contour, 0.01, na.rm = TRUE)
+  intens_contour[intens_contour > upper_bound] <- upper_bound
+  intens_contour[intens_contour < lower_bound] <- lower_bound
+}
+
+rotated_intens_contour <- t(intens_contour)[, nrow(intens_contour):1]
+
+# Check if we have valid data for plotting
+if (all(is.na(rotated_intens_contour))) {
+  message("Warning: All contour intensity values are NA. Cannot create contour plot.")
+} else {
+  # Plot with error handling
+  tryCatch({
+    image.plot(rotated_intens_contour, axes = TRUE, main = "Contour Intensity Map")
+    
+    file_name <- paste(MODEL_IMAGES_DIR, MODEL_FEATURE, "_CONTOUR_MAP.pdf", sep = "")
+    pdf(file = file_name, height = 6, width = 6)
+    image.plot(rotated_intens_contour, axes = TRUE, main = "Contour Intensity Map")
+    abline(v = 0.5, col = "black", lty = 1, lwd = 1)
+    abline(h = 0.5, col = "black", lty = 1, lwd = 1)
+    grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
+    dev.off()
+  }, error = function(e) {
+    message("Error creating contour plot: ", e$message)
+    message("Skipping contour visualization")
+  })
+}
+
+```
+
+
+
+```{r }
+# Set the image number and algorithm for analysis
+CONTOUR_ALGORITHM <- "Active_Contour"  # Algorithm directory name
+
+# Load contour and filled images with error handling
+new_contour_path <- paste(DATASET_DIR, "new_contour_", IMAGE_NUMBER, ".png", sep = "")
+if (file.exists(new_contour_path)) {
+  new_contour <- t(as.matrix(load.image(new_contour_path)))
+} else {
+  message("Warning: Contour image not found at ", new_contour_path)
+  message("Using fallback contour based on prototype")
+  new_contour <- img  # Use prototype as fallback
+}
+
+# Create contour data
+entire_contour <- data.frame(x = xcoor[new_contour==1], y = ycoor[new_contour==1])
+distinct_y <- unique(entire_contour$y)
+
+# Load filled image (using the working path structure)
+new_filled_path <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Dataset/new_filled_", IMAGE_NUMBER, ".png", sep = "")
+if (file.exists(new_filled_path)) {
+  new_image <- t(as.matrix(load.image(new_filled_path)))
+} else {
+  message("Warning: Filled image not found at ", new_filled_path)
+  # Try alternative path structure
+  alt_filled_path <- paste(DATASET_DIR, "new_filled_", IMAGE_NUMBER, ".png", sep = "")
+  if (file.exists(alt_filled_path)) {
+    new_image <- t(as.matrix(load.image(alt_filled_path)))
+  } else {
+    message("Warning: No filled image found. Using fallback filled image")
+    new_image <- img  # Use prototype as fallback
+  }
+}
+
+# Ensure new_image has the correct dimensions
+if (nrow(new_image) != ROW_SHOE || ncol(new_image) != COL_SHOE) {
+  message("Warning: new_image dimensions (", nrow(new_image), "x", ncol(new_image),
+          ") don't match expected (", ROW_SHOE, "x", COL_SHOE, ")")
+  message("Resizing to match expected dimensions...")
+
+  # Create a properly sized matrix filled with zeros
+  temp_image <- matrix(0, nrow = ROW_SHOE, ncol = COL_SHOE)
+
+  # Copy data from new_image to the properly sized matrix (crop or pad as needed)
+  max_rows <- min(nrow(new_image), ROW_SHOE)
+  max_cols <- min(ncol(new_image), COL_SHOE)
+  temp_image[1:max_rows, 1:max_cols] <- new_image[1:max_rows, 1:max_cols]
+
+  new_image <- temp_image
+}
+
+# Debug: Print actual dimensions
+message("Final new_image dimensions: ", nrow(new_image), " x ", ncol(new_image))
+message("Expected dimensions: ", ROW_SHOE, " x ", COL_SHOE)
+```
+
+
+
+
+
+```{r }
+adapt_line <- function(is_negative, old_line, contour_line){
+  if (is_negative) {
+    old_line <- rev(old_line)
+  }
+  cont <- sum(contour_line)-5
+  if (cont >0){
+    old <- sum(!is.null(old_line) & !is.na(old_line))
+  index_list <- pmax(1,round((1:cont)/cont*old))
+  new_list <- old_line[index_list]
+  new_list <- c(new_list, rep(NA, length(old_line)-cont))
+  if (is_negative) {
+   new_list <- rev(new_list)
+  }
+  }
+  else {
+    new_list <- old_line#c(rep(NA, length(old_line)))
+  }
+  
+  return(new_list)
+}
+
+```
+
+
+
+
+```{r }
+#maintenant pour chaque y du contour, on va trouver la ligne, et cest une ligne quon va s'occuper
+
+# Safety check before the loop
+if (is.null(new_image) || nrow(new_image) == 0 || ncol(new_image) == 0) {
+  stop("Error: new_image is NULL or has zero dimensions")
+}
+
+# Ensure we don't access beyond the actual dimensions
+max_rows_to_process <- min(ROW_SHOE, nrow(new_image))
+message("Processing ", max_rows_to_process, " rows out of ", ROW_SHOE, " expected rows")
+
+for (i in 1:max_rows_to_process) {
+old_line = old_matrix[i,] # peut etre 154 ?
+contour_line = new_image[i,]
+if((sum(contour_line) >0) & (sum(!is.null(old_line) & !is.na(old_line)) >0)){
+  new_line = c(adapt_line(TRUE,old_line[1:floor(COL_SHOE/2)],contour_line[1:floor(COL_SHOE/2)]),adapt_line(FALSE,old_line[(floor(COL_SHOE/2)+1):COL_SHOE],contour_line[(floor(COL_SHOE/2)+1):COL_SHOE]))
+ old_matrix[i,] = new_line
+} else if ((sum(contour_line) ==0) & (sum(!is.null(old_line) & !is.na(old_line)) >0)){
+  old_matrix[i,] = c(rep(NA, length(old_line)))
+}
+
+}
+```
+
+
+```{r}
+
+
+```
+
+
+
+
+
+```{r}
+# Apply model predictions to specific shoe image
+intensity_matrix_for_shoe <- old_matrix
+
+# Load target shoe image for masking
+alt_img_file <- paste(ROOT_PATH, "Images/Cleaned_Shoes/im_", IMAGE_NUMBER, ".png", sep = "")
+target_shoe_img <- t(as.matrix(load.image(alt_img_file)))
+
+# Mask areas outside the shoe
+intensity_matrix_for_shoe[target_shoe_img==0] <- NA
+
+# Rotate matrix for proper visualization (flip vertically for correct orientation)
+intensity_plot_matrix <- t(intensity_matrix_for_shoe)[, nrow(intensity_matrix_for_shoe):1]
+
+# Plot intensity map for the specific shoe
+image.plot(intensity_plot_matrix, axes = TRUE, main = paste("Intensity Map - Shoe", IMAGE_NUMBER))
+file_name <- paste(MODEL_IMAGES_DIR, MODEL_FEATURE, "_", IMAGE_NUMBER, "_SHOE_INTENSITY.pdf", sep = "")
+pdf(file = file_name, height = 6, width = 6)
+image.plot(intensity_plot_matrix, axes = TRUE, main = paste("Intensity Map - Shoe", IMAGE_NUMBER))
+abline(v = 0.5, col = "black", lty = 1, lwd = 1)
+abline(h = 0.5, col = "black", lty = 1, lwd = 1)
+grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
+dev.off() 
+```
+
+
+```{r}
+# Create contour-only visualization (no shoe masking)
+contour_intensity_matrix <- old_matrix
+
+# Rotate matrix for proper visualization (flip vertically for correct orientation)
+contour_plot_matrix <- t(contour_intensity_matrix)[, nrow(contour_intensity_matrix):1]
+
+# Plot contour intensity map
+file_name <- paste(MODEL_IMAGES_DIR, MODEL_FEATURE, "_", IMAGE_NUMBER, "_CONTOUR_INTENSITY.pdf", sep = "")
+pdf(file = file_name, height = 6, width = 6)
+image.plot(contour_plot_matrix, axes = TRUE, main = paste("Contour Intensity - Shoe", IMAGE_NUMBER))
+abline(v = 0.5, col = "black", lty = 1, lwd = 1)
+abline(h = 0.5, col = "black", lty = 1, lwd = 1)
+grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
+dev.off() 
+
+# Display the plot in console as well
+image.plot(contour_plot_matrix, axes = TRUE, main = paste("Contour Intensity - Shoe", IMAGE_NUMBER))
+```
+
+
+```{r}
+
+```

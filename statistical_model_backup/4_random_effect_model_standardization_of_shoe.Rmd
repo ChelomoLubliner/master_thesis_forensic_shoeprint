@@ -24,15 +24,6 @@ library(rgl)
 library(fields)
 library(survival)
 library(smoothie) 
-
-col_shoe<-307 #307 is the number of columns in each shoe
-row_shoe<-395 #395 is the number of rows in each shoe
-num_shoe<-387  #387 is the number of shoes but 386 is the number of shoes with RACs - shoe 127 has no RACS
-
-rel_col_shoe<-150  #out of the 307 columns only 150 are relevant (contain non zero pixels in some shoes)
-rel_row_shoe<-300  #out of the 395 rows only 300 are relevant (contain non zero pixels in some shoes)
-rel_x_cord<-0.25 #using coordinates as in the locations_data.CSV file the relevant x coordinates are between -.25 and 0.25
-rel_Y_cord<-0.5 #the relevant Y coordinates are between -0.5 and 0.5
 ```
 
 ```{r }
@@ -98,7 +89,6 @@ for (i in 1:nrow(dataCC)) {
       new_val <- distance_per_y[(distance_per_y$y >= y_val-0.01) & (distance_per_y$y <= y_val+0.01), c('y','max_x')]
     closest_row_index <- which.min(abs(new_val$y - y_val))
     closest_value <- new_val[closest_row_index, ]$max_x
-    #print('coco ',new_val,'\n')
   }
   #cat(i, '\t', y_val, '\t', closest_value, '\n')
   dist_shape <- append(dist_shape, closest_value)

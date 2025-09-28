@@ -45,6 +45,8 @@ def superposed_pixels(list_lines):
         new_dict[max_pix] = True
         line = np.vectorize(new_dict.get)(total)
         if max_pix == 18:
+            Image.fromarray(line.astype(np.uint8) * 255).save(PROCESSING_DATA_PATH + 'freq_min_18.png')
+            np.save(f'{PROCESSING_DATA_PATH}freq_min_18.npy', line.astype(np.uint8) * 255)
             Image.fromarray(line.astype(np.uint8) * 255).save(PROCESSING_DATA_PATH + 'old_freq_min_18.png')
             break
         
@@ -57,17 +59,7 @@ def create_cleaned_shoes():
     import os
     os.makedirs(f'{FOLDER}Cleaned_Shoes', exist_ok=True)
 
-    # Load original matrices and create cleaned versions
-    list_lines = np.load(f'{PROCESSING_DATA_PATH}list_matrices.npy')
-
-    for i in tqdm(range(len(list_lines))):
-        # Convert matrix to image
-        line = np.array(list_lines[i], dtype=bool)
-        img = Image.fromarray((line * 255).astype(np.uint8))
-        img.save(f'{FOLDER}Cleaned_Shoes/im_{i}.png')
-
-    print(f"Created {len(list_lines)} cleaned shoe images")
-
+    
 def main():
     print(f"main_create_files_init")
     contacts_data()
@@ -76,7 +68,7 @@ def main():
     print(f'Array of {len_lines} lines')
     superposed_pixels(list_lines)
     create_cleaned_shoes()
-    active_contour_on_prototype()
+    #active_contour_on_prototype()
 
 
 #def main_create_files_init():

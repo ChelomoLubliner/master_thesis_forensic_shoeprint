@@ -43,7 +43,7 @@ PROCESSING_DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.absp
 # Absolute paths for data directories  
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH = os.path.join(PROJECT_ROOT, 'Data')
-SHARED_DATA_PATH = os.path.join(PROJECT_ROOT, 'shared_data')
+SHARED_DATA_PATH = os.path.join(PROJECT_ROOT, 'shared_data') + os.sep
 IMAGES_PATH = os.path.join(PROJECT_ROOT, 'Images')
 
 

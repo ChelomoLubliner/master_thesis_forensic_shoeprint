@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import math
 import os
+from PIL import Image
+
 
 # Create output directory
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -49,8 +51,8 @@ def init_locations_new():
 
     # Apply scaling factor if needed
     if LOCATIONS_SCALE_FACTOR != 1.0:
-        locations['x'] = locations['x'] * LOCATIONS_SCALE_FACTOR
-        locations['y'] = locations['y'] * LOCATIONS_SCALE_FACTOR
+        locations['x'] = locations['x'] / LOCATIONS_SCALE_FACTOR
+        locations['y'] = locations['y'] / LOCATIONS_SCALE_FACTOR
 
     locations['shoe'] = locations['shoe'] -1
     new_cols = {'COL':  aspix_x(locations['x']),
@@ -79,10 +81,11 @@ def save_html(total_df, shoe_num):
     pyo.plot(fig, filename=output_file, auto_open=False)
     
     """Save Image"""
-    """new_arr = np.zeros((H, W), dtype=bool)
-    new_arr[tuple(zip(*total))] = True
+    new_arr = np.zeros((H, W), dtype=bool)
+    new_arr[tuple(zip(*total_df.values))] = True
     new_image = Image.fromarray(new_arr)
-    new_image.show()"""
+    #new_image.show()
+    #new_image.save(f'{FOLDER}Distance_Extremities/plot_cont_{shoe_num}.png')
 
 def shortest_distance(shoe_df,shoe_num, locations_all, algo):
     """"Check if is inside"""
@@ -130,9 +133,9 @@ def dist_per_shoe(shoe_arr, shoe_num, algo ):
     shoe_df = pd.DataFrame(shoe_coord, columns = ['ROW', 'COL'])
     total_df = pd.DataFrame(locations_coord + shoe_coord, columns=['ROW', 'COL'])
 
-    #shortest_distance(shoe_df,shoe_num, locations_all, algo)
+    shortest_distance(shoe_df,shoe_num, locations_all, algo)
     horiz_distance(shoe_df, shoe_num, locations_all, algo)
-    #save_html(total_df, shoe_num)
+    save_html(total_df, shoe_num)
 
 def set_outside_to_0():
     df = pd.read_csv(os.path.join(SHARED_DATA_PATH, 'locations_new.csv'))
@@ -143,11 +146,11 @@ def set_outside_to_0():
 
 def main():
     print(f"distance_extremities_main")
-    #init_locations_new()
+    init_locations_new()
     list_snake = list(np.load(f'{PROCESSING_DATA_PATH}active_contour_all.npy'))
     for i in tqdm(range(len(list_snake))):#len(list_snake))
         dist_per_shoe(list_snake, i, 'SNAKE') 
-    #set_outside_to_0()
+    set_outside_to_0()
 
 if __name__ == '__main__':  
     main()

@@ -8,7 +8,7 @@ from skimage.segmentation import active_contour
 import io
 from tqdm import tqdm
 from extreme_values_x_y import dict_points, get_contour
-from globals import FOLDER, W, H, SNAKE_Y_CENTER, SNAKE_Y_RADIUS, SNAKE_X_CENTER, SNAKE_X_RADIUS, PROCESSING_DATA_PATH
+from globals import FOLDER, W, H, SNAKE_Y_CENTER, SNAKE_Y_RADIUS, SNAKE_X_CENTER, SNAKE_X_RADIUS, PROCESSING_DATA_PATH, SHARED_DATA_PATH
 
 
 def get_image(entire_shoe, im_num,list_contour):
@@ -177,7 +177,7 @@ def main():
     list_contour = np.load(f'{PROCESSING_DATA_PATH}list_contour.npy')
     snake_all = []
     for i in tqdm(range(len(list_contour))):#len(list_contour))
-        snake_arr = active_contour_shoe(list_contour, plot_img=False, save_img_bool=True, im_num=i)
+        snake_arr = active_contour_shoe(list_contour, plot_img=True, save_img_bool=True, im_num=i)
         snake_all.append(snake_arr)
     np.save(f'{PROCESSING_DATA_PATH}active_contour_all.npy', snake_all)
 

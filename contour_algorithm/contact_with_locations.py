@@ -49,68 +49,21 @@ def dist_per_shoe(image_i, shoe_num ):
 
 
 def set_outside_to_0():
-    import os
     df = pd.read_csv(os.path.join(SHARED_DATA_PATH, 'locations_new.csv'))
     for alg in ['SNAKE']:
         for index, row in df[df[f'INSIDE_{alg}']==False][[f'HORIZ_DIST_{alg}', f'DIST_{alg}']].iterrows():
             if row[f'HORIZ_DIST_{alg}'] is not None : df.loc[index, f'HORIZ_DIST_{alg}'] = 0
             if row[f'DIST_{alg}'] is not None : df.loc[index,f'DIST_{alg}'] = 0
-    import os
     df.to_csv(os.path.join(SHARED_DATA_PATH, 'locations_new.csv'), index=False)
 
 def main():
     print(f"{FOLDER.split('/')[1]}\ncontact_with_locations_main")
     #init_locations_new()
-
-    # Load contour data with robust error handling
-    try:
-        list_contour = list(np.load(f'{PROCESSING_DATA_PATH}list_contour.npy'))
-        print(f"Loaded list_contour with {len(list_contour)} elements")
-    except ValueError as e:
-        print(f"Error loading list_contour.npy: {e}")
-        # Try loading without shape constraint and reshape manually
-        try:
-            raw_data = np.load(f'{PROCESSING_DATA_PATH}list_contour.npy', allow_pickle=True)
-            print(f"Raw data shape: {raw_data.shape}, size: {raw_data.size}")
-            # Calculate actual dimensions based on file size
-            actual_size = raw_data.size
-            # Try different possible shapes
-            for num_shoes in [355, 386, 387]:
-                expected_size = num_shoes * H * W
-                if abs(actual_size - expected_size) < 1000:  # Allow small difference
-                    try:
-                        list_contour = list(raw_data.reshape(num_shoes, H, W))
-                        print(f"Successfully reshaped to ({num_shoes}, {H}, {W})")
-                        break
-                    except:
-                        continue
-            else:
-                print("Could not determine correct shape, using available shoe images instead")
-                # Fallback: count actual shoe images
-                import glob
-                shoe_files = glob.glob(f'{FOLDER}Cleaned_Shoes/im_*.png')
-                list_contour = [None] * len(shoe_files)  # Dummy list
-        except Exception as e2:
-            print(f"Failed to load contour data: {e2}")
-            print("Using fallback approach with available shoe images")
-            import glob
-            shoe_files = glob.glob(f'{FOLDER}Cleaned_Shoes/im_*.png')
-            list_contour = [None] * len(shoe_files)  # Dummy list
-
-    # Process available shoe images
-    import glob
-    shoe_files = glob.glob(f'{FOLDER}Cleaned_Shoes/im_*.png')
-    available_shoes = [int(f.split('im_')[1].split('.png')[0]) for f in shoe_files]
-    available_shoes = sorted(available_shoes)[:20]  # Limit to first 20 for testing
-
-    for i in tqdm(available_shoes):
+    list_contour = list(np.load(f'{PROCESSING_DATA_PATH}list_contour.npy'))
+    for i in tqdm(range(len(list_contour))):
         image_path = f'{FOLDER}Cleaned_Shoes/im_{i}.png'
-        if os.path.exists(image_path):
-            image_i = cv2.imread(image_path)
-            if image_i is not None:
-                dist_per_shoe(image_i, i)
-            else:
-                print(f"Failed to load image: {image_path}")
+        image_i = cv2.imread(image_path)
+        dist_per_shoe(image_i, i)
     #set_outside_to_0()
 
 if __name__ == '__main__':
