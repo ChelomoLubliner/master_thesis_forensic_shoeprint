@@ -26,6 +26,7 @@ NUM_SHOE <- as.numeric(Sys.getenv("R_NUM_SHOE"))  # Total number of shoes
 col_shoe <- COL_SHOE
 row_shoe <- ROW_SHOE
 num_shoe <- NUM_SHOE
+
 # Relevant area parameters
 REL_COL_SHOE <- as.numeric(Sys.getenv("R_REL_COL_SHOE"))  # Relevant columns
 REL_ROW_SHOE <- as.numeric(Sys.getenv("R_REL_ROW_SHOE"))  # Relevant rows

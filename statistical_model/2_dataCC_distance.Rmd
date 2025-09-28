@@ -29,7 +29,7 @@ dataCC<- read.csv(file_name,header=TRUE)
 
 #get convex hull contours as a list of doubles(395*307) of pixel and convert them to x-y  coordinates
   file_name <- paste(DATASET_DIR,"active_contour_all.txt", sep = "")
-  d <- readChar(file_name,nchars=(col_shoe*row_shoe+2)*num_shoe) 
+  d <- readChar(file_name,nchars=(col_shoe*row_shoe+2)*NUM_SHOE) 
   contour_txt <- list() 
   for(i in 1:386)
   {
@@ -62,13 +62,6 @@ colnames(contour_df)[colnames(contour_df) == "V2"] <- "x"
 colnames(contour_df)[colnames(contour_df) == "V3"] <- "y"
 
 contour_df <-contour_df[!(is.na(contour_df$x) &is.na(contour_df$y)), ]
-
-
-#check that min_distance is always < that horiz_distanc
-# for (i in 1:nrow(dataCC)) 
-#   dataCC$diff[i] <- dataCC$min_dist[i]  <= dataCC$horiz_dist[i] 
-# }
-
 
 dataCC$row_number <- seq_len(nrow(dataCC))
 contour_df$row_number <- seq_len(nrow(contour_df))
@@ -138,23 +131,14 @@ calculate_min_horiz_distance <- function(new_data, contour_alg_df){
 
 
 ```{r contour_distance_8    BIG ITERATION HORIZ DIST}
+file_name <- paste(DATASET_DIR, "contour_algorithm.csv", sep = "")
+write.csv(contour_df, file_name, row.names = FALSE)
+
 new_data <- calculate_min_distance(dataCC, contour_df)
 new_data <- calculate_min_horiz_distance(new_data, contour_df)
 
 
 ```
-
-```{r DIST TO BINARY CATEGORY}
-#file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Dataset/dataCC_distance.csv", sep = "")
-#new_data <- read.csv(file_name,header=TRUE)
-
-
-# HORIZ DISTANCE
-#horiz_dist_mean <- mean(new_data$horiz_dist)
-#new_data <- new_data %>% mutate(horiz_dist_cat = ifelse(horiz_dist > 0.1, 1, 0))
-```
-
-
 
 
 ```{r }

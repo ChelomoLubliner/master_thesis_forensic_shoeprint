@@ -39,8 +39,7 @@ if (!dir.exists(MODEL_IMAGES_DIR)) {
 IMAGE_NUMBER = 171
 file_name <- paste(DATASET_DIR, "dataCC_distance.csv", sep = "")
 dataCC<- read.csv(file_name,header=TRUE)
-#file_name <- paste(SAVED_MODELS_DIR, MODEL_FEATURE,"_RELATIVE.rds", sep = "")
-file_name <- paste(SAVED_MODELS_DIR, "NEW_X_NS_XY_RELATIVE.rds", sep = "")
+file_name <- paste(SAVED_MODELS_DIR, MODEL_FEATURE,"_RELATIVE.rds", sep = "")
 rand <- readRDS(file = file_name)
 #print(summary(rand))
 xcoor <- t(matrix(rep((-COL_SHOE/2+1:COL_SHOE)*REL_Y_CORD/REL_COL_SHOE,ROW_SHOE),COL_SHOE,ROW_SHOE))

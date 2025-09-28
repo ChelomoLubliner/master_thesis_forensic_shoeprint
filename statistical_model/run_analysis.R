@@ -33,10 +33,8 @@ main <- function() {
   pipeline_steps <- c(
     "1_dataCC.Rmd",
     "2_dataCC_distance.Rmd",
-    "3_calculate_shoe_distance.Rmd",
     "4_random_effect_model_standardization_of_shoe.Rmd",
-    "5_output_and_results_standardization_of_shoe.Rmd",
-    "6_statistical_tests.Rmd"
+    "5_output_and_results_standardization_of_shoe.Rmd"
   )
 
   start_time <- Sys.time()

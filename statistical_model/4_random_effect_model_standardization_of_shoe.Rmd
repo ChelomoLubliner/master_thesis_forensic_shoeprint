@@ -19,8 +19,8 @@ if (!require("lme4", quietly = TRUE)) {
 file_name <- paste(DATASET_DIR, "dataCC_distance.csv", sep = "")
 dataCC<- read.csv(file_name,header=TRUE)
 dataCC <- subset(dataCC, select = c("n_Acc","x","y","shoe","row_number","horiz_dist"))
-file_name <- paste(DATASET_DIR, "all_cont.csv", sep = "")
-allcont<- read.csv(file_name,header=TRUE)
+#file_name <- paste(DATASET_DIR, "all_cont.csv", sep = "")
+#allcont<- read.csv(file_name,header=TRUE)
 ```
 
 
@@ -126,6 +126,8 @@ Random<-function(nknotsx=3,nknotsy=5,dat=dataCC,model_feat = MODEL_FEATURE, init
   
   if(model_feat == 'NEW_X_NS_XY'){
             formula_text <- "n_Acc ~ ns(dat$new_x,knots=knots_new_x):ns(dat$y,knots=knotsy) + (1 | shoe) "}
+  else if(model_feat == 'NS_XY'){
+            formula_text <- "n_Acc ~ ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy) + (1 | shoe) "}
   else { stop("Invalid model_feat value")}
   cat(formula_text)
   est_formula <- as.formula(formula_text)  
