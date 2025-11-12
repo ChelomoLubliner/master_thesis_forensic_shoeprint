@@ -45,6 +45,8 @@ images/**/*.jpeg
 images/**/*.gif
 images/**/*.bmp
 images/**/*.tiff
+images/**/*.html
+images/Saved/*.npy
 !images/.keep
 
 # Keep dataset and model_images folders
