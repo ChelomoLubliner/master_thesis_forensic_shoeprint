@@ -12,8 +12,7 @@ library(dplyr)
 ```
 
 ```{r }
-ROOT_PATH = 'C:/Users/mehes/Documents/repo/master_thesis_forensic_shoeprint/'
-CONTOUR_ALGORITHM = 'Active_Contour'
+source("config.R")
 
 ```
 
@@ -195,9 +194,7 @@ gc()
 
 ```{r contour_distance_4}
 library(plotly)
-shoes_to_check <- 189
-file_name <- paste(ROOT_PATH, "statistical_model/dataset/contour_algorithm.csv", sep = "")
-contour_df <- read.csv(file_name,header=TRUE)
+shoes_to_check <- 200
 
 filtered_df1 <- new_data[new_data$shoe == shoes_to_check, ][,c('shoe','x','y')]
 filtered_df2 <- contour_df[contour_df$shoe == shoes_to_check, ][,c('shoe','x','y')]

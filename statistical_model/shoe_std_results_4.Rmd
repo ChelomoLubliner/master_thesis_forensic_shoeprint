@@ -40,14 +40,10 @@ rel_Y_cord<-0.5 #the relevant Y coordinates are between -0.5 and 0.5
 ```
 
 ```{r }
-ROOT_PATH = 'C:/Users/mehes/Documents/repo/master_thesis_forensic_shoeprint/'
 
-CONTOUR_ALGORITHM = 'Active_Contour'
-IMAGE_NUMBER  = '171'
-# 171/ 135
-MODEL_FEATURE  = 'NEW_X_NS_XY_RELATIVE'
-#'NEW_X_NS_XY' 
-#'NS_XY'
+source("config.R")
+
+
 
 ```
 
@@ -67,7 +63,7 @@ ycoor <- -matrix(rep((-row_shoe/2+1:row_shoe)*rel_Y_cord/rel_col_shoe,col_shoe),
 xy <- expand.grid(xcoor[1,],ycoor[,1])#307 * 395   
 colnames(xy)[colnames(xy) == "Var1"] <- "x"
 colnames(xy)[colnames(xy) == "Var2"] <- "y"
-img <- load.image(paste( ROOT_PATH, "images/Cleaned_Shoes/im_135.png", sep = ""))#prototype
+img <- load.image(paste( ROOT_PATH, "images/cleaned_shoes/im_135.png", sep = ""))#prototype
 img <- t(as.matrix(img))
 
 ```
@@ -219,7 +215,7 @@ if((sum(contour_line) >0) & (sum(!is.null(old_line) & !is.na(old_line)) >0)){
 
 ```{r}
 new_rotated <- old_matrix
-new_img <- t(as.matrix(load.image(paste( ROOT_PATH, "images/Cleaned_Shoes/im_171.png", sep = ""))))
+new_img <- t(as.matrix(load.image(paste( ROOT_PATH, "images/cleaned_shoes/im_171.png", sep = ""))))
 new_rotated[new_img==0] <- NA
 im_rotated <- t(new_rotated)[, nrow(new_rotated):1]
 
@@ -246,3 +242,5 @@ dev.off()
 ```
 
 
+```{r}
+```

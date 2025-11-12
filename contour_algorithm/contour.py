@@ -18,7 +18,7 @@ def scatter_plot_contour(coordinates,im_num):
     trace = go.Scatter(x=x, y=y, mode='markers')
     layout = go.Layout(title='Scatter plot of contour Image '+str(im_num))
     fig = go.Figure(data=[trace], layout=layout)
-    pyo.plot(fig, filename=FOLDER +f'Extreme_Values/plot_cont_{im_num}.html', auto_open=False)
+    pyo.plot(fig, filename=FOLDER +f'extreme_values/plot_cont_{im_num}.html', auto_open=False)
 
 def save_new_contour_shoe(new_points, im_num):
     new_arr = np.zeros((H, W), dtype=bool)
@@ -28,9 +28,9 @@ def save_new_contour_shoe(new_points, im_num):
 
 # this is a complete flow for an image
 def remove_noise_get_contour(list_matrices, im_num):
-    #Shoe_On_Prototype
+    #shoe_on_prototype
     superpose_image_prototype(im_num)
-    #Cleaned_Shoes
+    #cleaned_shoes
     new_im = save_cleaned_shoes(list_matrices, im_num)
     new_points = get_contour(new_im)
     #Extreme_values_html

@@ -49,6 +49,11 @@ images/**/*.html
 images/Saved/*.npy
 !images/.keep
 
+# Exception: Keep image files in cleaned_shoes
+!images/cleaned_shoes/**/*.png
+!images/cleaned_shoes/**/*.jpg
+!images/cleaned_shoes/**/*.jpeg
+
 # Keep dataset and model_images folders
 !statistical_model/dataset/
 !statistical_model/model_images/

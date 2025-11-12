@@ -21,7 +21,7 @@ We will also get a superposition of all shoes, the `superposed_pixels` that mean
 
 We define a prototype image that is superposed image of pixels that occurs at least 18 times.
 
-For removing the noise, we do a bitwise AND between every image and the prototype image, the save the new cleaned image in Cleaned_Shoes folder. `Superpose_image_prototype()` function is for visualization of which pixels of the image we keep and which pixels will be deleted.
+For removing the noise, we do a bitwise AND between every image and the prototype image, the save the new cleaned image in cleaned_shoes folder. `Superpose_image_prototype()` function is for visualization of which pixels of the image we keep and which pixels will be deleted.
 
 These functions will be called in the `contour.py` file.
 
@@ -31,7 +31,7 @@ These functions will be called in the `contour.py` file.
 
 We iterate over every X and get min and max Y. Then, iterate over every Y and get min and max X. The union of the two results give us the extreme values. `dicts_points()` return a dictionary of key=X (or Y) and all the Ys (respectively Xs) that corresponds to this X (or Y). Then we select the min_max.
 
-`contour.py` first do the remove noise, and then calculate the extreme_values and save them into folders Extreme_Values.
+`contour.py` first do the remove noise, and then calculate the extreme_values and save them into folders extreme_values.
 
 # 4. Convex Hull
 

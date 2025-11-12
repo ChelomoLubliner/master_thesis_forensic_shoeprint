@@ -7,11 +7,11 @@ output:
 
 
 ```{r }
-ROOT_PATH = 'YOUR_PATH'
-CONTOUR_ALGORITHM = 'Active_Contour'
-file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Dataset/dataCC_distance.csv", sep = "")
+source("config.R")
+
+file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance.csv", sep = "")
 dataCC<- read.csv(file_name,header=TRUE)
-file_name <- paste(ROOT_PATH,"Data/all_cont.csv", sep = "")
+file_name <- paste(ROOT_PATH,"data/all_cont.csv", sep = "")
 allcont<- read.csv(file_name,header=TRUE)
 ```
 

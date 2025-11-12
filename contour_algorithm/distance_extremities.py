@@ -31,40 +31,41 @@ def aspix_y(y, rel_row_shoe=300, rel_Y_cord=0.5):
     pix_y = H - temp
     return pix_y
 
-# def init_locations_new():
-#     if OLD_DATASET :
-#         locations = pd.read_csv(f'Data/{LOCATIONS}')
-#     else :
-#         locations = pd.read_csv(f'Data/{LOCATIONS}', sep=' ', header=None)
-#         locations = locations[[1,2,3,4,5]]
-#         locations.columns = ["shoe","rac_num","x","y","type"]
-#         locations['x'] = locations['x']/2
-#         locations['y'] = locations['y'] / 2
+def init_locations_new():
+    if OLD_DATASET :
+        locations = pd.read_csv(f'../Data/{LOCATIONS}')
+    else :
+        locations = pd.read_csv(f'../Data/{LOCATIONS}', sep=' ', header=None)
+        locations = locations[[1,2,3,4,5]]
+        locations.columns = ["shoe","rac_num","x","y","type"]
+        locations['x'] = locations['x']/2
+        locations['y'] = locations['y'] / 2
 
-#     locations['shoe'] = locations['shoe'] -1
-#     new_cols = {'COL':  aspix_x(locations['x']),
-#                 'ROW': aspix_y(locations['y']),
-#                 'INSIDE_SNAKE': np.nan,
-#                 'HORIZ_DIST_SNAKE': np.nan,
-#                 'DIST_SNAKE': np.nan,
-#                 'INSIDE_CONV': np.nan,
-#                 'HORIZ_DIST_CONV': np.nan,
-#                 'DIST_CONV': np.nan }
-#     locations = pd.concat([locations, pd.DataFrame(new_cols)], axis=1)
-#     """
-#     locations['COL'] = round((locations['x'] * PIXEL_SIZE) + col0_old)
-#     locations['ROW'] = round((locations['y'] * PIXEL_SIZE) + row0_old)
-#     col0_old = math.floor(W / 2)
-#     row0_old = math.floor(H / 2)
-#     locations[['COL', 'ROW']] = locations[['COL', 'ROW']].astype(int)
-#     """
-#     locations.to_csv(f'{FOLDER}Saved/locations_new.csv', index=False)
+    locations['shoe'] = locations['shoe'] -1
+    new_cols = {'COL':  aspix_x(locations['x']),
+                'ROW': aspix_y(locations['y']),
+                'INSIDE_SNAKE': np.nan,
+                'HORIZ_DIST_SNAKE': np.nan,
+                'DIST_SNAKE': np.nan
+                # ,'INSIDE_CONV': np.nan,
+                # 'HORIZ_DIST_CONV': np.nan,
+                # 'DIST_CONV': np.nan 
+                }
+    locations = pd.concat([locations, pd.DataFrame(new_cols)], axis=1)
+    """
+    locations['COL'] = round((locations['x'] * PIXEL_SIZE) + col0_old)
+    locations['ROW'] = round((locations['y'] * PIXEL_SIZE) + row0_old)
+    col0_old = math.floor(W / 2)
+    row0_old = math.floor(H / 2)
+    locations[['COL', 'ROW']] = locations[['COL', 'ROW']].astype(int)
+    """
+    locations.to_csv(f'{FOLDER}Saved/locations_new.csv', index=False)
 
 def save_html(total_df, shoe_num,algo) :
     """Plot fig"""
     scatter = go.Scatter(x=total_df['ROW'].to_list(), y=total_df['COL'].to_list(), mode='markers')
     fig = go.Figure(data=scatter)
-    pyo.plot(fig, filename=f'{FOLDER}{algo}_RAC_html/plot_cont_{shoe_num}.html',auto_open=False)
+    pyo.plot(fig, filename=f'{FOLDER}snake_rac_html/plot_cont_{shoe_num}.html',auto_open=False)
 
     """Save Image"""
     """new_arr = np.zeros((H, W), dtype=bool)
@@ -124,7 +125,7 @@ def dist_per_shoe(shoe_arr, shoe_num, algo ):
 
 def main():
     print(f"{FOLDER.split('/')[1]}\ndistance_extremities_main")
-    #init_locations_new()
+    init_locations_new()
     list_snake = list(np.load(f'{FOLDER}Saved/active-contour_all.npy'))
     for i in tqdm(range(len(list_snake))):
         if i == 126:  # Skip shoe 127 (0-indexed, has no RACs)

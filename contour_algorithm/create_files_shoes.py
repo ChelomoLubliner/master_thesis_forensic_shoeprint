@@ -21,13 +21,13 @@ def contacts_data():
             line = np.vectorize(my_dict.get)(line)
             list_lines.append(np.matrix(line)   )
             img = Image.fromarray(line)
-            img.save(f'{FOLDER}Shoes/im{i}.png')
+            img.save(f'{FOLDER}shoes/im{i}.png')
         # flip the image8 because it's left shoes
         if FOLDER == 'Images/Old_Shoes/':
             list_lines[8] = np.fliplr(list_lines[8])
             line = np.vectorize(my_dict.get)(list_lines[8])
             im8 = Image.fromarray(line)
-            im8.save(f'{FOLDER}Shoes/im8.png')
+            im8.save(f'{FOLDER}shoes/im8.png')
         # save list_lines
         np.save(f'{FOLDER}Saved/list_matrices.npy', list_lines)
 

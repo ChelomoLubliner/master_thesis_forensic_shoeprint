@@ -11,15 +11,15 @@ from extreme_values_x_y import dict_points, get_contour
 from globals import FOLDER, W, H, OLD_DATASET
 
 
-def get_image(entire_shoe, im_num,list_contour):
+def get_image(entire_shoe, im_num, list_contour):
     img = np.nan
     if entire_shoe:
-        img = img_as_ubyte(Image.open(f'{FOLDER}Cleaned_Shoes/im_{im_num}.png'))
+        img = img_as_ubyte(Image.open(f'{FOLDER}cleaned_shoes/im_{im_num}.png'))
     else:
         img = img_as_ubyte(Image.fromarray(list_contour[im_num]))
     return img
 
-def plot_active_contour(img,init, snake):
+def plot_active_contour(img, init, snake):
     fig, ax = plt.subplots(figsize=(7, 7))
     ax.imshow(img, cmap=plt.cm.gray)
     ax.plot(init[:, 1], init[:, 0], '--r', lw=3)
@@ -37,7 +37,6 @@ def plot_active_contour(img,init, snake):
 def save_img(img, snake, im_num):
     fig, ax = plt.subplots(figsize=(7, 7))
     ax.imshow(img, cmap=plt.cm.gray)
-    #ax.plot(init[:, 1], init[:, 0], '--r', lw=3)
     ax.plot(snake[:, 1], snake[:, 0], '-b', lw=3)
     ax.set_xticks([]), ax.set_yticks([])
     ax.axis([0, img.shape[1], img.shape[0], 0])
@@ -46,7 +45,7 @@ def save_img(img, snake, im_num):
     buf.seek(0)
     plt.close('all')
     img = Image.open(buf)
-    img.save(f'{FOLDER}Active-contour/im_{im_num}.png')
+    img.save(f'{FOLDER}active-contour/im_{im_num}.png')
 
 def init_snake():
     s = np.linspace(0, 2 * np.pi, 400)
@@ -107,7 +106,7 @@ def combined_snake_arr(snake, original_img):
     return comb_extremes_img
 
 #essayer de garder la grnde figure mais de faire un border content et comme ca on bloque
-def active_contour_shoe(list_contour, plot_img,save_img_bool, im_num):
+def active_contour_shoe(list_contour, plot_img, save_img_bool, im_num):
     """Get Img (entire or only contour)"""
     original_img = get_image(True, im_num, list_contour)
     """First active-contour : beta=10"""

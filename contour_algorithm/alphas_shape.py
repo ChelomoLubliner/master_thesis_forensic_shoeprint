@@ -15,7 +15,7 @@ from shapely.geometry import Polygon, MultiPolygon
 def get_image(entire_shoe, im_num,list_contour):
     img = np.nan
     if entire_shoe:
-        img = img_as_ubyte(Image.open(f'{FOLDER}Cleaned_Shoes/im_{im_num}.png'))
+        img = img_as_ubyte(Image.open(f'{FOLDER}cleaned_shoes/im_{im_num}.png'))
     else:
         img = img_as_ubyte(Image.fromarray(list_contour[im_num]))
     return img

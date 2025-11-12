@@ -36,11 +36,8 @@ rel_Y_cord<-0.5 #the relevant Y coordinates are between -0.5 and 0.5
 ```
 
 ```{r }
-ROOT_PATH = 'C:/Users/mehes/Documents/repo/master_thesis_forensic_shoeprint/'
 
-
-CONTOUR_ALGORITHM = 'Active_Contour'
-# 'Convex' or 'Active_Contour' 
+source("config.R")
 
 MODEL_FEATURE  = 'NEW_X_NS_XY'
 # MODEL_FEATURE  = 'NEW_X_NS_XY'

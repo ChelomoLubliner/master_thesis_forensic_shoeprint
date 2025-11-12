@@ -15,7 +15,7 @@ def save_html(total_df, shoe_num) :
 
     scatter = go.Scatter(x=total_df['ROW'].to_list(), y=total_df['COL'].to_list(), mode='markers')
     fig = go.Figure(data=scatter)
-    pyo.plot(fig, filename=f'{FOLDER}Shoes_RAC/plot_cont_{shoe_num}.html',auto_open=False)
+    pyo.plot(fig, filename=f'{FOLDER}shoes_RAC/plot_cont_{shoe_num}.html',auto_open=False)
 
     """Save Image"""
     """new_arr = np.zeros((H, W), dtype=bool)
@@ -41,7 +41,7 @@ def dist_per_shoe(image_i, shoe_num ):
     condition = np.all(locations_img == [0, 0, 255], axis=-1)
     result_array = np.where(condition[..., np.newaxis], locations_img, image_i)
     new_image = Image.fromarray(cv2.cvtColor(result_array, cv2.COLOR_BGR2RGB))
-    new_image.save(f'{FOLDER}Shoes_RAC/im_{shoe_num}.png')
+    new_image.save(f'{FOLDER}shoes_RAC/im_{shoe_num}.png')
 
 
 def set_outside_to_0():
@@ -57,7 +57,7 @@ def main():
     #init_locations_new()
     list_conv = list(np.load(f'{FOLDER}Saved/list_contour.npy'))
     for i in tqdm(range(len(list_conv))):
-        image_i = cv2.imread(f'{FOLDER}Cleaned_Shoes/im_{i}.png')
+        image_i = cv2.imread(f'{FOLDER}cleaned_shoes/im_{i}.png')
         dist_per_shoe(image_i, i)
     #set_outside_to_0()
 
