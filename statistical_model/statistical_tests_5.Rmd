@@ -1,0 +1,62 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+
+```{r }
+ROOT_PATH = 'YOUR_PATH'
+CONTOUR_ALGORITHM = 'Active_Contour'
+file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Dataset/dataCC_distance.csv", sep = "")
+dataCC<- read.csv(file_name,header=TRUE)
+file_name <- paste(ROOT_PATH,"Data/all_cont.csv", sep = "")
+allcont<- read.csv(file_name,header=TRUE)
+```
+
+
+```{r }
+library(lmtest)
+library(Matrix)
+
+#Je vais faire une loop avec chaque model, pour chaque model on va tout imprimer et avoir le p-value qui correspond
+
+MODEL_FEATURE  = 'NS_XY'
+list_model = list("NEW_X_NS_XY_135")
+#list_model = list("NEW_X_NS_XY_135")
+file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/NS_XY.rds", sep = "")
+naomi_model <- readRDS(file = file_name)
+print("Naomi Model (NS_XY):")
+print(summary(naomi_model))
+```
+
+```{r}
+
+model_info<-function(model_feat = MODEL_FEATURE )
+{
+  file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/",model_feat,".rds", sep = "")
+  model <- readRDS(file = file_name)
+  print(summary(model))
+  #compare with naomi model
+  lrt_naomi <- lrtest(naomi_model, model)
+  #global_p_value_naomi <- 1 - pchisq(lrt_naomi$Chisq[2], df = lrt_naomi$Df[2])
+  print('LRT : compare with naomi model')
+  print(lrt_naomi)
+  #compare model with empty model
+  #lrt_empty <- lrtest(model,empty_model)
+  lrt_empty <- lrtest(model,empty_model)
+  print('LRT : compare model with empty model')
+  print(lrt_empty)
+return
+}
+```
+
+
+
+
+```{r}
+print(list_model[1])
+model_info(list_model[1])
+```
+
