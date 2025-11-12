@@ -200,12 +200,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-<<<<<<< HEAD:active_contour_snake.py
-    snake_all = []
-    list_contour = np.load(f'{FOLDER}Saved/list_contour.npy')
-   #snake_arr = active_contour_shoe(list_contour, plot_img=True, save_img_bool=True, im_num=555)
-   #Image.fromarray(snake_arr).save(FOLDER + 'Saved/test_135.png')
-=======
 #    snake_all = np.load(f'{FOLDER}Saved/active-contour_all.npy')
 #    with open(f'{FOLDER}Saved/contour_Active_Contour.txt', 'w') as f:
 #     for i in tqdm(range(len(snake_all))):
@@ -216,4 +210,3 @@ if __name__ == '__main__':
     
 #    snake_arr = active_contour_shoe(list_contour, plot_img=True, save_img_bool=True, im_num=555)
 #    Image.fromarray(snake_arr).save(FOLDER + 'Saved/test_135.png')
->>>>>>> end24:contour_algorithm/active_contour_snake.py

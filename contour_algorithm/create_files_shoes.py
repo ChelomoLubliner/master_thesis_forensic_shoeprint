@@ -49,20 +49,12 @@ def superposed_pixels(list_lines):
         new_dict[max_pix] = True
         line = np.vectorize(new_dict.get)(total)
         if max_pix == 18:
-<<<<<<< HEAD:create_files_shoes.py
-            np.save(f'{FOLDER}Saved/freq_min_18.npy', line)
-            Image.fromarray(line).save(FOLDER + 'Saved/old_freq_min_18.png')
-        if (max_pix % 10 == 0) | (max_pix < 25):
-            img = Image.fromarray(line)
-            img.save(f'{FOLDER}Superposed_Pixels/old_freq_min_{max_pix}.png')
-=======
             np.save(f'{FOLDER}Saved/old_freq_min_18.npy', line)
             Image.fromarray(line).save(FOLDER + 'Saved/old_freq_min_18.png')
             break
         # if (max_pix % 10 == 0) | (max_pix < 25):
         #     img = Image.fromarray(line)
         #     img.save(f'{FOLDER}Superposed_Pixels/freq_min_{max_pix}.png')
->>>>>>> end24:contour_algorithm/create_files_shoes.py
 
 def superposed_pixels_reversed(list_lines):
     # Dict to convert 0->False and non 0->True
@@ -94,13 +86,8 @@ def main():
     print(f'Array of {len_lines} lines')
     superposition_all_shoes(list_lines)
     superposed_pixels(list_lines)
-<<<<<<< HEAD:create_files_shoes.py
-    superposed_pixels_reversed(list_lines)
-    heatmap_superposed(list_lines)
-=======
     #superposed_pixels_reversed(list_lines)
     #heatmap_superposed(list_lines)
->>>>>>> end24:contour_algorithm/create_files_shoes.py
     active_contour_on_prototype()
 
 
