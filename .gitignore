@@ -1,0 +1,53 @@
+# Python compiled and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*$py.class
+*.so
+.Python
+venv/
+venv-wind/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# R workspace and history (not .R or .Rmd files!)
+.Rproj.user/
+.Rhistory
+.RData
+.Rdata
+.Ruserdata
+*.Rproj
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Project specific - ignore large data/model files
+statistical_model/saved_models/*
+!statistical_model/saved_models/.keep
+
+# Ignore image files but keep code
+images/**/*.png
+images/**/*.jpg
+images/**/*.jpeg
+images/**/*.gif
+images/**/*.bmp
+images/**/*.tiff
+!images/.keep
+
+# Keep dataset and model_images folders
+!statistical_model/dataset/
+!statistical_model/model_images/
+

@@ -1,0 +1,248 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r }
+set.seed(313)
+# library(imager)
+# library(spam)
+# library(Matrix)
+# library(lme4)
+# library(splines)
+# library(magrittr)
+# library(imager)
+# library(ggplot2) 
+# library(fields)
+library(data.table)
+library(imager)
+library(parallel)
+library(doParallel)
+#library(ggplot2) 
+#library(plotly)
+library(splines)
+library(spam)
+library(Matrix)
+library(lme4)
+library(rgl)
+library(fields)
+#library(survival)
+library(smoothie) 
+
+
+col_shoe<-307 #307 is the number of columns in each shoe
+row_shoe<-395 #395 is the number of rows in each shoe
+num_shoe<-387  #387 is the number of shoes but 386 is the number of shoes with RACs - shoe 127 has no RACS
+
+rel_col_shoe<-150  #out of the 307 columns only 150 are relevant (contain non zero pixels in some shoes)
+rel_row_shoe<-300  #out of the 395 rows only 300 are relevant (contain non zero pixels in some shoes)
+rel_x_cord<-0.25 #using coordinates as in the locations_data.CSV file the relevant x coordinates are between -.25 and 0.25
+rel_Y_cord<-0.5 #the relevant Y coordinates are between -0.5 and 0.5
+```
+
+```{r }
+ROOT_PATH = 'C:/Users/mehes/Documents/repo/master_thesis_forensic_shoeprint/'
+
+CONTOUR_ALGORITHM = 'Active_Contour'
+IMAGE_NUMBER  = '171'
+# 171/ 135
+MODEL_FEATURE  = 'NEW_X_NS_XY_RELATIVE'
+#'NEW_X_NS_XY' 
+#'NS_XY'
+
+```
+
+
+
+
+
+  
+```{r }
+file_name <- paste(ROOT_PATH,"statistical_model/dataset/dataCC_distance_part4.csv", sep = "")
+dataCC<- read.csv(file_name,header=TRUE)
+file_name <- paste(ROOT_PATH, "statistical_model/saved_models/", MODEL_FEATURE,".rds", sep = "")
+rand <- readRDS(file = file_name)
+#print(summary(rand))
+xcoor <- t(matrix(rep((-col_shoe/2+1:col_shoe)*rel_Y_cord/rel_col_shoe,row_shoe),col_shoe,row_shoe))
+ycoor <- -matrix(rep((-row_shoe/2+1:row_shoe)*rel_Y_cord/rel_col_shoe,col_shoe),row_shoe,col_shoe)
+xy <- expand.grid(xcoor[1,],ycoor[,1])#307 * 395   
+colnames(xy)[colnames(xy) == "Var1"] <- "x"
+colnames(xy)[colnames(xy) == "Var2"] <- "y"
+img <- load.image(paste( ROOT_PATH, "images/Cleaned_Shoes/im_135.png", sep = ""))#prototype
+img <- t(as.matrix(img))
+
+```
+
+
+```{r }
+
+newdesignmat <- rep(1,length(xy$x))
+#we multiplicate the splines(x) with splines(y) so newdesigmat have 4*6 columns! (plus the first)
+#newdesgmat have 12165 lines, exactly like ROWS*COLS. it will represent each point of the matrix ?
+
+if (grepl("NEW_X_NS_XY", MODEL_FEATURE)){ # Splines 
+  nknotsx <- 3
+  nknotsy <- 5
+  knots_new_x <- as.numeric(quantile(dataCC$new_x,1:nknotsx/(1+nknotsx)))
+  knotsy <-as.numeric(quantile(dataCC$y,1:nknotsy/(1+nknotsy)))
+  bas_new_x <- ns(dataCC$new_x,knots=knots_new_x)
+  basy <- ns(dataCC$y,knots=knotsy)
+  for(i in 1:length(predict(basy,1))) {
+    for(j in 1:length(predict(bas_new_x,1))) {
+      newdesignmat <-  cbind(newdesignmat,predict(bas_new_x, xy$x)[,j]*predict(basy, xy$y)[,i])  } }
+}else if (grepl("NS_XY", MODEL_FEATURE)){ # Splines 
+  nknotsx <- 3
+  nknotsy <- 5
+  knotsx <- as.numeric(quantile(dataCC$x,1:nknotsx/(1+nknotsx)))
+  knotsy <-as.numeric(quantile(dataCC$y,1:nknotsy/(1+nknotsy)))
+  basx <- ns(dataCC$x,knots=knotsx)
+  basy <- ns(dataCC$y,knots=knotsy)
+  for(i in 1:length(predict(basy,1))) {
+    for(j in 1:length(predict(basx,1))) {
+      newdesignmat <-  cbind(newdesignmat,predict(basx, xy$x)[,j]*predict(basy, xy$y)[,i])  } }
+} 
+#(for each row, we multiply and sum the params between the two matrices )
+#shape of matrix multiplication: (121265xN.Params)*(N.Params x 1) -> (121265x1)
+pred.case_control <- newdesignmat%*%fixef(rand)+log(0.005) #log(0.005) is the offset
+
+img_filled <- t(as.matrix(load.image(paste(ROOT_PATH,"statistical_model/dataset/new_filled_135.png", sep = ""))))
+
+pred.case_control[t(img_filled)==0] <- NA #areas out of the contour (less than 8 shoes has contact surface in these pixels) are given NA
+
+rm(newdesignmat, rand, bas_new_x, basy, dataCC)
+
+```
+
+
+```{r }
+pred.case_control_img<-pred.case_control
+#pred.case_control_img[t(img)==0] <- NA
+prob.pred <- exp(matrix(pred.case_control_img ,row_shoe,col_shoe,byrow=1))/(1+exp(matrix(pred.case_control_img ,row_shoe,col_shoe,byrow=1)))
+intens <- -log(1-prob.pred) #turning it to intensity
+old_matrix <- intens
+
+```
+
+```{r }
+intens <- -log(1-prob.pred)
+intens[img==0] <- NA
+rotated_intens <- t(intens)[, nrow(intens):1]
+image.plot(rotated_intens, axes = TRUE)
+file_name <- paste(ROOT_PATH, "statistical_model/model_images/",MODEL_FEATURE, "_SHOE.pdf", sep = "")
+pdf(file = file_name, height = 6, width = 6)
+image.plot(rotated_intens, axes = TRUE)
+abline(v = 0.5, col = "black", lty = 1, lwd = 1)
+abline(h = 0.5, col = "black", lty = 1, lwd = 1)
+grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
+dev.off() 
+
+```
+
+```{r }
+intens <- -log(1-prob.pred)
+rotated_intens <- t(intens)[, nrow(intens):1]
+image.plot(rotated_intens, axes = TRUE)
+file_name <- paste(ROOT_PATH, "statistical_model/model_images/",MODEL_FEATURE, "_CONTOUR.pdf", sep = "")
+pdf(file = file_name, height = 6, width = 6)
+image.plot(rotated_intens, axes = TRUE)
+abline(v = 0.5, col = "black", lty = 1, lwd = 1)
+abline(h = 0.5, col = "black", lty = 1, lwd = 1)
+grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
+dev.off() 
+
+```
+
+
+
+```{r }
+#chargement du contour de la nouvelle image filled
+new_contour <- t(as.matrix(load.image(paste(ROOT_PATH, "statistical_model/dataset/new_contour_171.png", sep = ""))))
+#je vais choisir une ligne specifique
+entire_contour<-data.frame(x = xcoor[new_contour==1],y =ycoor[new_contour==1])# the data
+distinct_y <- unique(entire_contour$y)
+new_image <- t(as.matrix(load.image(paste(ROOT_PATH, "statistical_model/dataset/new_filled_",IMAGE_NUMBER,".png", sep = ""))))
+```
+
+
+
+
+
+```{r }
+adapt_line <- function(is_negative, old_line, contour_line){
+  if (is_negative) {
+    old_line <- rev(old_line)
+  }
+  cont <- sum(contour_line)-5
+  if (cont >0){
+    old <- sum(!is.null(old_line) & !is.na(old_line))
+  index_list <- pmax(1,round((1:cont)/cont*old))
+  new_list <- old_line[index_list]
+  new_list <- c(new_list, rep(NA, length(old_line)-cont))
+  if (is_negative) {
+   new_list <- rev(new_list)
+  }
+  }
+  else {
+    new_list <- old_line#c(rep(NA, length(old_line)))
+  }
+  
+  return(new_list)
+}
+
+```
+
+
+
+
+```{r }
+for (i in 1:395) {
+old_line = old_matrix[i,] 
+contour_line = new_image[i,]
+if((sum(contour_line) >0) & (sum(!is.null(old_line) & !is.na(old_line)) >0)){
+  new_line = c(adapt_line(TRUE,old_line[1:153],contour_line[1:153]),adapt_line(FALSE,old_line[154:307],contour_line[154:307]))
+ old_matrix[i,] = new_line
+} else if ((sum(contour_line) ==0) & (sum(!is.null(old_line) & !is.na(old_line)) >0)){
+  old_matrix[i,] = c(rep(NA, length(old_line)))
+}
+
+}
+```
+
+
+```{r}
+
+
+```
+
+
+
+
+
+```{r}
+new_rotated <- old_matrix
+new_img <- t(as.matrix(load.image(paste( ROOT_PATH, "images/Cleaned_Shoes/im_171.png", sep = ""))))
+new_rotated[new_img==0] <- NA
+im_rotated <- t(new_rotated)[, nrow(new_rotated):1]
+
+image.plot(im_rotated, axes = TRUE)
+file_name <- paste(ROOT_PATH, "statistical_model/model_images/NEW_X_NS_XY_",IMAGE_NUMBER, "_NEW_SHOE.pdf", sep = "")
+pdf(file = file_name, height = 6, width = 6)
+image.plot(im_rotated, axes = TRUE)
+abline(v = 0.5, col = "black", lty = 1, lwd = 1)
+abline(h = 0.5, col = "black", lty = 1, lwd = 1)
+grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
+dev.off() 
+```
+
+```{r}
+new_rotated <- old_matrix
+im_rotated <- t(new_rotated)[, nrow(new_rotated):1]
+file_name <- paste(ROOT_PATH, "statistical_model/model_images/NEW_X_NS_XY_",IMAGE_NUMBER, "_NEW_CONTOUR.pdf", sep = "")
+pdf(file = file_name, height = 6, width = 6)
+image.plot(im_rotated, axes = TRUE)
+abline(v = 0.5, col = "black", lty = 1, lwd = 1)
+abline(h = 0.5, col = "black", lty = 1, lwd = 1)
+grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
+dev.off() 
+```
+
+
