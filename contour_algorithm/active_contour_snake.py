@@ -135,6 +135,37 @@ def active_contour_shoe(list_contour, plot_img,save_img_bool, im_num):
     comb_arr[tuple(zip(*comb_coordinates))] = True
     return comb_arr
 
+def active_contour_on_prototype():
+    """Create cleaned prototype image using dual-stage active contour"""
+    print("Creating cleaned prototype image...")
+
+    original_img = img_as_ubyte(Image.open(f'{FOLDER}Saved/old_freq_min_18.png'))
+    init = init_snake()
+
+    # First snake with beta=10 for rough boundary detection
+    first_snake = active_contour(gaussian(original_img, 3, preserve_range=False), init,
+                                alpha=0.015, beta=10, gamma=0.001)
+
+    # Create combined extremes image for second stage
+    comb_extremes_img = combined_snake_arr(first_snake, original_img)
+
+    # Second snake with beta=0.10 for refined boundary
+    second_snake = active_contour(gaussian(img_as_ubyte(comb_extremes_img), 3, preserve_range=False), init,
+                                 alpha=0.015, beta=0.10, gamma=0.001)
+
+    # Create final cleaned image
+    snake_img = get_snake_image(second_snake)
+    snake_arr = np.array(snake_img, dtype=bool)
+    final_arr = ~np.array(extreme_values(snake_arr), dtype=bool)
+
+    # Save cleaned prototype
+    final_img = Image.fromarray(final_arr.astype(np.uint8) * 255)
+    final_img.save(f'{FOLDER}Saved/freq_min_18.png')
+    np.save(f'{FOLDER}Saved/freq_min_18.npy', final_arr)
+
+    print("Cleaned prototype image created successfully")
+    return final_arr
+
 
 def active_contour_on_prototype():
     """Create cleaned prototype image using dual-stage active contour"""
@@ -179,18 +210,28 @@ def main():
     for i in tqdm(range(len(list_contour))):#len(list_contour))
         snake_arr = active_contour_shoe(list_contour, plot_img=False, save_img_bool=True, im_num=i)
         snake_all.append(snake_arr)
-    np.save(f'{PROCESSING_DATA_PATH}active_contour_all.npy', snake_all)
-
+    np.save(f'{FOLDER}Saved/active-contour_all.npy', snake_all)
+    
     # Save snake_all as txt file (one line per shoe, flattened to 2D)
-    with open(f'{SHARED_DATA_PATH}active_contour_all.txt', 'w') as f:
-        for snake_arr in snake_all:
-            binary_string = ''.join(snake_arr.flatten().astype(int).astype(str))
+    # Write without extra whitespace - pure binary string
+    with open(f'../data/contour_Active_Contour.txt', 'w') as f:
+        for i in tqdm(range(len(snake_all))):
+            if i == 126:  # Skip shoe 127 (0-indexed, has no RACs)
+                continue
+            binary_string = ''.join(snake_all[i].flatten().astype(int).astype(str))
             f.write(binary_string + '\n')
-    print("Active contour processing complete - cleaned images saved to Active-contour folder")
+    
+    print(f"Active contour processing complete - {len(snake_all)} shoes (shoe 127 excluded)")
 
 if __name__ == '__main__':
     main()
-    snake_all = []
-    list_contour = np.load(f'{PROCESSING_DATA_PATH}list_contour.npy')
-   #snake_arr = active_contour_shoe(list_contour, plot_img=True, save_img_bool=True, im_num=555)
-   #Image.fromarray(snake_arr).save(PROCESSING_DATA_PATH + 'test_135.png')
+#    snake_all = np.load(f'{FOLDER}Saved/active-contour_all.npy')
+#    with open(f'{FOLDER}Saved/contour_Active_Contour.txt', 'w') as f:
+#     for i in tqdm(range(len(snake_all))):
+#         if i == 126:  # Skip shoe 127 (0-indexed, has no RACs)
+#                 continue
+#         binary_string = ''.join(snake_all[i].flatten().astype(int).astype(str))
+#         f.write(binary_string + '\n')
+    
+#    snake_arr = active_contour_shoe(list_contour, plot_img=True, save_img_bool=True, im_num=555)
+#    Image.fromarray(snake_arr).save(FOLDER + 'Saved/test_135.png')

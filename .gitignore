@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Virtual environments
 .venv/
 venv/
@@ -6,12 +7,40 @@ ENV/
 .env
 
 # IDE files
+=======
+# Python compiled and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*$py.class
+*.so
+.Python
+venv/
+venv-wind/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# R workspace and history (not .R or .Rmd files!)
+.Rproj.user/
+.Rhistory
+.RData
+.Rdata
+.Ruserdata
+*.Rproj
+
+# IDE
+>>>>>>> end24
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
+<<<<<<< HEAD
 # Claude Code
 .claude/
 
@@ -79,3 +108,29 @@ statistical_model/analysis_output.log
 *.html
 plot_*.html
 **/plot_*.html
+=======
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Project specific - ignore large data/model files
+statistical_model/saved_models/*
+!statistical_model/saved_models/.keep
+
+# Ignore image files but keep code
+images/**/*.png
+images/**/*.jpg
+images/**/*.jpeg
+images/**/*.gif
+images/**/*.bmp
+images/**/*.tiff
+images/**/*.html
+images/Saved/*.npy
+!images/.keep
+
+# Keep dataset and model_images folders
+!statistical_model/dataset/
+!statistical_model/model_images/
+
+>>>>>>> end24

@@ -1,0 +1,68 @@
+---
+title: "Code support for Master Thesis"
+author: "Chelomo Lubliner"
+date: "October 2023"
+output: html_document
+---
+
+# 1. Initialization
+
+**Relevant Files:** `globals.py`, `create_files_shoes.py`
+
+**globals.py:** We have to choose if we are currently working with the Old or the new Dataset, we just have to change the first line `OLD_DATASET = True/False`.
+
+**create_files_shoes:** We are uploading the contacts_data files and transform the list of 0/1 to an array of matrixes that correspond to the shape of Old/New dataset, and convert then to images via `PIL.Image.fromarray()`. The folder shoes will be saved in `contacts_data()` function.
+
+We will also get a superposition of all shoes, the `superposed_pixels` that means images that contains only pixels that occurs at least i times. `Superposed_pixels_reversed` is the images that contains pixels that occurs max i times.
+
+# 2. Remove Noise
+
+**Relevant Files:** `remove_noise.py`, `contour.py`
+
+We define a prototype image that is superposed image of pixels that occurs at least 18 times.
+
+For removing the noise, we do a bitwise AND between every image and the prototype image, the save the new cleaned image in Cleaned_Shoes folder. `Superpose_image_prototype()` function is for visualization of which pixels of the image we keep and which pixels will be deleted.
+
+These functions will be called in the `contour.py` file.
+
+# 3. Get Contour
+
+**Relevant Files:** `extreme_values_x_y.py`, `contour.py`
+
+We iterate over every X and get min and max Y. Then, iterate over every Y and get min and max X. The union of the two results give us the extreme values. `dicts_points()` return a dictionary of key=X (or Y) and all the Ys (respectively Xs) that corresponds to this X (or Y). Then we select the min_max.
+
+`contour.py` first do the remove noise, and then calculate the extreme_values and save them into folders Extreme_Values.
+
+# 4. Convex Hull
+
+**Relevant Files:** `convex_hull.py`
+
+Only one convex from `scipy.spatial`, on the entire shoe. Get the points of the convex, and add them to the shoe pixels of the shoe. Save the convex in Convex_Hull_html folder. We note that convex hull encompasses all points, so the result will not be different if we run it on all the shoe or only on the extreme values. Since it's computationally better to run on less points, we will run this algorithm on the extreme's values.
+
+# 5. Active-Contour Snake
+
+**Relevant Files:** `active_contour_snake.py`
+
+This is the algorithm that give us the best contour of a shoe. There are several steps:
+
+* Get the image from cleaned_shoes -> `get_image()`
+* First implementation of active_contour
+  * `init_snake()` gives the initial shape that will fit to the shoe.
+  * `first_snake = active_contour()`
+* `combined_snake_arr()`
+  * get image from the snake -> `get_snake_image()`
+  * get extreme_values of the snake (because it's too thick)
+  * get the part of the shoe that is out of the first snake (out_first_snake_arr)
+  * combine the out_first_snake_arr and the snake_arr. Then calculate the extreme values a second times.
+  * This image comb_extremes_images.
+* Second_snake
+  * Run a second time the active-contour algorithm but on comb_extremes_images and not on the original image. With differents parameters than the first time (Beta = 0.10)
+* Save the original image with the second snake.
+
+# 6. Distance of RAC
+
+**Relevant Files:** `extreme_values.py`
+
+We have now two methods to get the contour of a shoe: Convex-Hull and Active-Contour. The locations_data file contains the RACs, for each shoe, and their coordinates x,y. First, we need to convert the x/y coordinates to pixels that corresponds to the rows and columns. Then We will calculate the difference between each RAC and the extremities. For each method (Convex/Snake) we will calculate both the horizontal distance (the closest point (Xi,Yi) where Yi = YRAC) and the shortest distance. `aspix_x()` and `aspix_y()` transforms a x/y coordinate to a row or column number. `init_locations_new()` upload the original locations_data file and add new columns, convert x/y to row/columns. Since the locations_data file start at shoe N.1 I removed one for each number shoe because I'm starting with shoe N.0. this function will also divide by two the coordinates x/y for the new dataset because the correct interval is: x_coordinates ∈ [-0.25,0.25], y_coordinates ∈ [-0.5,0.5]. For the horizonal distance, we need only the two points that are at the extremities, but sometimes there are several points one after the other, so we will take only the points that don't follow each other. To check if a RAC is inside the shoe or not, we can multiplicate the distance of the two points and we are supposed to get a negative result, because there are on an opposite side. The 4 distances are: HORIZ_DIST_SNAKE, DIST_SNAKE, HORIZ_DIST_CONV, DIST_CONV.
+
+The conclusion of this part is in `Images/[New_Shoes|Old_Shoes]/Saved/locations_new.csv`
