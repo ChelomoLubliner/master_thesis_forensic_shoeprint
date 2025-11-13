@@ -5,31 +5,31 @@ date: "2023-07-17"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 
 ```
 
-```{r }
+```{r}
 source("config.R")
 
 ```
 
 
-```{r }
+```{r}
 
-col_shoe<-307 #307 is the number of columns in each shoe
-row_shoe<-395 #395 is the number of rows in each shoe
-num_shoe<-387  #387 is the number of shoes but 386 is the number of shoes with RACs - shoe 127 has no RACS
+col_shoe <- 307 # 307 is the number of columns in each shoe
+row_shoe <- 395 # 395 is the number of rows in each shoe
+num_shoe <- 387  # 387 is the number of shoes but 386 is the number of shoes with RACs - shoe 127 has no RACS
 
-rel_col_shoe<-150  #out of the 307 columns only 150 are relevant (contain non zero pixels in some shoes)
-rel_row_shoe<-300  #out of the 395 rows only 300 are relevant (contain non zero pixels in some shoes)
-rel_x_cord<-0.25 #using coordinates as in the locations_data.CSV file the relevant x coordinates are between -.25 and 0.25
-rel_Y_cord<-0.5 #the relevant Y coordinates are between -0.5 and 0.5
+rel_col_shoe <- 150  # out of the 307 columns only 150 are relevant (contain non zero pixels in some shoes)
+rel_row_shoe <- 300  # out of the 395 rows only 300 are relevant (contain non zero pixels in some shoes)
+rel_x_cord <- 0.25 # using coordinates as in the locations_data.CSV file the relevant x coordinates are between -.25 and 0.25
+rel_Y_cord <- 0.5 # the relevant Y coordinates are between -0.5 and 0.5
 
-file_name <- paste(ROOT_PATH,"data/dataCC.csv", sep = "")
-dataCC<- read.csv(file_name,header=TRUE)
+file_name <- paste(ROOT_PATH, "data/dataCC.csv", sep = "")
+dataCC <- read.csv(file_name, header = TRUE)
 
 ```
 
@@ -37,28 +37,28 @@ dataCC<- read.csv(file_name,header=TRUE)
 ```{r contour_distance_}
 
 #get convex hull contours as a list of doubles(395*307) of pixel and convert them to x-y  coordinates
-  file_name <- paste(ROOT_PATH,"data/contour_", CONTOUR_ALGORITHM, ".txt", sep = "")
-  d <- readChar(file_name,nchars=(col_shoe*row_shoe+2)*num_shoe) 
-  contour_txt <- list() 
-  for(i in 1:386)
-  {
-    contour_txt[[i]] <- matrix(as.numeric(unlist(strsplit(substr(d, 1+(col_shoe*row_shoe+2)*(i-1), (col_shoe*row_shoe+2)*i-2), split="")) ),row_shoe,col_shoe,byrow=1)
-  }
+file_name <- paste(ROOT_PATH, "data/contour_", CONTOUR_ALGORITHM, ".txt", sep = "")
+d <- readChar(file_name, nchars = (col_shoe * row_shoe + 2) * num_shoe) 
+contour_txt <- list() 
+for (i in 1:386) {
+  contour_txt[[i]] <- matrix(
+    as.numeric(unlist(strsplit(substr(d, 1 + (col_shoe * row_shoe + 2) * (i - 1), (col_shoe * row_shoe + 2) * i - 2), split = ""))),
+    row_shoe, col_shoe, byrow = 1
+  )
+}
 #now get the x,y coordinates
-contour_pix<-list() 
+contour_pix <- list() 
 # each data_pix[[i]] is a matrix with column 1 indicating the shoe, 2 the x, 3 the y, 4 the amount of RACs in that pixel
 # we include only data where there is contact surface (after adjusting for the case that if there is a RAC there will be contact surface)
-for(i in 1:386) 
-{
-  xcoor <- t(matrix(rep((-col_shoe/2+1:col_shoe)*rel_Y_cord/rel_col_shoe,row_shoe),col_shoe,row_shoe))
-  ycoor <- -matrix(rep((-row_shoe/2+1:row_shoe)*rel_Y_cord/rel_col_shoe,col_shoe),row_shoe,col_shoe)
-  shoe<-rep(i,length(contour_txt[[i]][contour_txt[[i]]==1]))
-  contour_pix[[i]]<-cbind(shoe,xcoor[contour_txt[[i]]==1],ycoor[contour_txt[[i]]==1])# the data is only  where there is contact surface
+for (i in 1:386) {
+  xcoor <- t(matrix(rep((-col_shoe / 2 + 1:col_shoe) * rel_Y_cord / rel_col_shoe, row_shoe), col_shoe, row_shoe))
+  ycoor <- -matrix(rep((-row_shoe / 2 + 1:row_shoe) * rel_Y_cord / rel_col_shoe, col_shoe), row_shoe, col_shoe)
+  shoe <- rep(i, length(contour_txt[[i]][contour_txt[[i]] == 1]))
+  contour_pix[[i]] <- cbind(shoe, xcoor[contour_txt[[i]] == 1], ycoor[contour_txt[[i]] == 1]) # the data is only where there is contact surface
 }
-contour_pix_use<-numeric()
-for (i in 1:386)
-{
-  contour_pix_use<-rbind(contour_pix_use,contour_pix[[i]]) 
+contour_pix_use <- numeric()
+for (i in 1:386) {
+  contour_pix_use <- rbind(contour_pix_use, contour_pix[[i]]) 
 }
 
 # at this stade, in convex_pix_use we have for each shoe, each point of the contour
@@ -67,7 +67,7 @@ for (i in 1:386)
 
 ```{r contour_distance_3}
 #convex_poix to dataframe will be easier
-contour_df = as.data.frame(contour_pix_use)
+contour_df <- as.data.frame(contour_pix_use)
 colnames(contour_df)[colnames(contour_df) == "V2"] <- "x"
 colnames(contour_df)[colnames(contour_df) == "V3"] <- "y"
 
@@ -92,25 +92,23 @@ calculate_distance <- function(x1, y1, x2, y2) {
   sqrt((x1 - x2)^2 + (y1 - y2)^2)
 }
 
-
-calculate_min_distance <- function(new_data , contour_alg_df){
+calculate_min_distance <- function(new_data, contour_alg_df) {
   new_data$row_number <- seq_len(nrow(new_data))
-  #print(head(new_data))
-  for (i in 1:nrow(new_data)){
-    percentage <- round(100 * i / nrow(new_data),3)
+  for (i in 1:nrow(new_data)) {
+    percentage <- round(100 * i / nrow(new_data), 3)
     if (i %% 1000 == 0) {
-        message("row N.", i, ": ", percentage, "%\n")
+      message("row N.", i, ": ", percentage, "%\n")
     }
     min_distance <- Inf
     distance <- Inf
-    contour_df2 <- contour_alg_df[contour_alg_df$shoe==new_data$shoe[i],]
+    contour_df2 <- contour_alg_df[contour_alg_df$shoe == new_data$shoe[i], ]
     for (j in 1:nrow(contour_df2)) {
-        distance <- calculate_distance(new_data$x[i], new_data$y[i],contour_df2$x[j] , contour_df2$y[j])
-        if (distance < min_distance) {
-          min_distance <- distance
-        }
+      distance <- calculate_distance(new_data$x[i], new_data$y[i], contour_df2$x[j], contour_df2$y[j])
+      if (distance < min_distance) {
+        min_distance <- distance
+      }
     }
-  new_data$min_dist[i] <- min_distance
+    new_data$min_dist[i] <- min_distance
   }
 file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance.csv", sep = "")
 write.csv(new_data, file_name, row.names = FALSE)

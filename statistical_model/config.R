@@ -10,11 +10,11 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
   ROOT_PATH <- dirname(getwd())
 }
 
-ROOT_PATH <- paste(ROOT_PATH,"/", sep = "")
-CONTOUR_ALGORITHM <- 'Active_Contour'
-IMAGE_NUMBER  <- '171'
+ROOT_PATH <- paste(ROOT_PATH, "/", sep = "")
+CONTOUR_ALGORITHM <- "Active_Contour"
+IMAGE_NUMBER <- "171"
 # 171/ 135
-MODEL_FEATURE  <- 'NEW_X_NS_XY_RELATIVE'
-#'NEW_X_NS_XY' 
-#'NS_XY'
+MODEL_FEATURE <- "NEW_X_NS_XY_RELATIVE"
+# "NEW_X_NS_XY"
+# "NS_XY"
 

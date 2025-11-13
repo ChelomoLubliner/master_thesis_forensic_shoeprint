@@ -6,13 +6,13 @@ output:
 ---
 
 
-```{r }
+```{r}
 source("config.R")
 
 file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance.csv", sep = "")
-dataCC<- read.csv(file_name,header=TRUE)
-file_name <- paste(ROOT_PATH,"data/all_cont.csv", sep = "")
-allcont<- read.csv(file_name,header=TRUE)
+dataCC <- read.csv(file_name, header = TRUE)
+file_name <- paste(ROOT_PATH, "data/all_cont.csv", sep = "")
+allcont <- read.csv(file_name, header = TRUE)
 ```
 
 
@@ -20,12 +20,10 @@ allcont<- read.csv(file_name,header=TRUE)
 library(lmtest)
 library(Matrix)
 
-#Je vais faire une loop avec chaque model, pour chaque model on va tout imprimer et avoir le p-value qui correspond
 
-MODEL_FEATURE  = 'NS_XY'
-list_model = list("NEW_X_NS_XY_135")
-#list_model = list("NEW_X_NS_XY_135")
-file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/NS_XY.rds", sep = "")
+MODEL_FEATURE <- "NS_XY"
+list_model <- list("NEW_X_NS_XY")
+file_name <- paste(ROOT_PATH, "statistical_model/saved_models/NS_XY_RELATIVE.rds", sep = "")
 naomi_model <- readRDS(file = file_name)
 print("Naomi Model (NS_XY):")
 print(summary(naomi_model))
@@ -33,22 +31,21 @@ print(summary(naomi_model))
 
 ```{r}
 
-model_info<-function(model_feat = MODEL_FEATURE )
-{
-  file_name <- paste(ROOT_PATH, CONTOUR_ALGORITHM, "/Saved_Models/",model_feat,".rds", sep = "")
+model_info <- function(model_feat = MODEL_FEATURE) {
+  file_name <- paste(ROOT_PATH, "statistical_model/saved_models/", model_feat, "_RELATIVE.rds", sep = "")
   model <- readRDS(file = file_name)
   print(summary(model))
-  #compare with naomi model
+  # compare with naomi model
   lrt_naomi <- lrtest(naomi_model, model)
-  #global_p_value_naomi <- 1 - pchisq(lrt_naomi$Chisq[2], df = lrt_naomi$Df[2])
-  print('LRT : compare with naomi model')
+  # global_p_value_naomi <- 1 - pchisq(lrt_naomi$Chisq[2], df = lrt_naomi$Df[2])
+  print("LRT : compare with naomi model")
   print(lrt_naomi)
-  #compare model with empty model
-  #lrt_empty <- lrtest(model,empty_model)
-  lrt_empty <- lrtest(model,empty_model)
-  print('LRT : compare model with empty model')
-  print(lrt_empty)
-return
+  # compare model with empty model
+  # lrt_empty <- lrtest(model,empty_model)
+  # lrt_empty <- lrtest(model, empty_model)
+  # print("LRT : compare model with empty model")
+  # print(lrt_empty)
+  return()
 }
 ```
 

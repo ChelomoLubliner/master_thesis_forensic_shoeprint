@@ -1,16 +1,16 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from tqdm import tqdm
+import numpy as np
 from PIL import Image
+from tqdm import tqdm
+
 from active_contour_snake import active_contour_on_prototype
-my_dict = {1: True, 0: False}
-import cv2
-from globals import  FOLDER, DATASET, W, H
-from active_contour_snake import active_contour_on_prototype
+from globals import DATASET, FOLDER, H, W
+
+MY_DICT = {1: True, 0: False}
 
 
-# Opened file, save list_lines, and images
 def contacts_data():
+    """Open dataset file, save list_lines, and images."""
     list_lines = []
     with open(f'../data/{DATASET}', 'r') as f:
         lines = f.readlines()
@@ -18,18 +18,19 @@ def contacts_data():
         for i in tqdm(range(len(lines))):
             line = list(lines[i])
             line = np.array(list(map(int, line[:-1]))).reshape(H, W)
-            line = np.vectorize(my_dict.get)(line)
-            list_lines.append(np.matrix(line)   )
+            line = np.vectorize(MY_DICT.get)(line)
+            list_lines.append(np.matrix(line))
             img = Image.fromarray(line)
             img.save(f'{FOLDER}shoes/im{i}.png')
         # flip the image8 because it's left shoes
         if FOLDER == 'Images/Old_Shoes/':
             list_lines[8] = np.fliplr(list_lines[8])
-            line = np.vectorize(my_dict.get)(list_lines[8])
+            line = np.vectorize(MY_DICT.get)(list_lines[8])
             im8 = Image.fromarray(line)
             im8.save(f'{FOLDER}shoes/im8.png')
         # save list_lines
         np.save(f'{FOLDER}Saved/list_matrices.npy', list_lines)
+
 
 def superposition_all_shoes(list_lines):
     print('superposition_all_shoes')
@@ -56,6 +57,7 @@ def superposed_pixels(list_lines):
         #     img = Image.fromarray(line)
         #     img.save(f'{FOLDER}Superposed_Pixels/freq_min_{max_pix}.png')
 
+
 def superposed_pixels_reversed(list_lines):
     # Dict to convert 0->False and non 0->True
     print('Superposed_pixels_reversed')
@@ -65,9 +67,10 @@ def superposed_pixels_reversed(list_lines):
     for max_pix in tqdm(range(1, max_pixel)):  # -1 -1
         new_dict[max_pix] = True
         line = np.vectorize(new_dict.get)(total)
-        if (max_pix % 10 == 0) | (max_pix < 25):
+        if (max_pix % 10 == 0) or (max_pix < 25):
             img = Image.fromarray(line)
             img.save(f'{FOLDER}Superposed_Pixels_Reversed/freq_max_{max_pix}.png')
+
 
 def heatmap_superposed(list_lines):
     print('Heatmap_superposed')
@@ -86,12 +89,11 @@ def main():
     print(f'Array of {len_lines} lines')
     superposition_all_shoes(list_lines)
     superposed_pixels(list_lines)
-    #superposed_pixels_reversed(list_lines)
-    #heatmap_superposed(list_lines)
+    # superposed_pixels_reversed(list_lines)
+    # heatmap_superposed(list_lines)
     active_contour_on_prototype()
 
 
-#def main_create_files_init():
-if __name__ ==  '__main__':
+if __name__ == '__main__':
     main()
 

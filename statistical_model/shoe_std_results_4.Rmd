@@ -1,8 +1,8 @@
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r }
+```{r}
 set.seed(313)
 # library(imager)
 # library(spam)
@@ -29,17 +29,17 @@ library(fields)
 library(smoothie) 
 
 
-col_shoe<-307 #307 is the number of columns in each shoe
-row_shoe<-395 #395 is the number of rows in each shoe
-num_shoe<-387  #387 is the number of shoes but 386 is the number of shoes with RACs - shoe 127 has no RACS
+col_shoe <- 307 # 307 is the number of columns in each shoe
+row_shoe <- 395 # 395 is the number of rows in each shoe
+num_shoe <- 387  # 387 is the number of shoes but 386 is the number of shoes with RACs - shoe 127 has no RACS
 
-rel_col_shoe<-150  #out of the 307 columns only 150 are relevant (contain non zero pixels in some shoes)
-rel_row_shoe<-300  #out of the 395 rows only 300 are relevant (contain non zero pixels in some shoes)
-rel_x_cord<-0.25 #using coordinates as in the locations_data.CSV file the relevant x coordinates are between -.25 and 0.25
-rel_Y_cord<-0.5 #the relevant Y coordinates are between -0.5 and 0.5
+rel_col_shoe <- 150  # out of the 307 columns only 150 are relevant (contain non zero pixels in some shoes)
+rel_row_shoe <- 300  # out of the 395 rows only 300 are relevant (contain non zero pixels in some shoes)
+rel_x_cord <- 0.25 # using coordinates as in the locations_data.CSV file the relevant x coordinates are between -.25 and 0.25
+rel_Y_cord <- 0.5 # the relevant Y coordinates are between -0.5 and 0.5
 ```
 
-```{r }
+```{r}
 
 source("config.R")
 
@@ -53,17 +53,17 @@ source("config.R")
 
   
 ```{r }
-file_name <- paste(ROOT_PATH,"statistical_model/dataset/dataCC_distance_part4.csv", sep = "")
-dataCC<- read.csv(file_name,header=TRUE)
-file_name <- paste(ROOT_PATH, "statistical_model/saved_models/", MODEL_FEATURE,".rds", sep = "")
+file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance_part4.csv", sep = "")
+dataCC <- read.csv(file_name, header = TRUE)
+file_name <- paste(ROOT_PATH, "statistical_model/saved_models/", MODEL_FEATURE, ".rds", sep = "")
 rand <- readRDS(file = file_name)
 #print(summary(rand))
-xcoor <- t(matrix(rep((-col_shoe/2+1:col_shoe)*rel_Y_cord/rel_col_shoe,row_shoe),col_shoe,row_shoe))
-ycoor <- -matrix(rep((-row_shoe/2+1:row_shoe)*rel_Y_cord/rel_col_shoe,col_shoe),row_shoe,col_shoe)
-xy <- expand.grid(xcoor[1,],ycoor[,1])#307 * 395   
+xcoor <- t(matrix(rep((-col_shoe / 2 + 1:col_shoe) * rel_Y_cord / rel_col_shoe, row_shoe), col_shoe, row_shoe))
+ycoor <- -matrix(rep((-row_shoe / 2 + 1:row_shoe) * rel_Y_cord / rel_col_shoe, col_shoe), row_shoe, col_shoe)
+xy <- expand.grid(xcoor[1, ], ycoor[, 1]) #307 * 395   
 colnames(xy)[colnames(xy) == "Var1"] <- "x"
 colnames(xy)[colnames(xy) == "Var2"] <- "y"
-img <- load.image(paste( ROOT_PATH, "images/cleaned_shoes/im_135.png", sep = ""))#prototype
+img <- load.image(paste(ROOT_PATH, "images/cleaned_shoes/im_135.png", sep = "")) #prototype
 img <- t(as.matrix(img))
 
 ```

@@ -1,8 +1,8 @@
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r }
+```{r}
 set.seed(313)
 # library(imager)
 # library(spam)
@@ -25,37 +25,37 @@ library(fields)
 library(survival)
 library(smoothie) 
 
-col_shoe<-307 #307 is the number of columns in each shoe
-row_shoe<-395 #395 is the number of rows in each shoe
-num_shoe<-387  #387 is the number of shoes but 386 is the number of shoes with RACs - shoe 127 has no RACS
+col_shoe <- 307 # 307 is the number of columns in each shoe
+row_shoe <- 395 # 395 is the number of rows in each shoe
+num_shoe <- 387  # 387 is the number of shoes but 386 is the number of shoes with RACs - shoe 127 has no RACS
 
-rel_col_shoe<-150  #out of the 307 columns only 150 are relevant (contain non zero pixels in some shoes)
-rel_row_shoe<-300  #out of the 395 rows only 300 are relevant (contain non zero pixels in some shoes)
-rel_x_cord<-0.25 #using coordinates as in the locations_data.CSV file the relevant x coordinates are between -.25 and 0.25
-rel_Y_cord<-0.5 #the relevant Y coordinates are between -0.5 and 0.5
+rel_col_shoe <- 150  # out of the 307 columns only 150 are relevant (contain non zero pixels in some shoes)
+rel_row_shoe <- 300  # out of the 395 rows only 300 are relevant (contain non zero pixels in some shoes)
+rel_x_cord <- 0.25 # using coordinates as in the locations_data.CSV file the relevant x coordinates are between -.25 and 0.25
+rel_Y_cord <- 0.5 # the relevant Y coordinates are between -0.5 and 0.5
 ```
 
 ```{r }
 
 source("config.R")
 
-MODEL_FEATURE  = 'NEW_X_NS_XY'
-# MODEL_FEATURE  = 'NEW_X_NS_XY'
-# MODEL_FEATURE  = 'NULL_MODEL'
-# MODEL_FEATURE  = 'NS_XY'
-# MODEL_FEATURE  = 'NS_HORIZ'   -> 1.only Natural Cubic Splines with HORIZ
-# MODEL_FEATURE  = 'NS_MIN'   -> 1. only Natural Cubic Splines with MIN DIST
-# MODEL_FEATURE  = 'HORIZ_DIST' _> 2.only horiz distance 
-# MODEL_FEATURE  = 'MIN_DIST' _> 2. only horiz distance 
-# MODEL_FEATURE  = 'HORIZ_BIN_CAT'   -> 3.
-# MODEL_FEATURE  = 'MIN_BIN_CAT' -> 3.
-# MODEL_FEATURE  = 'NS_XY_HORIZ_DIST'
-# MODEL_FEATURE  = 'NS_XY_MIN_DIST'
-# MODEL_FEATURE  = 'NS_XY_HORIZ_BIN_CAT'
-# MODEL_FEATURE  = 'NS_XY_MIN_BIN_CAT'
-# MODEL_FEATURE  = 'NS_XY_NS_HORIZ'
-# MODEL_FEATURE  = 'NS_XY_HORIZ_DUMMY'
-# MODEL_FEATURE  = 'NS_XY_MIN_DUMMY'
+MODEL_FEATURE <- "NEW_X_NS_XY"
+# MODEL_FEATURE <- "NEW_X_NS_XY"
+# MODEL_FEATURE <- "NULL_MODEL"
+# MODEL_FEATURE <- "NS_XY"
+# MODEL_FEATURE <- "NS_HORIZ"   -> 1.only Natural Cubic Splines with HORIZ
+# MODEL_FEATURE <- "NS_MIN"   -> 1. only Natural Cubic Splines with MIN DIST
+# MODEL_FEATURE <- "HORIZ_DIST" _> 2.only horiz distance 
+# MODEL_FEATURE <- "MIN_DIST" _> 2. only horiz distance 
+# MODEL_FEATURE <- "HORIZ_BIN_CAT"   -> 3.
+# MODEL_FEATURE <- "MIN_BIN_CAT" -> 3.
+# MODEL_FEATURE <- "NS_XY_HORIZ_DIST"
+# MODEL_FEATURE <- "NS_XY_MIN_DIST"
+# MODEL_FEATURE <- "NS_XY_HORIZ_BIN_CAT"
+# MODEL_FEATURE <- "NS_XY_MIN_BIN_CAT"
+# MODEL_FEATURE <- "NS_XY_NS_HORIZ"
+# MODEL_FEATURE <- "NS_XY_HORIZ_DUMMY"
+# MODEL_FEATURE <- "NS_XY_MIN_DUMMY"
 
 
 ```
@@ -66,10 +66,10 @@ MODEL_FEATURE  = 'NEW_X_NS_XY'
 
 
 file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance.csv", sep = "")
-dataCC<- read.csv(file_name,header=TRUE)
-dataCC <- subset(dataCC, select = c("n_Acc","x","y","shoe","row_number","horiz_dist"))
-file_name <- paste(ROOT_PATH,"data/all_cont.csv", sep = "")
-allcont<- read.csv(file_name,header=TRUE)
+dataCC <- read.csv(file_name, header = TRUE)
+dataCC <- subset(dataCC, select = c("n_Acc", "x", "y", "shoe", "row_number", "horiz_dist"))
+file_name <- paste(ROOT_PATH, "data/all_cont.csv", sep = "")
+allcont <- read.csv(file_name, header = TRUE)
 ```
 
 
@@ -79,20 +79,20 @@ allcont<- read.csv(file_name,header=TRUE)
 ```{r }
 
 image <- t(as.matrix(load.image(paste(ROOT_PATH, "statistical_model/dataset/new_contour_135.png", sep = ""))))
-xcoor <- t(matrix(rep((-col_shoe/2+1:col_shoe)*rel_Y_cord/rel_col_shoe,row_shoe),col_shoe,row_shoe))
-ycoor <- -matrix(rep((-row_shoe/2+1:row_shoe)*rel_Y_cord/rel_col_shoe,col_shoe),row_shoe,col_shoe)
-entire_contour<-data.frame(x = xcoor[image==1],y =ycoor[image==1])# the data 
-distance_per_y = entire_contour %>%group_by(y) %>%summarise(min_x = abs(min(x)),max_x = max(x))
+xcoor <- t(matrix(rep((-col_shoe / 2 + 1:col_shoe) * rel_Y_cord / rel_col_shoe, row_shoe), col_shoe, row_shoe))
+ycoor <- -matrix(rep((-row_shoe / 2 + 1:row_shoe) * rel_Y_cord / rel_col_shoe, col_shoe), row_shoe, col_shoe)
+entire_contour <- data.frame(x = xcoor[image == 1], y = ycoor[image == 1]) # the data 
+distance_per_y <- entire_contour %>% group_by(y) %>% summarise(min_x = abs(min(x)), max_x = max(x))
 
 dist_shape = c()
 for (i in 1:nrow(dataCC)) {
   y_val = dataCC$y[i]
-  if (dataCC$x[i] <= 0){
-    new_val <- distance_per_y[(distance_per_y$y >= y_val-0.01) & (distance_per_y$y <= y_val+0.01), c('y','min_x')]
+  if (dataCC$x[i] <= 0) {
+    new_val <- distance_per_y[(distance_per_y$y >= y_val - 0.01) & (distance_per_y$y <= y_val + 0.01), c("y", "min_x")]
     closest_row_index <- which.min(abs(new_val$y - y_val))
     closest_value <- new_val[closest_row_index, ]$min_x
-  }else{
-      new_val <- distance_per_y[(distance_per_y$y >= y_val-0.01) & (distance_per_y$y <= y_val+0.01), c('y','max_x')]
+  } else {
+    new_val <- distance_per_y[(distance_per_y$y >= y_val - 0.01) & (distance_per_y$y <= y_val + 0.01), c("y", "max_x")]
     closest_row_index <- which.min(abs(new_val$y - y_val))
     closest_value <- new_val[closest_row_index, ]$max_x
    
@@ -102,14 +102,13 @@ for (i in 1:nrow(dataCC)) {
 }
 dataCC$distance_shape <- dist_shape
 
-dataCC$new_x <- (dataCC$x*dataCC$distance_shape)/(abs(dataCC$x)+dataCC$horiz_dist)
+dataCC$new_x <- (dataCC$x * dataCC$distance_shape) / (abs(dataCC$x) + dataCC$horiz_dist)
 file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance_part4.csv", sep = "")
 write.csv(dataCC, file_name, row.names = FALSE)
 ```
 
-```{r }
-Random<-function(nknotsx=3,nknotsy=5,dat=dataCC,model_feat = MODEL_FEATURE, initial_values )
-{
+```{r}
+Random <- function(nknotsx = 3, nknotsy = 5, dat = dataCC, model_feat = MODEL_FEATURE, initial_values) {
   
   common_formula <- as.formula("n_Acc ~ (1 | shoe)")
   
@@ -171,6 +170,7 @@ Random<-function(nknotsx=3,nknotsy=5,dat=dataCC,model_feat = MODEL_FEATURE, init
   return(est)
 }
 get_initial_values <- function(){
+  # seems not to be used .. Maybe I created that for other models
   file_name <- paste(ROOT_PATH, "statistical_model/saved_models/NS_XY.rds", sep = "")
   naomi_model <- readRDS(file = file_name)
   fixed_effects <- fixef(naomi_model) # View the fixed effects coefficients print(fixed_effects) 
@@ -187,4 +187,6 @@ rand<-Random(dat=dataCC,initial_values=get_initial_values())
 ```
 
 
-  
+
+```{r}
+```
