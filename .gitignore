@@ -36,7 +36,7 @@ desktop.ini
 
 # Project specific - ignore large data/model files
 statistical_model/saved_models/*
-!statistical_model/saved_models/.keep
+!statistical_model/saved_models/.gitkeep
 
 # Ignore image files but keep code
 images/**/*.png
