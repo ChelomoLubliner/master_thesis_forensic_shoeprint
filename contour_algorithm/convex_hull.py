@@ -45,7 +45,7 @@ def get_convex_plotly_html(points, im_num):
 
 def main():
     print(f"{FOLDER.split('/')[1]}\nmain_convex_hull")
-    list_contour = np.load(f'{FOLDER}Saved/list_contour.npy')
+    list_contour = np.load(f'{FOLDER}saved/list_contour.npy')
     convex_all = []
     for i in tqdm(range(len(list_contour))):
         all_points = np.argwhere(list_contour[i])
@@ -53,7 +53,7 @@ def main():
         convex_arr = get_convex_plotly(all_points, i)
         convex_all.append(np.matrix(convex_arr))
     print(len(convex_all))
-    np.save(f'{FOLDER}Saved/convex_all.npy', convex_all)
+    np.save(f'{FOLDER}saved/convex_all.npy', convex_all)
 
 
 if __name__ == '__main__':

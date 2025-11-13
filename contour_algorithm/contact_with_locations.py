@@ -30,7 +30,7 @@ def save_html(total_df, shoe_num):
 
 
 def dist_per_shoe(image_i, shoe_num):
-    locations_all = pd.read_csv(f'{FOLDER}Saved/locations_new.csv')
+    locations_all = pd.read_csv(f'{FOLDER}saved/locations_new.csv')
     locations = locations_all[locations_all['shoe'] == shoe_num]
     locations_coord = list(zip(locations['ROW'].to_list(), locations['COL'].to_list()))
     biggest_locations_coord = []
@@ -56,20 +56,20 @@ def dist_per_shoe(image_i, shoe_num):
 
 
 def set_outside_to_0():
-    df = pd.read_csv(f'C:/Users/Chelomo/Desktop/These/Files_thesis/{FOLDER}Saved/locations_new.csv')
+    df = pd.read_csv(f'C:/Users/Chelomo/Desktop/These/Files_thesis/{FOLDER}saved/locations_new.csv')
     for alg in ['SNAKE', 'CONV']:
         for index, row in df[df[f'INSIDE_{alg}'] == False][[f'HORIZ_DIST_{alg}', f'DIST_{alg}']].iterrows():
             if row[f'HORIZ_DIST_{alg}'] is not None:
                 df.loc[index, f'HORIZ_DIST_{alg}'] = 0
             if row[f'DIST_{alg}'] is not None:
                 df.loc[index, f'DIST_{alg}'] = 0
-    df.to_csv(f'C:/Users/Chelomo/Desktop/These/Files_thesis/{FOLDER}Saved/locations_new.csv', index=False)
+    df.to_csv(f'C:/Users/Chelomo/Desktop/These/Files_thesis/{FOLDER}saved/locations_new.csv', index=False)
 
 
 def main():
     print(f"{FOLDER.split('/')[1]}\ncontact_with_locations_main")
     # init_locations_new()
-    list_conv = list(np.load(f'{FOLDER}Saved/list_contour.npy'))
+    list_conv = list(np.load(f'{FOLDER}saved/list_contour.npy'))
     for i in tqdm(range(len(list_conv))):
         image_i = cv2.imread(f'{FOLDER}cleaned_shoes/im_{i}.png')
         dist_per_shoe(image_i, i)

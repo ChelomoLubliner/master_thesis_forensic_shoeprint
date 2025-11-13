@@ -141,7 +141,7 @@ def active_contour_shoe(list_contour, plot_img, save_img_bool, im_num):
     return comb_arr
 
 def active_contour_on_prototype():
-    original_img = img_as_ubyte(Image.open(f'{FOLDER}Saved/old_freq_min_18.png'))
+    original_img = img_as_ubyte(Image.open(f'{FOLDER}saved/old_freq_min_18.png'))
     init = init_snake()
     first_snake = active_contour(gaussian(original_img, 3, preserve_range=False), init, alpha=0.015, beta=10,gamma=0.001)
     comb_extremes_img = combined_snake_arr(first_snake, original_img)
@@ -157,18 +157,18 @@ def active_contour_on_prototype():
     snake_arr = np.array(snake_img, dtype=bool)
     final_arr = ~np.array(extreme_values(snake_arr), dtype=bool)
     final_img = Image.fromarray(final_arr)
-    final_img.save(f'{FOLDER}Saved/freq_min_18.png')
-    np.save(f'{FOLDER}Saved/freq_min_18.npy', final_arr)
+    final_img.save(f'{FOLDER}saved/freq_min_18.png')
+    np.save(f'{FOLDER}saved/freq_min_18.npy', final_arr)
     return
 
 def main():
     print(f"{FOLDER.split('/')[1]}\nactive_contour_snake")
-    list_contour = np.load(f'{FOLDER}Saved/list_contour.npy')
+    list_contour = np.load(f'{FOLDER}saved/list_contour.npy')
     snake_all = []
     for i in tqdm(range(len(list_contour))):
         snake_arr = active_contour_shoe(list_contour, plot_img=False, save_img_bool=True, im_num=i)
         snake_all.append(snake_arr)
-    np.save(f'{FOLDER}Saved/active-contour_all.npy', snake_all)
+    np.save(f'{FOLDER}saved/active-contour_all.npy', snake_all)
 
     # Save snake_all as txt file (one line per shoe, flattened to 2D)
     # Write without extra whitespace - pure binary string
@@ -184,8 +184,8 @@ def main():
 
 if __name__ == '__main__':
     main()
-#    snake_all = np.load(f'{FOLDER}Saved/active-contour_all.npy')
-#    with open(f'{FOLDER}Saved/contour_Active_Contour.txt', 'w') as f:
+#    snake_all = np.load(f'{FOLDER}saved/active-contour_all.npy')
+#    with open(f'{FOLDER}saved/contour_Active_Contour.txt', 'w') as f:
 #     for i in tqdm(range(len(snake_all))):
 #         if i == 126:  # Skip shoe 127 (0-indexed, has no RACs)
 #                 continue
@@ -193,4 +193,4 @@ if __name__ == '__main__':
 #         f.write(binary_string + '\n')
     
 #    snake_arr = active_contour_shoe(list_contour, plot_img=True, save_img_bool=True, im_num=555)
-#    Image.fromarray(snake_arr).save(FOLDER + 'Saved/test_135.png')
+#    Image.fromarray(snake_arr).save(FOLDER + 'saved/test_135.png')

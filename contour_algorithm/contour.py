@@ -38,12 +38,12 @@ def remove_noise_get_contour(list_matrices, im_num):
 
 def main():
     print(f"{FOLDER.split('/')[1]}\nmain_remove_noise_get_extreme_values")
-    list_lines = np.load(f'{FOLDER}Saved/list_matrices.npy')
+    list_lines = np.load(f'{FOLDER}saved/list_matrices.npy')
     list_contour = []
     for i in tqdm(range(len(list_lines))):
         contour_item = remove_noise_get_contour(list_lines, i)
         list_contour.append(np.matrix(contour_item))
-        np.save(f'{FOLDER}Saved/list_contour.npy', list_contour)
+        np.save(f'{FOLDER}saved/list_contour.npy', list_contour)
 
 
 if __name__ == '__main__':

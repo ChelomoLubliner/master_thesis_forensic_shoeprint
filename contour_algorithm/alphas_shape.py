@@ -95,13 +95,13 @@ def draw_polygon(polygon, draw):
 
 def main():
     print(f"{FOLDER.split('/')[1]}\nmain_Alpha_Shape")
-    list_contour = np.load(f'{FOLDER}Saved/list_contour.npy')
+    list_contour = np.load(f'{FOLDER}saved/list_contour.npy')
     alpha_all = []
     for i in tqdm(range(len(list_contour))):
         alpha_arr = get_alpha_shape_mask(list_contour, i, 0.02)
         alpha_all.append(np.matrix(alpha_arr))
     print(len(alpha_all))
-    np.save(f'{FOLDER}Saved/alpha_all.npy', alpha_all)
+    np.save(f'{FOLDER}saved/alpha_all.npy', alpha_all)
 
 
 if __name__ == '__main__':

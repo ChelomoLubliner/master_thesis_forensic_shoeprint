@@ -46,7 +46,7 @@ images/**/*.gif
 images/**/*.bmp
 images/**/*.tiff
 images/**/*.html
-images/Saved/*.npy
+images/saved/*.npy
 !images/.keep
 
 # Exception: Keep image files in cleaned_shoes

@@ -29,13 +29,13 @@ def contacts_data():
             im8 = Image.fromarray(line)
             im8.save(f'{FOLDER}shoes/im8.png')
         # save list_lines
-        np.save(f'{FOLDER}Saved/list_matrices.npy', list_lines)
+        np.save(f'{FOLDER}saved/list_matrices.npy', list_lines)
 
 
 def superposition_all_shoes(list_lines):
     print('superposition_all_shoes')
     total = list_lines.sum(axis=0)
-    Image.fromarray(total.astype(bool)).save(FOLDER + 'Saved/all_shoes_superposed.png')
+    Image.fromarray(total.astype(bool)).save(FOLDER + 'saved/all_shoes_superposed.png')
 
 
 def superposed_pixels(list_lines):
@@ -50,8 +50,8 @@ def superposed_pixels(list_lines):
         new_dict[max_pix] = True
         line = np.vectorize(new_dict.get)(total)
         if max_pix == 18:
-            np.save(f'{FOLDER}Saved/old_freq_min_18.npy', line)
-            Image.fromarray(line).save(FOLDER + 'Saved/old_freq_min_18.png')
+            np.save(f'{FOLDER}saved/old_freq_min_18.npy', line)
+            Image.fromarray(line).save(FOLDER + 'saved/old_freq_min_18.png')
             break
         # if (max_pix % 10 == 0) | (max_pix < 25):
         #     img = Image.fromarray(line)
@@ -75,7 +75,7 @@ def superposed_pixels_reversed(list_lines):
 def heatmap_superposed(list_lines):
     print('Heatmap_superposed')
     plt.imshow(list_lines.sum(axis=0), cmap='jet', interpolation='sinc')
-    plt.savefig(FOLDER + 'Saved/heatmap_superposed.png')
+    plt.savefig(FOLDER + 'saved/heatmap_superposed.png')
 
 
 
@@ -84,7 +84,7 @@ def heatmap_superposed(list_lines):
 def main():
     print(f"{FOLDER.split('/')[1]}\nmain_create_files_init")
     contacts_data()
-    list_lines = np.load(f'{FOLDER}Saved/list_matrices.npy')
+    list_lines = np.load(f'{FOLDER}saved/list_matrices.npy')
     len_lines = len(list_lines)
     print(f'Array of {len_lines} lines')
     superposition_all_shoes(list_lines)

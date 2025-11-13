@@ -59,7 +59,7 @@ def init_locations_new():
     row0_old = math.floor(H / 2)
     locations[['COL', 'ROW']] = locations[['COL', 'ROW']].astype(int)
     """
-    locations.to_csv(f'{FOLDER}Saved/locations_new.csv', index=False)
+    locations.to_csv(f'{FOLDER}saved/locations_new.csv', index=False)
 
 def save_html(total_df, shoe_num,algo) :
     """Plot fig"""
@@ -82,7 +82,7 @@ def save_html(total_df, shoe_num,algo) :
 #             distance_list.append(round(math.dist([rac['COL'], rac['ROW']], [shoe['COL'], shoe['ROW']]),0))
 #         locations_all.at[index, f'DIST_{algo}'] = min(distance_list)
 
-#     locations_all.to_csv(f'{FOLDER}Saved/locations_new.csv', index=False)
+#     locations_all.to_csv(f'{FOLDER}saved/locations_new.csv', index=False)
 
 # def horiz_distance(shoe_df,shoe_num, locations_all, algo):
 #     """"Check if is inside"""
@@ -107,12 +107,12 @@ def save_html(total_df, shoe_num,algo) :
 #             else:
 #                 locations_all.at[index, f'INSIDE_{algo}'] = False
 #             locations_all.at[index, f'HORIZ_DIST_{algo}'] = abs(d1)
-#     locations_all.to_csv(f'{FOLDER}Saved/locations_new.csv', index=False)
+#     locations_all.to_csv(f'{FOLDER}saved/locations_new.csv', index=False)
 
 
 
 def dist_per_shoe(shoe_arr, shoe_num, algo ):
-    locations_all = pd.read_csv(f'{FOLDER}Saved/locations_new.csv')
+    locations_all = pd.read_csv(f'{FOLDER}saved/locations_new.csv')
     locations = locations_all[locations_all['shoe']==shoe_num]
     locations_coord = list(zip(locations['ROW'].to_list(), locations['COL'].to_list()))
     shoe_coord = list(np.argwhere(shoe_arr[shoe_num] == True))
@@ -126,7 +126,7 @@ def dist_per_shoe(shoe_arr, shoe_num, algo ):
 def main():
     print(f"{FOLDER.split('/')[1]}\ndistance_extremities_main")
     init_locations_new()
-    list_snake = list(np.load(f'{FOLDER}Saved/active-contour_all.npy'))
+    list_snake = list(np.load(f'{FOLDER}saved/active-contour_all.npy'))
     for i in tqdm(range(len(list_snake))):
         if i == 126:  # Skip shoe 127 (0-indexed, has no RACs)
                 continue
