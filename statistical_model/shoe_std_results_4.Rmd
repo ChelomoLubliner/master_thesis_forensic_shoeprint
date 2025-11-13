@@ -152,7 +152,6 @@ dev.off()
 ```{r }
 #chargement du contour de la nouvelle image filled
 new_contour <- t(as.matrix(load.image(paste(ROOT_PATH, "statistical_model/dataset/new_contour_171.png", sep = ""))))
-#je vais choisir une ligne specifique
 entire_contour<-data.frame(x = xcoor[new_contour==1],y =ycoor[new_contour==1])# the data
 distinct_y <- unique(entire_contour$y)
 new_image <- t(as.matrix(load.image(paste(ROOT_PATH, "statistical_model/dataset/new_filled_",IMAGE_NUMBER,".png", sep = ""))))
