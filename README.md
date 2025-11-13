@@ -4,6 +4,9 @@
 
 A comprehensive forensic analysis system combining computer vision and statistical modeling to analyze and predict the spatial distribution of Randomly Acquired Characteristics in forensic shoeprint evidence.
 
+**Academic Research**
+This project is part of academic research by **Dr. Naomi Kaplan Damary** from the Hebrew University of Jerusalem. This master's thesis was completed under the supervision of **Prof. Micha Mandel** from the Hebrew University of Jerusalem.
+
 ## 📋 Table of Contents
 
 - [Overview](#overview)
@@ -77,18 +80,20 @@ master_thesis_forensic_shoeprint/
 
 ### Complete Pipeline Execution
 
-```bash
-# 1. Run Python contour analysis
+```cmd
+REM 1. Run Python contour analysis
 cd contour_algorithm
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+venv\Scripts\activate
 pip install -r requirements.txt
 python main.py
 
-# 2. Run R statistical analysis
-cd ../statistical_model
-# In RStudio, run each .Rmd file in order (1→2→3→4→5)
-# Or use: rmarkdown::render("dataCC_1.Rmd"), etc.
+REM 2. Run R statistical analysis
+cd ..\statistical_model
+REM Outputs from parts 1, 2, and contour_algorithm are already saved
+REM You can directly run files 3 and 4: re_model_shoe_std_3.Rmd and shoe_std_results_4.Rmd
+REM In RStudio, run: rmarkdown::render("re_model_shoe_std_3.Rmd")
+REM Then run: rmarkdown::render("shoe_std_results_4.Rmd")
 ```
 
 ## 📦 Prerequisites
@@ -295,17 +300,18 @@ rmarkdown::render("statistical_tests_5.Rmd")
 
 ## 🤝 Related Work
 
-For the original statistical methodology, see: [RAC Intensity Repository](https://github.com/ChelomoLubliner/rac-intensity)
+Research of Naomi Kaplan: https://arxiv.org/abs/1912.08272
 
 ## 📝 Citation
 
 ```bibtex
 @mastersthesis{forensic_shoeprint_rac,
   title={Improving Spatial Modeling of Randomly Acquired Characteristics on Outsoles},
-  author={[Author Name]},
+  author={Naomi Kaplan Damary},
   year={2024},
-  school={[University Name]},
-  type={MSc Thesis}
+  school={Hebrew University of Jerusalem},
+  type={MSc Thesis},
+  supervisor={Prof. Micha Mandel}
 }
 ```
 

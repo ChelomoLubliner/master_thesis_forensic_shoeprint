@@ -49,6 +49,9 @@ images/**/*.html
 images/saved/*.npy
 !images/.keep
 
+# Exception: Keep image files in saved and cleaned_shoes
+!images/saved/*.png
+
 # Exception: Keep image files in cleaned_shoes
 !images/cleaned_shoes/**/*.png
 !images/cleaned_shoes/**/*.jpg
