@@ -80,6 +80,7 @@ master_thesis_forensic_shoeprint/
 
 ### Complete Pipeline Execution
 
+**Windows CMD:**
 ```cmd
 REM 1. Run Python contour analysis
 cd contour_algorithm
@@ -94,6 +95,23 @@ REM Outputs from parts 1, 2, and contour_algorithm are already saved
 REM You can directly run files 3 and 4: re_model_shoe_std_3.Rmd and shoe_std_results_4.Rmd
 REM In RStudio, run: rmarkdown::render("re_model_shoe_std_3.Rmd")
 REM Then run: rmarkdown::render("shoe_std_results_4.Rmd")
+```
+
+**Git Bash / WSL / Linux:**
+```bash
+# 1. Run Python contour analysis
+cd contour_algorithm
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python main.py
+
+# 2. Run R statistical analysis
+cd ../statistical_model
+# Outputs from parts 1, 2, and contour_algorithm are already saved
+# You can directly run files 3 and 4: re_model_shoe_std_3.Rmd and shoe_std_results_4.Rmd
+# In RStudio, run: rmarkdown::render("re_model_shoe_std_3.Rmd")
+# Then run: rmarkdown::render("shoe_std_results_4.Rmd")
 ```
 
 ## 📦 Prerequisites
