@@ -110,7 +110,7 @@ calculate_min_distance <- function(new_data, contour_alg_df) {
     }
     new_data$min_dist[i] <- min_distance
   }
-file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance.csv", sep = "")
+file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance_temp.csv", sep = "")
 write.csv(new_data, file_name, row.names = FALSE)
   return(new_data)
 }
@@ -138,7 +138,7 @@ calculate_min_horiz_distance <- function(new_data, contour_alg_df){
     new_data$horiz_dist[i] <- min_horiz_dist
   }
   new_data$horiz_dist[is.infinite(new_data$horiz_dist)] <- new_data$min_dist[is.infinite(new_data$horiz_dist)]
-  file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance.csv", sep = "")
+  file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance_temp.csv", sep = "")
   write.csv(new_data, file_name, row.names = FALSE)
   return(new_data)
 }
@@ -148,7 +148,7 @@ calculate_min_horiz_distance <- function(new_data, contour_alg_df){
 
 ```{r contour_distance_8    BIG ITERATION HORIZ DIST}
 new_data <- calculate_min_distance(dataCC, contour_df)
-file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance.csv", sep = "")
+file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance_temp.csv", sep = "")
 new_data <-read.csv(file_name,header=TRUE)
 new_data <- calculate_min_horiz_distance(new_data, contour_df)
 
@@ -159,7 +159,7 @@ new_data <- calculate_min_horiz_distance(new_data, contour_df)
 
 # HORIZ DISTANCE
 #horiz_dist_mean <- mean(new_data$horiz_dist)
-file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance.csv", sep = "")
+file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance_temp.csv", sep = "")
 new_data <- read.csv(file_name,header=TRUE)
 
 #new_data <- new_data %>% mutate(horiz_dist_cat = ifelse(horiz_dist > 0.1, 1, 0))
@@ -168,6 +168,49 @@ new_data <- read.csv(file_name,header=TRUE)
 
 ```
 
+
+
+```{r }
+
+image <- t(as.matrix(load.image(paste(ROOT_PATH, "statistical_model/dataset/new_contour_135.png", sep = ""))))
+xcoor <- t(matrix(rep((-col_shoe / 2 + 1:col_shoe) * rel_Y_cord / rel_col_shoe, row_shoe), col_shoe, row_shoe))
+ycoor <- -matrix(rep((-row_shoe / 2 + 1:row_shoe) * rel_Y_cord / rel_col_shoe, col_shoe), row_shoe, col_shoe)
+entire_contour <- data.frame(x = xcoor[image == 1], y = ycoor[image == 1]) # the data 
+distance_per_y <- entire_contour %>% group_by(y) %>% summarise(min_x = abs(min(x)), max_x = max(x))
+
+dist_shape = c()
+for (i in 1:nrow(new_data)) {
+  y_val = new_data$y[i]
+  if (new_data$x[i] <= 0) {
+    new_val <- distance_per_y[(distance_per_y$y >= y_val - 0.01) & (distance_per_y$y <= y_val + 0.01), c("y", "min_x")]
+    if (nrow(new_val) > 0) {
+      closest_row_index <- which.min(abs(new_val$y - y_val))
+      closest_value <- new_val[closest_row_index, ]$min_x
+    } else {
+      # If no match found, use the closest y value from distance_per_y
+      closest_y_index <- which.min(abs(distance_per_y$y - y_val))
+      closest_value <- abs(distance_per_y[closest_y_index, ]$min_x)
+    }
+  } else {
+    new_val <- distance_per_y[(distance_per_y$y >= y_val - 0.01) & (distance_per_y$y <= y_val + 0.01), c("y", "max_x")]
+    if (nrow(new_val) > 0) {
+      closest_row_index <- which.min(abs(new_val$y - y_val))
+      closest_value <- new_val[closest_row_index, ]$max_x
+    } else {
+      # If no match found, use the closest y value from distance_per_y
+      closest_y_index <- which.min(abs(distance_per_y$y - y_val))
+      closest_value <- distance_per_y[closest_y_index, ]$max_x
+    }
+  }
+  #cat(i, '\t', y_val, '\t', closest_value, '\n')
+  dist_shape <- append(dist_shape, closest_value)
+}
+new_data$distance_shape <- dist_shape
+
+new_data$new_x <- (new_data$x * new_data$distance_shape) / (abs(new_data$x) + new_data$horiz_dist)
+file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance.csv", sep = "")
+write.csv(new_data, file_name, row.names = FALSE)
+```
 
 
 
