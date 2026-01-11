@@ -48,6 +48,7 @@ MODEL_FEATURE <- "CMD_MODEL"
 # MODEL_FEATURE <- "NS_XY"
 # MODEL_FEATURE <- "EMPTY_MODEL"
 # MODEL_FEATURE <- "CMD_MODEL"
+# MODEL_FEATURE <- "NAIVE_MODEL"
 
 ```
 
@@ -57,10 +58,18 @@ MODEL_FEATURE <- "CMD_MODEL"
 
   
 ```{r }
-file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance.csv", sep = "")
-dataCC <- read.csv(file_name, header = TRUE)
 file_name <- paste(ROOT_PATH, "statistical_model/saved_models/", MODEL_FEATURE, ".rds", sep = "")
 rand <- readRDS(file = file_name)
+
+# For NAIVE_MODEL, rand is already the intensity matrix - skip dataCC loading
+if(MODEL_FEATURE != 'NAIVE_MODEL'){
+  file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance.csv", sep = "")
+  dataCC <- read.csv(file_name, header = TRUE)
+} else {
+  # Load allcont for NAIVE_MODEL (needed for masking)
+  file_name <- paste(ROOT_PATH, "data/all_cont.csv", sep = "")
+  allcont <- read.csv(file_name, header = TRUE)
+}
 #print(summary(rand))
 xcoor <- t(matrix(rep((-col_shoe / 2 + 1:col_shoe) * rel_Y_cord / rel_col_shoe, row_shoe), col_shoe, row_shoe))
 ycoor <- -matrix(rep((-row_shoe / 2 + 1:row_shoe) * rel_Y_cord / rel_col_shoe, col_shoe), row_shoe, col_shoe)
@@ -75,17 +84,23 @@ img <- t(as.matrix(img))
 
 ```{r }
 
-newdesignmat <- rep(1,length(xy$x))
-#we multiplicate the splines(x) with splines(y) so newdesigmat have 4*6 columns! (plus the first)
-#newdesgmat have 12165 lines, exactly like ROWS*COLS. it will represent each point of the matrix ?
+if(MODEL_FEATURE == 'NAIVE_MODEL'){
+  # For NAIVE_MODEL, rand is already the smoothed intensity matrix (from Naive())
+  # Equivalent to: naive_smooth <- Naive(); image.plot(naive_smooth, axes=FALSE)
+  naive_smooth <- as.matrix(rand)
+  old_matrix <- naive_smooth
+} else {
+  newdesignmat <- rep(1,length(xy$x))
+  #we multiplicate the splines(x) with splines(y) so newdesigmat have 4*6 columns! (plus the first)
+  #newdesgmat have 12165 lines, exactly like ROWS*COLS. it will represent each point of the matrix ?
 
-nknotsx <- 3
-nknotsy <- 5
-knotsx <- as.numeric(quantile(dataCC$x,1:nknotsx/(1+nknotsx)))
-knots_new_x <- as.numeric(quantile(dataCC$new_x,1:nknotsx/(1+nknotsx)))
-knotsy <-as.numeric(quantile(dataCC$y,1:nknotsy/(1+nknotsy)))
+  nknotsx <- 3
+  nknotsy <- 5
+  knotsx <- as.numeric(quantile(dataCC$x,1:nknotsx/(1+nknotsx)))
+  knots_new_x <- as.numeric(quantile(dataCC$new_x,1:nknotsx/(1+nknotsx)))
+  knotsy <-as.numeric(quantile(dataCC$y,1:nknotsy/(1+nknotsy)))
 
-if(MODEL_FEATURE == 'NS_XY'){
+  if(MODEL_FEATURE == 'NS_XY'){
   basx <- ns(dataCC$x,knots=knotsx)
   basy <- ns(dataCC$y,knots=knotsy)
   for(i in 1:length(predict(basy,1))) {
@@ -106,26 +121,27 @@ if(MODEL_FEATURE == 'NS_XY'){
   for(i in 1:length(predict(basy,1))) {
     for(j in 1:length(predict(basx,1))) {
       newdesignmat <-  cbind(newdesignmat,predict(basx, xy$x)[,j]*predict(basy, xy$y)[,i])  } }
-} else { stop("Invalid MODEL_FEATURE value")}
+  } else { stop("Invalid MODEL_FEATURE value")}
 
-#(for each row, we multiply and sum the params between the two matrices )
-#shape of matrix multiplication: (121265xN.Params)*(N.Params x 1) -> (121265x1)
+  #(for each row, we multiply and sum the params between the two matrices )
+  #shape of matrix multiplication: (121265xN.Params)*(N.Params x 1) -> (121265x1)
 
-# Extract coefficients - different for clogit vs glmer
-if(MODEL_FEATURE == 'CMD_MODEL'){
-  # clogit models use coef() not fixef()
-  # In conditional logistic regression, intercept cancels out, so we add 0
-  model_coef <- c(0, coef(rand))
-  pred.case_control <- newdesignmat%*%model_coef  # No offset for CML
-} else {
-  # glmer models use fixef()
-  model_coef <- fixef(rand)
-  pred.case_control <- newdesignmat%*%model_coef+log(0.005) #log(0.005) is the offset
+  # Extract coefficients - different for clogit vs glmer
+  if(MODEL_FEATURE == 'CMD_MODEL'){
+    # clogit models use coef() not fixef()
+    # In conditional logistic regression, intercept cancels out, so we add 0
+    model_coef <- c(0, coef(rand))
+    pred.case_control <- newdesignmat%*%model_coef  # No offset for CML
+  } else {
+    # glmer models use fixef()
+    model_coef <- fixef(rand)
+    pred.case_control <- newdesignmat%*%model_coef+log(0.005) #log(0.005) is the offset
+  }
+
+  img_filled <- t(as.matrix(load.image(paste(ROOT_PATH,"statistical_model/dataset/new_filled_135.png", sep = ""))))
+
+  pred.case_control[t(img_filled)==0] <- NA #areas out of the contour (less than 8 shoes has contact surface in these pixels) are given NA
 }
-
-img_filled <- t(as.matrix(load.image(paste(ROOT_PATH,"statistical_model/dataset/new_filled_135.png", sep = ""))))
-
-pred.case_control[t(img_filled)==0] <- NA #areas out of the contour (less than 8 shoes has contact surface in these pixels) are given NA
 
 # For CMD_MODEL, optionally adjust mean to match other models (if needed)
 # Previous code used: pred.cml.bin.case_control<-pred.cml.bin.case_control-m_1+m
@@ -138,20 +154,27 @@ pred.case_control[t(img_filled)==0] <- NA #areas out of the contour (less than 8
 # }
 
 # Clean up variables (only remove those that exist)
-rm(newdesignmat, rand, dataCC)
-if(exists("bas_new_x")) rm(bas_new_x)
-if(exists("basy")) rm(basy)
-if(exists("basx")) rm(basx)
+if(MODEL_FEATURE != 'NAIVE_MODEL'){
+  rm(newdesignmat, rand, dataCC)
+  if(exists("bas_new_x")) rm(bas_new_x)
+  if(exists("basy")) rm(basy)
+  if(exists("basx")) rm(basx)
+} else {
+  rm(rand, allcont)
+}
 
 ```
 
 
 ```{r }
-pred.case_control_img<-pred.case_control
-#pred.case_control_img[t(img)==0] <- NA
-prob.pred <- exp(matrix(pred.case_control_img ,row_shoe,col_shoe,byrow=1))/(1+exp(matrix(pred.case_control_img ,row_shoe,col_shoe,byrow=1)))
-intens <- -log(1-prob.pred) #turning it to intensity
-old_matrix <- intens
+if(MODEL_FEATURE != 'NAIVE_MODEL'){
+  pred.case_control_img<-pred.case_control
+  #pred.case_control_img[t(img)==0] <- NA
+  prob.pred <- exp(matrix(pred.case_control_img ,row_shoe,col_shoe,byrow=1))/(1+exp(matrix(pred.case_control_img ,row_shoe,col_shoe,byrow=1)))
+  intens <- -log(1-prob.pred) #turning it to intensity
+  old_matrix <- intens
+}
+# For NAIVE_MODEL, old_matrix is already set above
 
 ```
 

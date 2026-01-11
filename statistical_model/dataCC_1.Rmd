@@ -252,6 +252,11 @@ file_name <- paste(ROOT_PATH,"data/dataCC.csv", sep = "")
 write.csv(dataCC, file_name, row.names = FALSE)
 file_name <- paste(ROOT_PATH, "data/all_cont.csv", sep = "")
 write.csv(allcont, file_name, row.names = FALSE)
+# Save sumacci and sumcont for NAIVE_MODEL
+file_name <- paste(ROOT_PATH, "data/sumacci.csv", sep = "")
+write.csv(sumacci, file_name, row.names = FALSE)
+file_name <- paste(ROOT_PATH, "data/sumcont.csv", sep = "")
+write.csv(sumcont, file_name, row.names = FALSE)
 
 ```
 

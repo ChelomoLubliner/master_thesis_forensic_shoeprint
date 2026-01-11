@@ -1,0 +1,179 @@
+---
+title: "Model Comparison: Naive, NEW_X_NS_XY, and CMD_MODEL"
+author: "Model Comparison"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+set.seed(313)
+library(fields)
+library(imager)
+
+source("config.R")
+
+col_shoe <- 307 # 307 is the number of columns in each shoe
+row_shoe <- 395 # 395 is the number of rows in each shoe
+num_shoe <- 387  # 387 is the number of shoes but 386 is the number of shoes with RACs - shoe 127 has no RACS
+
+rel_col_shoe <- 150  # out of the 307 columns only 150 are relevant (contain non zero pixels in some shoes)
+rel_row_shoe <- 300  # out of the 395 rows only 300 are relevant (contain non zero pixels in some shoes)
+rel_x_cord <- 0.25 # using coordinates as in the locations_data.CSV file the relevant x coordinates are between -.25 and 0.25
+rel_Y_cord <- 0.5 # the relevant Y coordinates are between -0.5 and 0.5
+```
+
+```{r}
+# Load models for comparison
+# 1. NEW_X_NS_XY (Random Effects Model)
+file_name <- paste(ROOT_PATH, "statistical_model/saved_models/NEW_X_NS_XY.rds", sep = "")
+random_model <- readRDS(file = file_name)
+
+# Get sigma^2 (variance of random effects) from NEW_X_NS_XY
+# VarCorr returns standard deviation, so we square it to get variance
+sigma_sq <- as.numeric(attr(VarCorr(random_model)$shoe, "stddev"))^2
+cat("Random effect variance (sigma^2):", sigma_sq, "\n")
+cat("Scaling factor exp(-sigma^2/2):", exp(-sigma_sq/2), "\n")
+
+# 2. CMD_MODEL (CML)
+file_name <- paste(ROOT_PATH, "statistical_model/saved_models/CMD_MODEL.rds", sep = "")
+cml_model <- readRDS(file = file_name)
+
+# 3. NAIVE_MODEL (already a smoothed intensity matrix)
+file_name <- paste(ROOT_PATH, "statistical_model/saved_models/NAIVE_MODEL.rds", sep = "")
+naive_smooth <- as.matrix(readRDS(file = file_name))
+```
+
+```{r}
+# Load data needed for predictions
+file_name <- paste(ROOT_PATH, "statistical_model/dataset/dataCC_distance.csv", sep = "")
+dataCC <- read.csv(file_name, header = TRUE)
+
+xcoor <- t(matrix(rep((-col_shoe / 2 + 1:col_shoe) * rel_Y_cord / rel_col_shoe, row_shoe), col_shoe, row_shoe))
+ycoor <- -matrix(rep((-row_shoe / 2 + 1:row_shoe) * rel_Y_cord / rel_col_shoe, col_shoe), row_shoe, col_shoe)
+xy <- expand.grid(xcoor[1, ], ycoor[, 1]) #307 * 395   
+colnames(xy)[colnames(xy) == "Var1"] <- "x"
+colnames(xy)[colnames(xy) == "Var2"] <- "y"
+
+img_filled <- t(as.matrix(load.image(paste(ROOT_PATH,"statistical_model/dataset/new_filled_135.png", sep = ""))))
+```
+
+```{r}
+# Calculate intensity for NEW_X_NS_XY (Random Effects Model)
+library(splines)
+library(lme4)
+
+nknotsx <- 3
+nknotsy <- 5
+
+# NEW_X_NS_XY uses new_x (standardized x) with splines
+knots_new_x <- as.numeric(quantile(dataCC$new_x,1:nknotsx/(1+nknotsx)))
+knotsy <-as.numeric(quantile(dataCC$y,1:nknotsy/(1+nknotsy)))
+bas_new_x <- ns(dataCC$new_x,knots=knots_new_x)
+basy <- ns(dataCC$y,knots=knotsy)
+
+newdesignmat <- rep(1,length(xy$x))
+for(i in 1:length(predict(basy,1))) {
+  for(j in 1:length(predict(bas_new_x,1))) {
+    newdesignmat <-  cbind(newdesignmat,predict(bas_new_x, xy$x)[,j]*predict(basy, xy$y)[,i])  } }
+
+model_coef <- fixef(random_model)
+pred.case_control <- newdesignmat%*%model_coef+log(0.005)
+
+pred.case_control[t(img_filled)==0] <- NA #areas out of the contour (less than 8 shoes has contact surface in these pixels) are given NA
+# Calculate mean of random predictions for use in CML adjustment (like original code line 325)
+m <- mean(pred.case_control, na.rm=TRUE)  #for use in the CML
+
+pred.case_control_img <- pred.case_control
+prob.pred_random <- exp(matrix(pred.case_control_img ,row_shoe,col_shoe,byrow=1))/(1+exp(matrix(pred.case_control_img ,row_shoe,col_shoe,byrow=1)))
+intens_random <- -log(1-prob.pred_random) #turning it to intensity
+# intens_random is row_shoe x col_shoe = 395 x 307
+```
+
+```{r}
+# Calculate intensity for CML Model
+# CML always uses NS_XY style (x, y coordinates, not new_x)
+knotsx_cml <- as.numeric(quantile(dataCC$x,1:nknotsx/(1+nknotsx)))
+knotsy_cml <-as.numeric(quantile(dataCC$y,1:nknotsy/(1+nknotsy)))
+basx_cml <- ns(dataCC$x,knots=knotsx_cml)
+basy_cml <- ns(dataCC$y,knots=knotsy_cml)
+
+newdesignmat_cml <- rep(1,length(xy$x))
+for(i in 1:length(predict(basy_cml,1))) {
+  for(j in 1:length(predict(basx_cml,1))) {
+    newdesignmat_cml <-  cbind(newdesignmat_cml,predict(basx_cml, xy$x)[,j]*predict(basy_cml, xy$y)[,i])  } }
+
+model_coef_cml <- c(0, coef(cml_model))
+pred.case_control_cml <- newdesignmat_cml%*%model_coef_cml
+pred.case_control_cml[t(img_filled)==0] <- NA #areas out of the contour (less than 8 shoes has contact surface in these pixels) are given NA
+
+# Mean adjustment on predictions (log-odds scale) - exactly like original code line 354-355
+m_1 <- mean(pred.case_control_cml, na.rm=TRUE)
+pred.case_control_cml <- pred.case_control_cml - m_1 + m #making the means of random and cml to be equal
+
+pred.case_control_img_cml <- pred.case_control_cml
+prob.pred_cml <- exp(matrix(pred.case_control_img_cml ,row_shoe,col_shoe,byrow=1))/(1+exp(matrix(pred.case_control_img_cml ,row_shoe,col_shoe,byrow=1)))
+intens.pred_cml <- -log(1-prob.pred_cml)
+# intens.pred_cml is row_shoe x col_shoe = 395 x 307
+```
+
+```{r}
+# Figure 2: the 3 estimators intensities on the same scale 
+sub <- 40  # Reduced from 70 to use more columns, bringing images closer together
+cols <- sub:(col_shoe-sub)
+
+# Scale random and CML intensities
+intens_random_scaled <- exp(-sigma_sq/2)*intens_random[,cols]
+intens_cml_scaled <- exp(-sigma_sq/2)*intens.pred_cml[,cols]
+
+# Scale naive to match the range of scaled intensities
+# Naive is a ratio (cumRAC/cumContact), while random and CML are intensities
+# We scale naive proportionally to match the range of scaled intensities
+range_scaled_intens <- range(c(intens_random_scaled, intens_cml_scaled), na.rm=TRUE)
+range_naive <- range(naive_smooth[,cols], na.rm=TRUE)
+
+# Scale naive to match the range of scaled intensities
+if(diff(range_naive) > 0) {
+  naive_scaled <- (naive_smooth[,cols] - range_naive[1]) / diff(range_naive) * diff(range_scaled_intens) + range_scaled_intens[1]
+} else {
+  naive_scaled <- naive_smooth[,cols]
+}
+
+com_3_est <- cbind(naive_scaled, intens_random_scaled, intens_cml_scaled)
+image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                     NEW_X_NS_XY                     CMD_MODEL')
+```
+
+```{r}
+pdf(file = paste(ROOT_PATH, "statistical_model/model_images/pixel_inten_JASAup.pdf", sep = ""), height=6, width=6)
+image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                     NEW_X_NS_XY                     CMD_MODEL')
+dev.off()
+```
+
+```{r}
+# Display each model separately for verification
+# Naive (scaled to match intensity range)
+naive_display <- t(naive_scaled[nrow(naive_scaled):1,])
+image.plot(naive_display, axes=FALSE, main='Naive (scaled)')
+```
+
+```{r}
+# NEW_X_NS_XY (scaled)
+intens_random_scaled_sub <- exp(-sigma_sq/2)*intens_random[,cols]
+intens_random_display <- t(intens_random_scaled_sub[nrow(intens_random_scaled_sub):1,])
+image.plot(intens_random_display, axes=FALSE, main='NEW_X_NS_XY (scaled)')
+```
+
+```{r}
+# CMD_MODEL (scaled)
+intens_cml_scaled_sub <- exp(-sigma_sq/2)*intens.pred_cml[,cols]
+intens_cml_display <- t(intens_cml_scaled_sub[nrow(intens_cml_scaled_sub):1,])
+image.plot(intens_cml_display, axes=FALSE, main='CMD_MODEL (scaled)')
+```
+
+
+```{r}
+
+```

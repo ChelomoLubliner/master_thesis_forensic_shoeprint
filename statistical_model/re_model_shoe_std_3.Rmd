@@ -39,11 +39,12 @@ rel_Y_cord <- 0.5 # the relevant Y coordinates are between -0.5 and 0.5
 
 source("config.R")
 
-MODEL_FEATURE <- "CMD_MODEL"
+MODEL_FEATURE <- "NEW_X_NS_XY"
 # MODEL_FEATURE <- "NEW_X_NS_XY"
 # MODEL_FEATURE <- "NULL_MODEL"
 # MODEL_FEATURE <- "NS_XY"
-# MODEL_FEATURE <- "CMD_MODEL"  
+# MODEL_FEATURE <- "CMD_MODEL"
+# MODEL_FEATURE <- "NAIVE_MODEL"  
 
 ```
 
@@ -63,6 +64,15 @@ allcont <- read.csv(file_name, header = TRUE)
 
 
 ```{r}
+# Helper function for NAIVE_MODEL
+Naive <- function(cumRAC, cumContact, areaShoe) {
+  Naivemat <- cumRAC / cumContact
+  Naivemat[areaShoe==0] <- NA
+  est <- kernel2dsmooth(Naivemat, kernel.type="boxcar", n=21)
+  est[areaShoe==0] <- NA
+  return(est)
+}
+
 Random <- function(nknotsx = 3, nknotsy = 5, dat = dataCC, model_feat = MODEL_FEATURE, initial_values) {
   
   common_formula <- as.formula("n_Acc ~ (1 | shoe)")
@@ -88,6 +98,14 @@ Random <- function(nknotsx = 3, nknotsy = 5, dat = dataCC, model_feat = MODEL_FE
   }
   else if(model_feat == 'CMD_MODEL'){
     est<- clogit(dat$n_Acc~  ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy)+strata(shoe) , data=dat)
+  }
+  else if(model_feat == 'NAIVE_MODEL'){
+    # Load sumacci and sumcont (saved in dataCC_1.Rmd)
+    file_name <- paste(ROOT_PATH, "data/sumacci.csv", sep = "")
+    sumacci <- as.matrix(read.csv(file_name, header = TRUE))
+    file_name <- paste(ROOT_PATH, "data/sumcont.csv", sep = "")
+    sumcont <- as.matrix(read.csv(file_name, header = TRUE))
+    est <- Naive(sumacci, sumcont, allcont)
   }
   else { stop("Invalid model_feat value")}
   
