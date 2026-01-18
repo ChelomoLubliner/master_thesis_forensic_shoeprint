@@ -1,5 +1,5 @@
 ---
-title: "Model Comparison: Naive, NEW_X_NS_XY, and CMD_MODEL"
+title: "Model Comparison: Naive, NEW_X_NS_XY, and CML_MODEL"
 author: "Model Comparison"
 date: "`r Sys.Date()`"
 output: html_document
@@ -38,8 +38,8 @@ sigma_sq <- as.numeric(attr(VarCorr(random_model)$shoe, "stddev"))^2
 cat("Random effect variance (sigma^2):", sigma_sq, "\n")
 cat("Scaling factor exp(-sigma^2/2):", exp(-sigma_sq/2), "\n")
 
-# 2. CMD_MODEL (CML)
-file_name <- paste(ROOT_PATH, "statistical_model/saved_models/CMD_MODEL.rds", sep = "")
+# 2. CML_MODEL (CML)
+file_name <- paste(ROOT_PATH, "statistical_model/saved_models/CML_MODEL.rds", sep = "")
 cml_model <- readRDS(file = file_name)
 
 # 3. NAIVE_MODEL (already a smoothed intensity matrix)
@@ -143,12 +143,12 @@ if(diff(range_naive) > 0) {
 }
 
 com_3_est <- cbind(naive_scaled, intens_random_scaled, intens_cml_scaled)
-image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                     NEW_X_NS_XY                     CMD_MODEL')
+image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                     NEW_X_NS_XY                     CML_MODEL')
 ```
 
 ```{r}
 pdf(file = paste(ROOT_PATH, "statistical_model/model_images/pixel_inten_JASAup.pdf", sep = ""), height=6, width=6)
-image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                     NEW_X_NS_XY                     CMD_MODEL')
+image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                     NEW_X_NS_XY                     CML_MODEL')
 dev.off()
 ```
 
@@ -167,10 +167,10 @@ image.plot(intens_random_display, axes=FALSE, main='NEW_X_NS_XY (scaled)')
 ```
 
 ```{r}
-# CMD_MODEL (scaled)
+# CML_MODEL (scaled)
 intens_cml_scaled_sub <- exp(-sigma_sq/2)*intens.pred_cml[,cols]
 intens_cml_display <- t(intens_cml_scaled_sub[nrow(intens_cml_scaled_sub):1,])
-image.plot(intens_cml_display, axes=FALSE, main='CMD_MODEL (scaled)')
+image.plot(intens_cml_display, axes=FALSE, main='CML_MODEL (scaled)')
 ```
 
 

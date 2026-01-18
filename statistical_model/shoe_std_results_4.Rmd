@@ -25,7 +25,7 @@ library(Matrix)
 library(lme4)
 library(rgl)
 library(fields)
-library(survival)  # Needed for CMD_MODEL (clogit)
+library(survival)  # Needed for CML_MODEL (clogit)
 library(smoothie) 
 
 
@@ -43,11 +43,11 @@ rel_Y_cord <- 0.5 # the relevant Y coordinates are between -0.5 and 0.5
 
 source("config.R")
 
-MODEL_FEATURE <- "CMD_MODEL"
+MODEL_FEATURE <- "NAIVE_MODEL"
 # MODEL_FEATURE <- "NEW_X_NS_XY"
 # MODEL_FEATURE <- "NS_XY"
 # MODEL_FEATURE <- "EMPTY_MODEL"
-# MODEL_FEATURE <- "CMD_MODEL"
+# MODEL_FEATURE <- "CML_MODEL"
 # MODEL_FEATURE <- "NAIVE_MODEL"
 
 ```
@@ -115,7 +115,7 @@ if(MODEL_FEATURE == 'NAIVE_MODEL'){
 } else if(MODEL_FEATURE == 'EMPTY_MODEL'){
   # newdesignmat already has intercept column (rep(1,...))
   # No additional columns needed
-} else if(MODEL_FEATURE == 'CMD_MODEL'){
+} else if(MODEL_FEATURE == 'CML_MODEL'){
   basx <- ns(dataCC$x,knots=knotsx)
   basy <- ns(dataCC$y,knots=knotsy)
   for(i in 1:length(predict(basy,1))) {
@@ -127,7 +127,7 @@ if(MODEL_FEATURE == 'NAIVE_MODEL'){
   #shape of matrix multiplication: (121265xN.Params)*(N.Params x 1) -> (121265x1)
 
   # Extract coefficients - different for clogit vs glmer
-  if(MODEL_FEATURE == 'CMD_MODEL'){
+  if(MODEL_FEATURE == 'CML_MODEL'){
     # clogit models use coef() not fixef()
     # In conditional logistic regression, intercept cancels out, so we add 0
     model_coef <- c(0, coef(rand))
@@ -143,11 +143,11 @@ if(MODEL_FEATURE == 'NAIVE_MODEL'){
   pred.case_control[t(img_filled)==0] <- NA #areas out of the contour (less than 8 shoes has contact surface in these pixels) are given NA
 }
 
-# For CMD_MODEL, optionally adjust mean to match other models (if needed)
+# For CML_MODEL, optionally adjust mean to match other models (if needed)
 # Previous code used: pred.cml.bin.case_control<-pred.cml.bin.case_control-m_1+m
 # where m_1 is mean of CML predictions and m is target mean from another model
 # Uncomment and set 'm' if you need this adjustment:
-# if(MODEL_FEATURE == 'CMD_MODEL'){
+# if(MODEL_FEATURE == 'CML_MODEL'){
 #   m_1 <- mean(pred.case_control, na.rm=TRUE)
 #   m <- 0  # Set this to the target mean from your reference model
 #   pred.case_control <- pred.case_control - m_1 + m

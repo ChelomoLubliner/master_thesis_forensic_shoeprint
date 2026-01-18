@@ -39,11 +39,11 @@ rel_Y_cord <- 0.5 # the relevant Y coordinates are between -0.5 and 0.5
 
 source("config.R")
 
-MODEL_FEATURE <- "NEW_X_NS_XY"
+MODEL_FEATURE <- "NAIVE_MODEL"
 # MODEL_FEATURE <- "NEW_X_NS_XY"
 # MODEL_FEATURE <- "NULL_MODEL"
 # MODEL_FEATURE <- "NS_XY"
-# MODEL_FEATURE <- "CMD_MODEL"
+# MODEL_FEATURE <- "CML_MODEL"
 # MODEL_FEATURE <- "NAIVE_MODEL"  
 
 ```
@@ -96,7 +96,7 @@ Random <- function(nknotsx = 3, nknotsy = 5, dat = dataCC, model_feat = MODEL_FE
   else if(model_feat == 'EMPTY_MODEL'){
     est<- glmer(n_Acc ~ (1 | shoe),data = dat, family = binomial(link = "logit"), control =glmerControl(optimizer="nlminbwrap"))
   }
-  else if(model_feat == 'CMD_MODEL'){
+  else if(model_feat == 'CML_MODEL'){
     est<- clogit(dat$n_Acc~  ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy)+strata(shoe) , data=dat)
   }
   else if(model_feat == 'NAIVE_MODEL'){
