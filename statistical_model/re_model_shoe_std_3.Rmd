@@ -39,7 +39,7 @@ rel_Y_cord <- 0.5 # the relevant Y coordinates are between -0.5 and 0.5
 
 source("config.R")
 
-MODEL_FEATURE <- "NAIVE_MODEL"
+MODEL_FEATURE <- "NEW_X_NS_XY"
 # MODEL_FEATURE <- "NEW_X_NS_XY"
 # MODEL_FEATURE <- "NULL_MODEL"
 # MODEL_FEATURE <- "NS_XY"

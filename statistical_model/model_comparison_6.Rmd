@@ -58,7 +58,10 @@ xy <- expand.grid(xcoor[1, ], ycoor[, 1]) #307 * 395
 colnames(xy)[colnames(xy) == "Var1"] <- "x"
 colnames(xy)[colnames(xy) == "Var2"] <- "y"
 
-img_filled <- t(as.matrix(load.image(paste(ROOT_PATH,"statistical_model/dataset/new_filled_135.png", sep = ""))))
+img_filled <- t(as.matrix(load.image(paste(ROOT_PATH,"images/Saved/freq_min_18.png", sep = ""))))
+
+# Mask naive model to same contour as the other models
+naive_smooth[img_filled==0] <- NA
 ```
 
 ```{r}
@@ -83,7 +86,7 @@ for(i in 1:length(predict(basy,1))) {
 model_coef <- fixef(random_model)
 pred.case_control <- newdesignmat%*%model_coef+log(0.005)
 
-pred.case_control[t(img_filled)==0] <- NA #areas out of the contour (less than 8 shoes has contact surface in these pixels) are given NA
+pred.case_control[t(img_filled)==0] <- NA 
 # Calculate mean of random predictions for use in CML adjustment (like original code line 325)
 m <- mean(pred.case_control, na.rm=TRUE)  #for use in the CML
 
@@ -108,7 +111,7 @@ for(i in 1:length(predict(basy_cml,1))) {
 
 model_coef_cml <- c(0, coef(cml_model))
 pred.case_control_cml <- newdesignmat_cml%*%model_coef_cml
-pred.case_control_cml[t(img_filled)==0] <- NA #areas out of the contour (less than 8 shoes has contact surface in these pixels) are given NA
+pred.case_control_cml[t(img_filled)==0] <- NA 
 
 # Mean adjustment on predictions (log-odds scale) - exactly like original code line 354-355
 m_1 <- mean(pred.case_control_cml, na.rm=TRUE)
@@ -129,34 +132,28 @@ cols <- sub:(col_shoe-sub)
 intens_random_scaled <- exp(-sigma_sq/2)*intens_random[,cols]
 intens_cml_scaled <- exp(-sigma_sq/2)*intens.pred_cml[,cols]
 
-# Scale naive to match the range of scaled intensities
-# Naive is a ratio (cumRAC/cumContact), while random and CML are intensities
-# We scale naive proportionally to match the range of scaled intensities
-range_scaled_intens <- range(c(intens_random_scaled, intens_cml_scaled), na.rm=TRUE)
-range_naive <- range(naive_smooth[,cols], na.rm=TRUE)
-
-# Scale naive to match the range of scaled intensities
-if(diff(range_naive) > 0) {
-  naive_scaled <- (naive_smooth[,cols] - range_naive[1]) / diff(range_naive) * diff(range_scaled_intens) + range_scaled_intens[1]
-} else {
-  naive_scaled <- naive_smooth[,cols]
-}
-
-com_3_est <- cbind(naive_scaled, intens_random_scaled, intens_cml_scaled)
-image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                     NEW_X_NS_XY                     CML_MODEL')
+# Naive is already on the marginal scale — no rescaling needed
+# exp(-sigma_sq/2) brings Random & CML down to the same marginal scale as naive
+com_3_est <- cbind(naive_smooth[,cols], intens_random_scaled, intens_cml_scaled)
+image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                Random                     CML')
 ```
 
 ```{r}
-pdf(file = paste(ROOT_PATH, "statistical_model/model_images/pixel_inten_JASAup.pdf", sep = ""), height=6, width=6)
-image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                     NEW_X_NS_XY                     CML_MODEL')
+pdf(file = paste(ROOT_PATH, "statistical_model/model_images/pixel_inten_JASAup.pdf", sep = ""), height=8, width=12)
+image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                Random                     CML')
+dev.off()
+
+pdf(file = paste(ROOT_PATH, "statistical_model/model_images/pixel_inten_JASAup_6x9.pdf", sep = ""), height=6, width=9)
+image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                Random                     CML')
 dev.off()
 ```
 
 ```{r}
 # Display each model separately for verification
 # Naive (scaled to match intensity range)
-naive_display <- t(naive_scaled[nrow(naive_scaled):1,])
-image.plot(naive_display, axes=FALSE, main='Naive (scaled)')
+naive_display <- t(naive_smooth[,cols])
+naive_display <- naive_display[, nrow(naive_smooth):1]
+image.plot(naive_display, axes=FALSE, main='Naive')
 ```
 
 ```{r}

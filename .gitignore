@@ -25,6 +25,7 @@ build/
 # IDE
 .idea/
 .vscode/
+.claude/
 *.swp
 *.swo
 *~
@@ -37,6 +38,7 @@ desktop.ini
 # Project specific - ignore large data/model files
 statistical_model/saved_models/*
 !statistical_model/saved_models/.gitkeep
+# !statistical_model/saved_models/NAIVE_MODEL.rds
 
 # Ignore image files but keep code
 images/**/*.png

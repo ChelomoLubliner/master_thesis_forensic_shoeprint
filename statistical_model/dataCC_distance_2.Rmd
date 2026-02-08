@@ -172,7 +172,7 @@ new_data <- read.csv(file_name,header=TRUE)
 
 ```{r }
 
-image <- t(as.matrix(load.image(paste(ROOT_PATH, "statistical_model/dataset/new_contour_135.png", sep = ""))))
+image <- t(as.matrix(load.image(paste(ROOT_PATH, "statistical_model/dataset/contour_prototype.png", sep = ""))))
 xcoor <- t(matrix(rep((-col_shoe / 2 + 1:col_shoe) * rel_Y_cord / rel_col_shoe, row_shoe), col_shoe, row_shoe))
 ycoor <- -matrix(rep((-row_shoe / 2 + 1:row_shoe) * rel_Y_cord / rel_col_shoe, col_shoe), row_shoe, col_shoe)
 entire_contour <- data.frame(x = xcoor[image == 1], y = ycoor[image == 1]) # the data 

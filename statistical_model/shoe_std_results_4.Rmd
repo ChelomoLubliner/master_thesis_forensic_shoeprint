@@ -43,7 +43,7 @@ rel_Y_cord <- 0.5 # the relevant Y coordinates are between -0.5 and 0.5
 
 source("config.R")
 
-MODEL_FEATURE <- "NAIVE_MODEL"
+MODEL_FEATURE <- "CML_MODEL"
 # MODEL_FEATURE <- "NEW_X_NS_XY"
 # MODEL_FEATURE <- "NS_XY"
 # MODEL_FEATURE <- "EMPTY_MODEL"
@@ -76,7 +76,7 @@ ycoor <- -matrix(rep((-row_shoe / 2 + 1:row_shoe) * rel_Y_cord / rel_col_shoe, c
 xy <- expand.grid(xcoor[1, ], ycoor[, 1]) #307 * 395   
 colnames(xy)[colnames(xy) == "Var1"] <- "x"
 colnames(xy)[colnames(xy) == "Var2"] <- "y"
-img <- load.image(paste(ROOT_PATH, "images/cleaned_shoes/im_135.png", sep = "")) #prototype
+img <- load.image(paste(ROOT_PATH, "images/Saved/freq_min_18.png", sep = "")) #prototype
 img <- t(as.matrix(img))
 
 ```
@@ -88,6 +88,7 @@ if(MODEL_FEATURE == 'NAIVE_MODEL'){
   # For NAIVE_MODEL, rand is already the smoothed intensity matrix (from Naive())
   # Equivalent to: naive_smooth <- Naive(); image.plot(naive_smooth, axes=FALSE)
   naive_smooth <- as.matrix(rand)
+  prob.pred <- 1 - exp(-naive_smooth)  # inverse of intens = -log(1 - prob.pred)
   old_matrix <- naive_smooth
 } else {
   newdesignmat <- rep(1,length(xy$x))
@@ -137,8 +138,7 @@ if(MODEL_FEATURE == 'NAIVE_MODEL'){
     model_coef <- fixef(rand)
     pred.case_control <- newdesignmat%*%model_coef+log(0.005) #log(0.005) is the offset
   }
-
-  img_filled <- t(as.matrix(load.image(paste(ROOT_PATH,"statistical_model/dataset/new_filled_135.png", sep = ""))))
+  img_filled <- t(as.matrix(load.image(paste(ROOT_PATH,"images/Saved/freq_min_18.png", sep = ""))))
 
   pred.case_control[t(img_filled)==0] <- NA #areas out of the contour (less than 8 shoes has contact surface in these pixels) are given NA
 }
@@ -174,7 +174,6 @@ if(MODEL_FEATURE != 'NAIVE_MODEL'){
   intens <- -log(1-prob.pred) #turning it to intensity
   old_matrix <- intens
 }
-# For NAIVE_MODEL, old_matrix is already set above
 
 ```
 
@@ -194,54 +193,50 @@ dev.off()
 ```
 
 ```{r }
-intens <- -log(1-prob.pred)
-rotated_intens <- t(intens)[, nrow(intens):1]
-image.plot(rotated_intens, axes = TRUE)
-file_name <- paste(ROOT_PATH, "statistical_model/model_images/",MODEL_FEATURE, "_CONTOUR.pdf", sep = "")
-pdf(file = file_name, height = 6, width = 6)
-image.plot(rotated_intens, axes = TRUE)
-abline(v = 0.5, col = "black", lty = 1, lwd = 1)
-abline(h = 0.5, col = "black", lty = 1, lwd = 1)
-grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
-dev.off() 
-
-```
-
-
-
-```{r }
-#chargement du contour de la nouvelle image filled
-new_contour <- t(as.matrix(load.image(paste(ROOT_PATH, "statistical_model/dataset/new_contour_171.png", sep = ""))))
-entire_contour<-data.frame(x = xcoor[new_contour==1],y =ycoor[new_contour==1])# the data
-distinct_y <- unique(entire_contour$y)
-new_image <- t(as.matrix(load.image(paste(ROOT_PATH, "statistical_model/dataset/new_filled_",IMAGE_NUMBER,".png", sep = ""))))
-```
-
-
-
-
-
-```{r }
-adapt_line <- function(is_negative, old_line, contour_line){
-  if (is_negative) {
-    old_line <- rev(old_line)
-  }
-  cont <- sum(contour_line)-5
-  if (cont >0){
-    old <- sum(!is.null(old_line) & !is.na(old_line))
-  index_list <- pmax(1,round((1:cont)/cont*old))
-  new_list <- old_line[index_list]
-  new_list <- c(new_list, rep(NA, length(old_line)-cont))
-  if (is_negative) {
-   new_list <- rev(new_list)
-  }
-  }
-  else {
-    new_list <- old_line#c(rep(NA, length(old_line)))
-  }
-  
-  return(new_list)
-}
+# intens <- -log(1-prob.pred)
+# rotated_intens <- t(intens)[, nrow(intens):1]
+# image.plot(rotated_intens, axes = TRUE)
+# file_name <- paste(ROOT_PATH, "statistical_model/model_images/",MODEL_FEATURE, "_CONTOUR.pdf", sep = "")
+# pdf(file = file_name, height = 6, width = 6)
+# image.plot(rotated_intens, axes = TRUE)
+# abline(v = 0.5, col = "black", lty = 1, lwd = 1)
+# abline(h = 0.5, col = "black", lty = 1, lwd = 1)
+# grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
+# dev.off()
+# 
+# 
+# 
+# 
+# new_contour <- t(as.matrix(load.image(paste(ROOT_PATH, "statistical_model/dataset/new_contour_171.png", sep = ""))))
+# entire_contour<-data.frame(x = xcoor[new_contour==1],y =ycoor[new_contour==1])# the data
+# distinct_y <- unique(entire_contour$y)
+# new_image <- t(as.matrix(load.image(paste(ROOT_PATH, "statistical_model/dataset/new_filled_",IMAGE_NUMBER,".png", sep = ""))))
+# 
+# 
+# 
+# 
+# 
+# 
+# adapt_line <- function(is_negative, old_line, contour_line){
+#   if (is_negative) {
+#     old_line <- rev(old_line)
+#   }
+#   cont <- sum(contour_line)-5
+#   if (cont >0){
+#     old <- sum(!is.null(old_line) & !is.na(old_line))
+#   index_list <- pmax(1,round((1:cont)/cont*old))
+#   new_list <- old_line[index_list]
+#   new_list <- c(new_list, rep(NA, length(old_line)-cont))
+#   if (is_negative) {
+#    new_list <- rev(new_list)
+#   }
+#   }
+#   else {
+#     new_list <- old_line#c(rep(NA, length(old_line)))
+#   }
+#   
+#   return(new_list)
+# }
 
 ```
 
@@ -249,55 +244,48 @@ adapt_line <- function(is_negative, old_line, contour_line){
 
 
 ```{r }
-for (i in 1:395) {
-old_line = old_matrix[i,] 
-contour_line = new_image[i,]
-if((sum(contour_line) >0) & (sum(!is.null(old_line) & !is.na(old_line)) >0)){
-  new_line = c(adapt_line(TRUE,old_line[1:153],contour_line[1:153]),adapt_line(FALSE,old_line[154:307],contour_line[154:307]))
- old_matrix[i,] = new_line
-} else if ((sum(contour_line) ==0) & (sum(!is.null(old_line) & !is.na(old_line)) >0)){
-  old_matrix[i,] = c(rep(NA, length(old_line)))
-}
-
-}
-```
-
-
-```{r}
-
+# for (i in 1:395) {
+# old_line = old_matrix[i,] 
+# contour_line = new_image[i,]
+# if((sum(contour_line) >0) & (sum(!is.null(old_line) & !is.na(old_line)) >0)){
+#   new_line = c(adapt_line(TRUE,old_line[1:153],contour_line[1:153]),adapt_line(FALSE,old_line[154:307],contour_line[154:307]))
+#  old_matrix[i,] = new_line
+# } else if ((sum(contour_line) ==0) & (sum(!is.null(old_line) & !is.na(old_line)) >0)){
+#   old_matrix[i,] = c(rep(NA, length(old_line)))
+# }
+# 
+# }
 
 ```
 
 
 
-
-
 ```{r}
-new_rotated <- old_matrix
-new_img <- t(as.matrix(load.image(paste( ROOT_PATH, "images/cleaned_shoes/im_171.png", sep = ""))))
-new_rotated[new_img==0] <- NA
-im_rotated <- t(new_rotated)[, nrow(new_rotated):1]
-
-image.plot(im_rotated, axes = TRUE)
-file_name <- paste(ROOT_PATH, "statistical_model/model_images/", MODEL_FEATURE, "_", IMAGE_NUMBER, "_NEW_SHOE.pdf", sep = "")
-pdf(file = file_name, height = 6, width = 6)
-image.plot(im_rotated, axes = TRUE)
-abline(v = 0.5, col = "black", lty = 1, lwd = 1)
-abline(h = 0.5, col = "black", lty = 1, lwd = 1)
-grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
-dev.off() 
+# new_rotated <- old_matrix
+# new_img <- t(as.matrix(load.image(paste( ROOT_PATH, "images/cleaned_shoes/im_171.png", sep = ""))))
+# new_rotated[new_img==0] <- NA
+# im_rotated <- t(new_rotated)[, nrow(new_rotated):1]
+# 
+# image.plot(im_rotated, axes = TRUE)
+# file_name <- paste(ROOT_PATH, "statistical_model/model_images/", MODEL_FEATURE, "_", IMAGE_NUMBER, "_NEW_SHOE.pdf", sep = "")
+# pdf(file = file_name, height = 6, width = 6)
+# image.plot(im_rotated, axes = TRUE)
+# abline(v = 0.5, col = "black", lty = 1, lwd = 1)
+# abline(h = 0.5, col = "black", lty = 1, lwd = 1)
+# grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
+# dev.off()
 ```
 
 ```{r}
-new_rotated <- old_matrix
-im_rotated <- t(new_rotated)[, nrow(new_rotated):1]
-file_name <- paste(ROOT_PATH, "statistical_model/model_images/", MODEL_FEATURE, "_", IMAGE_NUMBER, "_NEW_CONTOUR.pdf", sep = "")
-pdf(file = file_name, height = 6, width = 6)
-image.plot(im_rotated, axes = TRUE)
-abline(v = 0.5, col = "black", lty = 1, lwd = 1)
-abline(h = 0.5, col = "black", lty = 1, lwd = 1)
-grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
-dev.off() 
+# new_rotated <- old_matrix
+# im_rotated <- t(new_rotated)[, nrow(new_rotated):1]
+# file_name <- paste(ROOT_PATH, "statistical_model/model_images/", MODEL_FEATURE, "_", IMAGE_NUMBER, "_NEW_CONTOUR.pdf", sep = "")
+# pdf(file = file_name, height = 6, width = 6)
+# image.plot(im_rotated, axes = TRUE)
+# abline(v = 0.5, col = "black", lty = 1, lwd = 1)
+# abline(h = 0.5, col = "black", lty = 1, lwd = 1)
+# grid(nx = 10, ny = 10, col = "gray30", lty = "dotted")
+# dev.off()
 ```
 
 
