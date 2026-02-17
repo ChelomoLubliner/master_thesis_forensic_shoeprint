@@ -13,6 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 set.seed(313)
 library(fields)
 library(imager)
+library(splines)
+library(lme4)
 
 source("config.R")
 
@@ -66,9 +68,6 @@ naive_smooth[img_filled==0] <- NA
 
 ```{r}
 # Calculate intensity for NEW_X_NS_XY (Random Effects Model)
-library(splines)
-library(lme4)
-
 nknotsx <- 3
 nknotsy <- 5
 
