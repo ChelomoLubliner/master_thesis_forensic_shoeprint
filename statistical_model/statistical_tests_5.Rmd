@@ -165,10 +165,10 @@ sho[190,] <- 0
 sho[250,] <- 0
 
 # Display: same orientation as file 4/6
-image.plot(t(sho)[, nrow(sho):1], axes=FALSE, xlab="CML intensity with cut lines at rows 110, 190, 250")
+image.plot(t(sho)[, nrow(sho):1], axes=FALSE, xlab="CML probability with cut lines at rows 110, 190, 250")
 
 pdf(file = paste(ROOT_PATH, "statistical_model/model_images/CI_shoe_cuts.pdf", sep = ""), height=6, width=6)
-image.plot(t(sho)[, nrow(sho):1], axes=FALSE, xlab="CML intensity with cut lines at rows 110, 190, 250")
+image.plot(t(sho)[, nrow(sho):1], axes=FALSE, xlab="CML probability with cut lines at rows 110, 190, 250")
 dev.off()
 ```
 
@@ -206,9 +206,9 @@ CI_cut <- function(cut, CI_cml, CI_r, sigma_sq, col_shoe=307) {
     theme(plot.title = element_text(color="black", size=14, face="bold")) +
     scale_fill_brewer(palette="Set1") +
     scale_color_brewer(palette="Set1") +
-    ylab("Intensity") +
+    ylab("Probability") +
     labs(colour="Estimator", fill="Estimator", title=paste("CI at row", cut)) +
-    coord_cartesian(xlim = c(100, 220), ylim = c(0.001, 0.0082)) +
+    coord_cartesian(xlim = c(100, 220)) +
     theme(axis.title.x = element_blank(), axis.text.x = element_blank())
   return(p)
 }
