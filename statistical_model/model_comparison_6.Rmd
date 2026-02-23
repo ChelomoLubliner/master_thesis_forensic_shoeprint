@@ -97,16 +97,16 @@ intens_random <- -log(1-prob.pred_random) #turning it to intensity
 
 ```{r}
 # Calculate intensity for CML Model
-# CML always uses NS_XY style (x, y coordinates, not new_x)
-knotsx_cml <- as.numeric(quantile(dataCC$x,1:nknotsx/(1+nknotsx)))
+# CML uses new_x (standardized x), same as NEW_X_NS_XY
+knots_new_x_cml <- as.numeric(quantile(dataCC$new_x,1:nknotsx/(1+nknotsx)))
 knotsy_cml <-as.numeric(quantile(dataCC$y,1:nknotsy/(1+nknotsy)))
-basx_cml <- ns(dataCC$x,knots=knotsx_cml)
+bas_new_x_cml <- ns(dataCC$new_x,knots=knots_new_x_cml)
 basy_cml <- ns(dataCC$y,knots=knotsy_cml)
 
 newdesignmat_cml <- rep(1,length(xy$x))
 for(i in 1:length(predict(basy_cml,1))) {
-  for(j in 1:length(predict(basx_cml,1))) {
-    newdesignmat_cml <-  cbind(newdesignmat_cml,predict(basx_cml, xy$x)[,j]*predict(basy_cml, xy$y)[,i])  } }
+  for(j in 1:length(predict(bas_new_x_cml,1))) {
+    newdesignmat_cml <-  cbind(newdesignmat_cml,predict(bas_new_x_cml, xy$x)[,j]*predict(basy_cml, xy$y)[,i])  } }
 
 model_coef_cml <- c(0, coef(cml_model))
 pred.case_control_cml <- newdesignmat_cml%*%model_coef_cml
@@ -142,8 +142,13 @@ pdf(file = paste(ROOT_PATH, "statistical_model/model_images/pixel_inten_JASAup.p
 image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                Random                     CML')
 dev.off()
 
-pdf(file = paste(ROOT_PATH, "statistical_model/model_images/pixel_inten_JASAup_6x9.pdf", sep = ""), height=6, width=9)
-image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                Random                     CML')
+# pdf(file = paste(ROOT_PATH, "statistical_model/model_images/pixel_inten_JASAup_6x9.pdf", sep = ""), height=6, width=9)
+# image.plot(t(com_3_est[nrow(com_3_est):1,]), axes=FALSE, xlab='Naive                Random                     CML')
+# dev.off()
+
+com_2_est <- cbind(intens_random_scaled, intens_cml_scaled)
+pdf(file = paste(ROOT_PATH, "statistical_model/model_images/pixel_intense_no_Naive.pdf", sep = ""), height=8, width=8)
+image.plot(t(com_2_est[nrow(com_2_est):1,]), axes=FALSE, xlab='Random                     CML')
 dev.off()
 ```
 

@@ -97,7 +97,7 @@ Random <- function(nknotsx = 3, nknotsy = 5, dat = dataCC, model_feat = MODEL_FE
     est<- glmer(n_Acc ~ (1 | shoe),data = dat, family = binomial(link = "logit"), control =glmerControl(optimizer="nlminbwrap"))
   }
   else if(model_feat == 'CML_MODEL'){
-    est<- clogit(dat$n_Acc~  ns(dat$x,knots=knotsx):ns(dat$y,knots=knotsy)+strata(shoe) , data=dat)
+    est<- clogit(dat$n_Acc~  ns(dat$new_x,knots=knots_new_x):ns(dat$y,knots=knotsy)+strata(shoe) , data=dat)
   }
   else if(model_feat == 'NAIVE_MODEL'){
     # Load sumacci and sumcont (saved in dataCC_1.Rmd)

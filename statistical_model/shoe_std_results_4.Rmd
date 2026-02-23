@@ -117,11 +117,11 @@ if(MODEL_FEATURE == 'NAIVE_MODEL'){
   # newdesignmat already has intercept column (rep(1,...))
   # No additional columns needed
 } else if(MODEL_FEATURE == 'CML_MODEL'){
-  basx <- ns(dataCC$x,knots=knotsx)
+  bas_new_x <- ns(dataCC$new_x,knots=knots_new_x)
   basy <- ns(dataCC$y,knots=knotsy)
   for(i in 1:length(predict(basy,1))) {
-    for(j in 1:length(predict(basx,1))) {
-      newdesignmat <-  cbind(newdesignmat,predict(basx, xy$x)[,j]*predict(basy, xy$y)[,i])  } }
+    for(j in 1:length(predict(bas_new_x,1))) {
+      newdesignmat <-  cbind(newdesignmat,predict(bas_new_x, xy$x)[,j]*predict(basy, xy$y)[,i])  } }
   } else { stop("Invalid MODEL_FEATURE value")}
 
   #(for each row, we multiply and sum the params between the two matrices )

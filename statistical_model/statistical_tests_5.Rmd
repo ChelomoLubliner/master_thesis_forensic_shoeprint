@@ -159,7 +159,12 @@ names(CI_cml) <- c("Low", "Mid", "High")
 # Shoe image with cut lines (Figure 3, left panel)
 # ============================================================
 
+# Crop columns to match File 6 (3-model comparison)
+sub <- 40
+cols <- sub:(col_shoe - sub)
+
 sho <- CI_cml$Mid * exp(-sigma_sq/2)
+sho <- sho[, cols]
 sho[110,] <- 0
 sho[190,] <- 0
 sho[250,] <- 0
@@ -167,7 +172,7 @@ sho[250,] <- 0
 # Display: same orientation as file 4/6
 image.plot(t(sho)[, nrow(sho):1], axes=FALSE, xlab="CML probability with cut lines at rows 110, 190, 250")
 
-pdf(file = paste(ROOT_PATH, "statistical_model/model_images/CI_shoe_cuts.pdf", sep = ""), height=6, width=6)
+pdf(file = paste(ROOT_PATH, "statistical_model/model_images/CI_shoe_cuts.pdf", sep = ""), height=8, width=5)
 image.plot(t(sho)[, nrow(sho):1], axes=FALSE, xlab="CML probability with cut lines at rows 110, 190, 250")
 dev.off()
 ```
